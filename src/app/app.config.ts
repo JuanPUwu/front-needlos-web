@@ -3,13 +3,13 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+// SSR desactivado — para reactivar: agregar provideClientHydration(withEventReplay()) desde @angular/platform-browser
+// y en angular.json: "server", "outputMode": "server", "ssr": { "entry": "src/server.ts" }
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
   ]
 };

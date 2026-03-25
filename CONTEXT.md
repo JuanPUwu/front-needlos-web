@@ -6,7 +6,7 @@
 
 ## ¿Qué es este proyecto?
 
-Aplicación web construida con **Angular 21 + SSR** que actúa como frontend web de **NeedlOS**, un sistema con backend .NET al que se conectará vía HTTP/REST. Aún no hay backend disponible — la arquitectura está preparada para integrarlo cuando esté listo.
+Aplicación web construida con **Angular 21** que actúa como frontend web de **NeedlOS**, un sistema con backend .NET al que se conectará vía HTTP/REST. Aún no hay backend disponible — la arquitectura está preparada para integrarlo cuando esté listo.
 
 ---
 
@@ -16,7 +16,7 @@ Aplicación web construida con **Angular 21 + SSR** que actúa como frontend web
 |------|-----------|
 | UI | Angular 21 (Standalone Components) |
 | Lenguaje | TypeScript 5.9 |
-| SSR | Angular SSR + Express 5 |
+| SSR | Angular SSR + Express 5 (**instalado pero desactivado**) |
 | HTTP | `HttpClient` de `@angular/common/http` |
 | Estilos | SCSS con variables centralizadas |
 | Testing | Vitest |
@@ -145,6 +145,30 @@ Todos los componentes son standalone. Importar solo lo que se usa:
   styleUrl: './mi-componente.scss',
 })
 export class MiComponente {}
+```
+
+### 8. SSR — instalado pero desactivado
+
+SSR está instalado (`@angular/ssr` + `express`) pero **no activo**. La app corre como SPA normal.
+
+Archivos SSR presentes y listos (no tocar ni borrar):
+- `src/server.ts`
+- `src/main.server.ts`
+- `src/app/app.config.server.ts`
+- `src/app/app.routes.server.ts`
+
+**Para reactivar SSR**, hacer estos dos cambios:
+
+1. En `angular.json` bajo `projects > architect > build > options`, agregar:
+```json
+"server": "src/main.server.ts",
+"outputMode": "server",
+"ssr": { "entry": "src/server.ts" }
+```
+
+2. En `app.config.ts`, agregar al array `providers`:
+```typescript
+provideClientHydration(withEventReplay()) // import desde @angular/platform-browser
 ```
 
 ---
