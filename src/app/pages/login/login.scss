@@ -1,0 +1,72 @@
+@use '../../../styles/variables' as *;
+
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+}
+
+.login-title {
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid ;
+    border-radius: 4px;
+    font-size: 1rem;
+    outline: none;
+
+    &:focus {
+    }
+
+    &.invalid {
+    }
+  }
+}
+
+.field-error {
+  font-size: 0.75rem;
+}
+
+.form-error {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+button[type='submit'] {
+  width: 100%;
+  padding: 0.625rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

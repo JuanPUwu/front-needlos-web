@@ -38,17 +38,26 @@ needlos-front-web/
 │   ├── styles.scss                # Punto de entrada — solo importa los parciales
 │   └── app/
 │       ├── core/
+│       │   ├── auth/              # Autenticación (no tocar salvo cambios de auth flow)
+│       │   │   ├── auth.ts        # Servicio: login, logout, refresh, token en memoria
+│       │   │   ├── auth.guard.ts  # Guard: redirige a /login si no hay sesión
+│       │   │   └── auth.interceptor.ts  # Interceptor: añade Bearer token, gestiona 401
 │       │   └── constants/         # Constantes globales (rutas, claves, etc.)
 │       ├── models/                # Interfaces/DTOs del backend (solo datos, sin lógica)
+│       │   └── auth.ts            # LoginRequest, LoginResponse, SessionInfo, etc.
 │       ├── services/
-│       │   ├── interfaces/        # Contratos de servicios (IApi, etc.)
 │       │   └── api.ts             # Cliente HTTP base (generado con ng generate service)
 │       ├── pages/                 # Una carpeta por pantalla completa (lazy loaded)
-│       │   └── login/             # Generado con: ng generate component pages/login
-│       │       ├── login.ts
-│       │       ├── login.html
-│       │       ├── login.scss
-│       │       └── login.spec.ts
+│       │   ├── login/             # Generado con: ng generate component pages/login
+│       │   │   ├── login.ts
+│       │   │   ├── login.html
+│       │   │   ├── login.scss
+│       │   │   └── login.spec.ts
+│       │   └── home/
+│       │       ├── home.ts
+│       │       ├── home.html
+│       │       ├── home.scss
+│       │       └── home.spec.ts
 │       ├── components/            # Componentes reutilizables (sin lógica de negocio)
 │       ├── app.ts                 # Root component
 │       ├── app.routes.ts          # Definición de rutas
@@ -64,6 +73,7 @@ needlos-front-web/
 | Capa | Responsabilidad | Lo que NO debe hacer |
 |------|----------------|----------------------|
 | `models/` | Interfaces TypeScript que representan datos del backend | Lógica, llamadas HTTP |
+| `core/auth/` | Autenticación, tokens, guard, interceptor | Lógica de negocio de dominio |
 | `services/` | Llamar al backend, lógica de infraestructura | Actualizar UI directamente |
 | `pages/` | Orquestar la pantalla, conectar servicios con template | Llamadas HTTP directas |
 | `components/` | Renderizar UI reutilizable, emitir eventos | Lógica de negocio, llamadas HTTP |
@@ -116,9 +126,18 @@ export class MiPagina {
 }
 ```
 
-`Api` ya está con `providedIn: 'root'` — no necesita registrarse en ningún otro lado.
+`Api` y `Auth` están con `providedIn: 'root'` — no necesitan registrarse en ningún otro lado.
 
-### 5. Estilos y colores
+### 5. Autenticación
+
+El flujo de auth ya está implementado y no requiere cambios salvo integración de nuevos endpoints:
+
+- **`APP_INITIALIZER`** ejecuta `Auth.initializeSession()` al arrancar → silent refresh con la cookie de sesión
+- **`authGuard`** protege las rutas hijas de `''` → redirige a `/login` si no hay token en memoria
+- **`authInterceptor`** adjunta `Authorization: Bearer <token>` en cada request y gestiona el refresco automático ante 401 (con protección ante race conditions)
+- Los endpoints de auth (`/auth/login`, `/auth/refresh`, `/auth/logout`) están implementados en `Auth` — no pasar por `Api` para llamadas de autenticación
+
+### 6. Estilos y colores
 
 - Variables en `src/styles/_variables.scss`
 - Importar en componentes:
@@ -128,12 +147,12 @@ export class MiPagina {
   ```
 - **Nunca** hardcodear colores hex. Siempre usar variables.
 
-### 6. Environments
+### 7. Environments
 
 - URL del backend → `src/environments/environment.ts` → `apiBaseUrl`
 - Nunca hardcodear URLs en servicios ni componentes
 
-### 7. Componentes standalone
+### 8. Componentes standalone
 
 Todos los componentes son standalone. Importar solo lo que se usa:
 
@@ -147,7 +166,7 @@ Todos los componentes son standalone. Importar solo lo que se usa:
 export class MiComponente {}
 ```
 
-### 8. SSR — instalado pero desactivado
+### 9. SSR — instalado pero desactivado
 
 SSR está instalado (`@angular/ssr` + `express`) pero **no activo**. La app corre como SPA normal.
 
@@ -185,7 +204,8 @@ provideClientHydration(withEventReplay()) // import desde @angular/platform-brow
 
 - El desarrollador tiene experiencia en **Angular + HTML/CSS** — este es su terreno familiar
 - También trabaja en el proyecto desktop WPF/MVVM (`needlos-front-desktop`) — mantener coherencia conceptual entre ambos
-- No hay backend aún — no implementar llamadas HTTP reales hasta que esté disponible
-- El proyecto está en fase inicial de construcción de UI
-- Mantener estilos centralizados en `_variables.scss`, nunca inline hardcodeados
+- El sistema de autenticación está **completamente implementado** (Auth service, guard, interceptor, APP_INITIALIZER)
+- El backend aún no está disponible — los endpoints de negocio (más allá de auth) no deben implementarse hasta que lo esté
+- El proyecto está en fase inicial de construcción de UI — la página `home` es un placeholder vacío
+- Mantener estilos centralizados en `_variables.scss`, nunca valores hardcodeados en componentes
 - **Siempre usar `ng generate`** para crear componentes y servicios, nunca crearlos manualmente
