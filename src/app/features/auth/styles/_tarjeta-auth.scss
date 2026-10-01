@@ -1,0 +1,255 @@
+// Tarjeta de autenticacion compartida por login y registro (sin estilos duplicados).
+.login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: var(--color-bg);
+}
+
+// ── Tarjeta ─────────────────────────────────────────────────
+.card {
+  width: 100%;
+  max-width: 500px;
+  padding: var(--space-10) var(--space-6) var(--space-6) var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.card__header {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+.card__logo {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  height: 5rem;
+  margin: 0 auto;
+}
+
+.card__titulo {
+  margin: var(--space-4) 0 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.card__subtitle {
+  margin: var(--space-2) 0 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+// ── Formulario ──────────────────────────────────────────────
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.field__control {
+  display: flex;
+  align-items: center;
+  height: 46px;
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  transition:
+    border-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+
+  &:focus-within {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.field__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--color-text);
+
+  &::placeholder {
+    color: #b0b0b5;
+  }
+}
+
+.field__toggle {
+  flex-shrink: 0;
+  margin-left: var(--space-3);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.field__ayuda {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.field__error {
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+// ── Boton principal ─────────────────────────────────────────
+.submit {
+  height: 48px;
+  margin-top: var(--space-2);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s var(--ease-out),
+    transform 0.1s var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+// ── Banners de estado ───────────────────────────────────────
+.banner {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.banner--error {
+  color: var(--color-danger);
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.banner--exito {
+  color: #1b7a34;
+  background: rgba(52, 200, 74, 0.12);
+}
+
+// ── Divisor "o" (entre correo/contrasena y Google) ─────────
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border-soft);
+  }
+}
+
+.divider__text {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+// ── Accesibilidad: respetar reduccion de movimiento ─────────
+@media (prefers-reduced-motion: reduce) {
+  .field__control,
+  .submit {
+    transition: none;
+  }
+
+  .submit:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+// ── Enlace al pie (login <-> registro) ─────────────────────
+.pie {
+  margin: var(--space-5) 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.pie__enlace {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+// Misma apariencia que .pie__enlace, pero como <button> (acciones sin navegacion).
+.pie__boton {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--color-accent);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--color-accent-hover);
+  }
+
+  &:disabled {
+    color: var(--color-text-muted);
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}

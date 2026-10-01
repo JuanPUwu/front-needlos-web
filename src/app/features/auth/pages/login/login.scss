@@ -1,166 +1,19 @@
-.login {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-5);
-  background: var(--color-bg);
-}
+@use '../../styles/tarjeta-auth';
 
-// ── Tarjeta ─────────────────────────────────────────────────
-.card {
-  width: 100%;
-  max-width: 400px;
-  padding: var(--space-8) var(--space-6);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-}
-
-.card__header {
-  text-align: center;
-  margin-bottom: var(--space-6);
-}
-
-.card__title {
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  color: var(--color-navy);
-}
-
-.card__subtitle {
-  margin: var(--space-2) 0 0;
-  font-size: 0.95rem;
-  color: var(--color-text-muted);
-}
-
-// ── Formulario ──────────────────────────────────────────────
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.field__label {
+.olvido {
+  align-self: flex-end;
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--color-text);
-}
-
-.field__control {
-  display: flex;
-  align-items: center;
-  height: 46px;
-  padding: 0 var(--space-4);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-md);
-  transition: border-color 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
-
-  &:focus-within {
-    border-color: var(--color-border);
-    box-shadow: 0 0 0 4px var(--focus-ring);
-  }
-}
-
-.field__input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 1rem;
-  color: var(--color-text);
-
-  &::placeholder {
-    color: #b0b0b5;
-  }
-}
-
-.field__toggle {
-  flex-shrink: 0;
-  margin-left: var(--space-3);
-  padding: 0;
-  border: none;
-  background: none;
   color: var(--color-accent);
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
+  text-decoration: none;
 
   &:hover {
     color: var(--color-accent-hover);
   }
-}
 
-.field__error {
-  font-size: 0.8rem;
-  color: var(--color-danger);
-}
-
-// ── Boton principal ─────────────────────────────────────────
-.submit {
-  height: 48px;
-  margin-top: var(--space-2);
-  border: none;
-  border-radius: var(--radius-md);
-  background: var(--color-accent);
-  color: #ffffff;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.15s var(--ease-out), transform 0.1s var(--ease-out);
-
-  &:hover:not(:disabled) {
-    background: var(--color-accent-hover);
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(var(--press-scale));
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: default;
-  }
-}
-
-// ── Banners de estado ───────────────────────────────────────
-.banner {
-  margin: 0 0 var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-}
-
-.banner--error {
-  color: var(--color-danger);
-  background: rgba(198, 40, 40, 0.08);
-}
-
-.banner--exito {
-  color: #1b7a34;
-  background: rgba(52, 200, 74, 0.12);
-}
-
-// ── Accesibilidad: respetar reduccion de movimiento ─────────
-@media (prefers-reduced-motion: reduce) {
-  .field__control,
-  .submit {
-    transition: none;
-  }
-
-  .submit:active:not(:disabled) {
-    transform: none;
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
   }
 }

@@ -1,0 +1,11 @@
+<main class="home">
+  <div class="home__card">
+    <p class="home__saludo">Sesion iniciada en</p>
+    <h1 class="home__sastreria">{{ sesion()?.sastreria?.nombre }}</h1>
+    <p class="home__roles">{{ sesion()?.sastreria?.roles?.join(', ') }}</p>
+    <div class="home__acciones">
+      <a class="home__enlace" routerLink="/mi-cuenta">Mi cuenta</a>
+      <button class="home__logout" type="button" (click)="cerrarSesion()">Cerrar sesion</button>
+    </div>
+  </div>
+</main>
