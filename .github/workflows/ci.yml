@@ -1,0 +1,30 @@
+# CI del frontend (Reglas §16): formato -> lint -> pruebas -> build ->
+# auditoria de dependencias. Si algo falla, no se despliega.
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+      - name: Formato, lint, pruebas y build
+        run: npm run verify
+      - name: Dependencias de produccion sin vulnerabilidades altas
+        run: npm audit --omit=dev --audit-level=high

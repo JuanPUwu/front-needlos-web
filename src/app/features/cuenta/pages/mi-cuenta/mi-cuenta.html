@@ -1,0 +1,131 @@
+<main class="cuenta">
+  <div class="cuenta__contenedor">
+    <header class="cuenta__encabezado">
+      <a class="cuenta__volver" [routerLink]="rutaVolver">&larr; Volver</a>
+      <h1 class="cuenta__titulo">Mi cuenta</h1>
+      <p class="cuenta__subtitulo">
+        {{ sesion()?.cuenta?.nombre }} {{ sesion()?.cuenta?.apellido }} ·
+        {{ sesion()?.cuenta?.email }}
+      </p>
+    </header>
+
+    <!-- ── Cambiar contrasena ─────────────────────────────────── -->
+    <section class="bloque" aria-labelledby="titulo-contrasena">
+      <h2 class="bloque__titulo" id="titulo-contrasena">Cambiar contraseña</h2>
+      <p class="bloque__ayuda">Al cambiarla se cerrarán tus sesiones en los demás dispositivos.</p>
+
+      <form class="bloque__form" [formGroup]="form" (ngSubmit)="cambiarContrasena()" novalidate>
+        <div class="campo">
+          <label class="campo__label" for="contrasenaActual">Contraseña actual</label>
+          <input
+            class="campo__input"
+            id="contrasenaActual"
+            type="password"
+            formControlName="contrasenaActual"
+            autocomplete="current-password"
+          />
+          @if (form.controls.contrasenaActual.touched && form.controls.contrasenaActual.invalid) {
+            <span class="campo__error">La contraseña actual es obligatoria.</span>
+          }
+        </div>
+
+        <div class="campo">
+          <label class="campo__label" for="contrasenaNueva">Contraseña nueva</label>
+          <input
+            class="campo__input"
+            id="contrasenaNueva"
+            type="password"
+            formControlName="contrasenaNueva"
+            autocomplete="new-password"
+            aria-describedby="politica"
+          />
+          <span class="campo__ayuda" id="politica"
+            >8 a 72 caracteres, con mayúscula, minúscula, número y carácter especial.</span
+          >
+          @if (form.controls.contrasenaNueva.touched && form.controls.contrasenaNueva.invalid) {
+            <span class="campo__error">La contraseña nueva no cumple la política.</span>
+          }
+        </div>
+
+        <div class="campo">
+          <label class="campo__label" for="confirmacion">Confirmar contraseña nueva</label>
+          <input
+            class="campo__input"
+            id="confirmacion"
+            type="password"
+            formControlName="confirmacion"
+            autocomplete="new-password"
+          />
+          @if (form.controls.confirmacion.touched && form.hasError('noCoinciden')) {
+            <span class="campo__error">Las contraseñas no coinciden.</span>
+          }
+        </div>
+
+        @if (errorContrasena()) {
+          <p class="aviso aviso--error" role="alert">{{ errorContrasena() }}</p>
+        }
+        @if (exitoContrasena()) {
+          <p class="aviso aviso--exito" role="status">Contraseña actualizada.</p>
+        }
+
+        <button class="boton" type="submit" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : 'Cambiar contraseña' }}
+        </button>
+      </form>
+    </section>
+
+    <!-- ── Sesiones abiertas ──────────────────────────────────── -->
+    <section class="bloque" aria-labelledby="titulo-sesiones">
+      <div class="bloque__cabecera">
+        <h2 class="bloque__titulo" id="titulo-sesiones">Sesiones abiertas</h2>
+        @if (sesiones().length > 1) {
+          <button
+            class="boton boton--secundario"
+            type="button"
+            [disabled]="cerrandoId() !== null"
+            (click)="cerrarOtras()"
+          >
+            Cerrar las demás
+          </button>
+        }
+      </div>
+
+      @if (errorSesiones()) {
+        <p class="aviso aviso--error" role="alert">{{ errorSesiones() }}</p>
+      }
+
+      @if (cargandoSesiones()) {
+        <p class="bloque__ayuda" role="status">Cargando sesiones...</p>
+      } @else if (sesiones().length === 0) {
+        <p class="bloque__ayuda">No hay sesiones abiertas.</p>
+      } @else {
+        <ul class="sesiones">
+          @for (s of sesiones(); track s.id) {
+            <li class="sesion">
+              <div class="sesion__info">
+                <span class="sesion__dispositivo">
+                  {{ s.dispositivo }}
+                  @if (s.actual) {
+                    <span class="sesion__actual">Esta sesión</span>
+                  }
+                </span>
+                <span class="sesion__detalle"
+                  >IP {{ s.ip }} · Última actividad {{ s.ultimoUso | fechaHora }}</span
+                >
+              </div>
+              <button
+                class="boton boton--secundario"
+                type="button"
+                [disabled]="cerrandoId() !== null"
+                (click)="cerrarSesion(s)"
+                [attr.aria-label]="'Cerrar sesión en ' + s.dispositivo"
+              >
+                {{ cerrandoId() === s.id ? 'Cerrando...' : 'Cerrar' }}
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+</main>

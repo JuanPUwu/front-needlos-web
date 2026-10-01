@@ -1,0 +1,68 @@
+/* Estilos del logo NeedlOS */
+
+/*
+ * <app-logo> NO define tamaño propio: quien lo usa le da una altura
+ * (y opcionalmente un ancho) por fuera, vía [style] o una clase, sobre
+ * la propia etiqueta <app-logo>. Aquí solo la convertimos en "container"
+ * para que todo lo de adentro se mida en unidades cqh/cqw relativas a
+ * esa altura, y así el logo escala como una sola pieza.
+ */
+:host {
+  display: inline-block;
+  container-type: size;
+  container-name: logo;
+  width: fit-content;
+  color: white;
+}
+
+:host(.dark) {
+  color: #000;
+}
+
+.logo {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4cqh;
+}
+
+.logo__icon {
+  height: 100%;
+  width: auto;
+}
+
+.logo__wordmark {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1cqh;
+}
+
+.logo__title {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 0.5cqh;
+}
+
+.logo__title-text {
+  font-size: 60cqh;
+  line-height: 0.85;
+  white-space: nowrap;
+}
+
+.logo__trademark {
+  height: 8cqh;
+  width: auto;
+  margin-bottom: 3cqh;
+}
+
+.logo__tagline {
+  font-size: 12cqh;
+  line-height: 1;
+  text-align: justify;
+  font-weight: 200;
+  margin-left: 4cqh;
+}

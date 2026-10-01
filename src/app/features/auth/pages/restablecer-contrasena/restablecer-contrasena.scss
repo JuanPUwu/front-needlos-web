@@ -1,0 +1,9 @@
+@use '../../styles/tarjeta-auth';
+
+// Enlace con apariencia de boton principal (acciones de navegacion).
+.submit--enlace {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}

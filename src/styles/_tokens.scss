@@ -1,27 +1,21 @@
-// ─────────────────────────────────────────────────────────────
-//  Tokens del sistema de diseño de NeedlOS (tema claro)
-//  Guia: Apple Design (Emil Kowalski). Fuente del sistema, espaciado
-//  generoso, radios amplios y sombras suaves.
-// ─────────────────────────────────────────────────────────────
 :root {
   color-scheme: light;
 
-  // Tipografia: fuente del sistema (San Francisco en Apple)
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
-    Roboto, Helvetica, Arial, system-ui, sans-serif;
+  // Tipografia: Inter (Google Fonts)
+  --font-sans: Inter, sans-serif;
 
   // ── Color (tema claro) ──────────────────────────────────────
-  --color-bg: #f5f5f7;          // gris claro Apple
+  --color-bg: #f5f5f7; // gris claro Apple
   --color-surface: #ffffff;
   --color-text: #1d1d1f;
   --color-text-muted: #6e6e73;
 
-  --color-navy: #022859;         // color de marca / bordes (segun preferencia)
-  --color-accent: #022859;       // acento principal (botones)
+  --color-navy: #022859; // color de marca / bordes (segun preferencia)
+  --color-accent: #022859; // acento principal (botones)
   --color-accent-hover: #033a80;
 
   // Bordes: el navy y su variante suave para estados en reposo
-  --color-border: #022859;                    // borde pleno (foco, enfasis)
+  --color-border: #022859; // borde pleno (foco, enfasis)
   --color-border-soft: rgba(2, 40, 89, 0.22); // variante suave (reposo)
   --focus-ring: rgba(2, 40, 89, 0.15);
 
@@ -42,7 +36,10 @@
   --space-4: 16px;
   --space-5: 24px;
   --space-6: 32px;
+  --space-7: 40px;
   --space-8: 48px;
+  --space-9: 64px;
+  --space-10: 80px;
 
   // ── Movimiento ──────────────────────────────────────────────
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);

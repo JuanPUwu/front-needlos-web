@@ -1,0 +1,24 @@
+<main class="seleccion">
+  <section class="card">
+    <header class="card__header">
+      <app-logo class="card__logo" variant="dark" />
+      <h1 class="card__title">Elige tu sastreria</h1>
+      <p class="card__subtitle">Tienes acceso a varias. Selecciona con cual entrar.</p>
+    </header>
+
+    @if (error()) {
+      <p class="banner banner--error" role="alert">{{ error() }}</p>
+    }
+
+    <ul class="lista">
+      @for (s of pendiente()?.sastrerias ?? []; track s.tenantId) {
+        <li>
+          <button class="item" type="button" [disabled]="cargando()" (click)="elegir(s.tenantId)">
+            <span class="item__nombre">{{ s.nombre }}</span>
+            <span class="item__roles">{{ s.roles.join(', ') }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  </section>
+</main>
