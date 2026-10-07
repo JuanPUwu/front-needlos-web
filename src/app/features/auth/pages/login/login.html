@@ -2,7 +2,7 @@
   <section class="card">
     <header class="card__header">
       <app-logo class="card__logo" variant="dark" />
-      <p class="card__subtitle">Inicia sesion en tu sastreria</p>
+      <p class="card__subtitle">Inicia sesión en tu sastrería</p>
     </header>
 
     <form class="form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
@@ -41,13 +41,13 @@
             class="field__toggle"
             type="button"
             (click)="verPassword.set(!verPassword())"
-            [attr.aria-label]="verPassword() ? 'Ocultar contrasena' : 'Mostrar contrasena'"
+            [attr.aria-label]="verPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
           >
             {{ verPassword() ? 'Ocultar' : 'Mostrar' }}
           </button>
         </div>
         @if (form.controls.password.touched && form.controls.password.invalid) {
-          <span class="field__error">La contrasena es obligatoria.</span>
+          <span class="field__error">La contraseña es obligatoria.</span>
         }
         <a class="olvido" routerLink="/recuperar-contrasena">¿Olvidaste tu contraseña?</a>
       </div>
@@ -57,7 +57,7 @@
       }
 
       <button class="submit" type="submit" [disabled]="cargando()">
-        {{ cargando() ? 'Ingresando...' : 'Iniciar sesion' }}
+        {{ cargando() ? 'Ingresando...' : 'Iniciar sesión' }}
       </button>
     </form>
 

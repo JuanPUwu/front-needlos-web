@@ -7,7 +7,7 @@ import { Logo } from '../../../../shared/ui/logo/logo';
 import { RecuperacionContrasenaService } from '../../services/recuperacion-contrasena.service';
 
 /**
- * "¿Olvidaste tu contrasena?": pide el correo y muestra siempre el mismo
+ * "¿Olvidaste tu contraseña?": pide el correo y muestra siempre el mismo
  * mensaje, exista o no la cuenta (no se revela que correos estan registrados).
  */
 @Component({

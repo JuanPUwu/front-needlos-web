@@ -94,7 +94,9 @@ export class RegistrarSastreria {
         // Con correo no entra directo: falta confirmar el codigo de verificacion.
         next: (res) => {
           this.cargando.set(false);
-          this.router.navigate(['/verificar-correo'], { state: { email: res.email } });
+          this.router.navigate(['/verificar-correo'], {
+            state: { email: res.email, aviso: res.aviso },
+          });
         },
         error: (err: unknown) => {
           this.cargando.set(false);

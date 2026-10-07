@@ -14,7 +14,7 @@ describe('RegistrarSastreria', () => {
 
   beforeEach(() => {
     auth = {
-      registrarSastreria: vi.fn(() => of({ email: 'ana@ejemplo.com' })),
+      registrarSastreria: vi.fn(() => of({ email: 'ana@ejemplo.com', aviso: null })),
       registrarSastreriaGoogle: vi.fn(() => of(undefined)),
     };
     TestBed.configureTestingModule({
@@ -100,7 +100,7 @@ describe('RegistrarSastreria', () => {
     componente.enviar();
 
     expect(navigateSpy).toHaveBeenCalledWith(['/verificar-correo'], {
-      state: { email: 'ana@ejemplo.com' },
+      state: { email: 'ana@ejemplo.com', aviso: null },
     });
     expect(componente.cargando()).toBe(false);
   });
