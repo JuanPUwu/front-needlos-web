@@ -34,6 +34,8 @@ export interface RegistrarSastreriaGoogleRequest {
  */
 export interface RegistroPendienteResponse {
   email: string;
+  /** Mensaje para el usuario (p. ej. el correo ya tenia un registro pendiente y se conservo su sastreria). */
+  aviso: string | null;
 }
 
 export interface VerificarCorreoRequest {

@@ -27,7 +27,10 @@ export class VerificarCorreo {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly email = this.leerEmail();
+  private readonly estado = history.state as { email?: string; aviso?: string | null } | null;
+  protected readonly email = this.estado?.email ?? null;
+  /** Aviso del registro (p. ej. "ya tenias un registro pendiente..."), si lo hay. */
+  protected readonly aviso = this.estado?.aviso ?? null;
 
   readonly cargando = signal(false);
   readonly error = signal<string | null>(null);
@@ -107,10 +110,5 @@ export class VerificarCorreo {
         clearInterval(intervalo);
       }
     }, 1000);
-  }
-
-  private leerEmail(): string | null {
-    const estado = history.state as { email?: string } | null;
-    return estado?.email ?? null;
   }
 }

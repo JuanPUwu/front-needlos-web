@@ -36,12 +36,12 @@ export class Login {
     }
     this.ejecutar(
       this.auth.login(this.form.getRawValue()),
-      'No se pudo iniciar sesion. Revisa tus datos.',
+      'No se pudo iniciar sesión. Revisa tus datos.',
     );
   }
 
   conGoogle(idToken: string): void {
-    this.ejecutar(this.auth.loginGoogle(idToken), 'No se pudo iniciar sesion con Google.');
+    this.ejecutar(this.auth.loginGoogle(idToken), 'No se pudo iniciar sesión con Google.');
   }
 
   private ejecutar(accion: Observable<void>, mensajePorDefecto: string): void {
