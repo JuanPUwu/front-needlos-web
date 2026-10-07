@@ -35,7 +35,8 @@ interface GoogleIdentity {
 @Component({
   selector: 'app-google-button',
   template: '<div #contenedor class="google-button"></div>',
-  styles: ':host { display: block; } .google-button { display: flex; justify-content: center; min-height: 44px; }',
+  styles:
+    ':host { display: block; } .google-button { display: flex; justify-content: center; min-height: 44px; }',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GoogleButton implements AfterViewInit, OnDestroy {
@@ -90,10 +91,7 @@ export class GoogleButton implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const ancho = Math.min(
-      GoogleButton.ANCHO_MAX,
-      Math.floor(this.host.nativeElement.clientWidth),
-    );
+    const ancho = Math.min(GoogleButton.ANCHO_MAX, Math.floor(this.host.nativeElement.clientWidth));
 
     // Evita re-renderizar sin cambios reales de ancho.
     if (ancho <= 0 || ancho === this.anchoActual) {
