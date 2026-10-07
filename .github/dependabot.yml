@@ -7,6 +7,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # El salto de major de Angular (p. ej. 21 -> 22) se hace a proposito y
+    # coordinado con `ng update`, nunca por PRs sueltos. Se siguen recibiendo
+    # parches y minors dentro de la version actual.
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
