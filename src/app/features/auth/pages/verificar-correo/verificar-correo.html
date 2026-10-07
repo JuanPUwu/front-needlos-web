@@ -1,24 +1,28 @@
-<main class="login">
-  <section class="card">
-    <header class="card__header">
-      <app-logo class="card__logo" variant="dark" />
-      <h1 class="card__titulo">Verifica tu correo</h1>
-      <p class="card__subtitle">
+<main class="verificar-page">
+  <section class="verificar-card">
+    <header class="verificar-card__header">
+      <app-logo class="verificar-card__logo" variant="dark" />
+      <h1 class="verificar-card__subtitle">
         Enviamos un código de 6 dígitos a <strong>{{ email }}</strong
         >. Escríbelo aquí para activar tu cuenta.
-      </p>
+      </h1>
     </header>
 
     @if (aviso) {
-      <p class="banner banner--info" role="status">{{ aviso }}</p>
+      <p class="verificar-banner verificar-banner--info" role="status">{{ aviso }}</p>
     }
 
-    <form class="form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
-      <div class="field">
-        <label class="field__label" for="codigo">Código de verificación</label>
-        <div class="field__control">
+    <form class="verificar-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+      <div class="verificar-field">
+        <div class="verificar-field__head">
+          <label class="verificar-field__label" for="codigo">Código de verificación</label>
+          @if (form.controls.codigo.touched && form.controls.codigo.invalid) {
+            <span class="verificar-field__error">6 dígitos</span>
+          }
+        </div>
+        <div class="verificar-field__control">
           <input
-            class="field__input field__input--codigo"
+            class="verificar-field__input verificar-field__input--codigo"
             id="codigo"
             type="text"
             inputmode="numeric"
@@ -28,28 +32,27 @@
             formControlName="codigo"
           />
         </div>
-        @if (form.controls.codigo.touched && form.controls.codigo.invalid) {
-          <span class="field__error">Escribe los 6 dígitos del código.</span>
-        }
       </div>
 
       @if (error()) {
-        <p class="banner banner--error" role="alert">{{ error() }}</p>
+        <p class="verificar-banner verificar-banner--error" role="alert">{{ error() }}</p>
       }
 
-      <button class="submit" type="submit" [disabled]="cargando()">
+      <button class="verificar-submit" type="submit" [disabled]="cargando()">
         {{ cargando() ? 'Verificando...' : 'Verificar y entrar' }}
       </button>
     </form>
 
     @if (reenviado()) {
-      <p class="banner banner--exito" role="status">Te enviamos un código nuevo.</p>
+      <p class="verificar-banner verificar-banner--exito" role="status">
+        Te enviamos un código nuevo.
+      </p>
     }
 
-    <p class="pie">
+    <p class="verificar-pie">
       ¿No te llegó?
       <button
-        class="pie__boton"
+        class="verificar-pie__boton"
         type="button"
         [disabled]="reenviando() || segundosParaReenviar() > 0"
         (click)="reenviar()"
@@ -62,8 +65,8 @@
       </button>
     </p>
 
-    <p class="pie">
-      <a class="pie__enlace" routerLink="/registrar-sastreria">Volver al registro</a>
+    <p class="verificar-pie">
+      <a class="verificar-pie__enlace" routerLink="/registrar-sastreria">Volver al registro</a>
     </p>
   </section>
 </main>

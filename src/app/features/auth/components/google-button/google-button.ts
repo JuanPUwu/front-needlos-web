@@ -3,6 +3,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  OnDestroy,
+  inject,
   output,
   viewChild,
 } from '@angular/core';
@@ -25,23 +27,38 @@ interface GoogleIdentity {
  * Boton "Continuar con Google" (Google Identity Services). Renderiza el boton
  * oficial de Google y emite el ID token cuando el usuario se autentica.
  * El script de GIS se carga en index.html.
+ *
+ * El ancho del boton se ajusta al contenedor (GIS solo acepta un numero de px,
+ * no porcentajes) y se re-renderiza al cambiar el tamano para no desbordar en
+ * moviles.
  */
 @Component({
   selector: 'app-google-button',
   template: '<div #contenedor class="google-button"></div>',
-  styles: '.google-button { display: flex; justify-content: center; min-height: 44px; }',
+  styles: ':host { display: block; } .google-button { display: flex; justify-content: center; min-height: 44px; }',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GoogleButton implements AfterViewInit {
+export class GoogleButton implements AfterViewInit, OnDestroy {
+  /** Ancho maximo que admite el boton de GIS. */
+  private static readonly ANCHO_MAX = 400;
   private static readonly MAX_INTENTOS = 50;
 
+  private readonly host = inject(ElementRef<HTMLElement>);
   private readonly contenedor = viewChild.required<ElementRef<HTMLElement>>('contenedor');
 
   /** Emite el ID token de Google al autenticarse. */
   readonly credencial = output<string>();
 
+  private google: GoogleIdentity | null = null;
+  private observador?: ResizeObserver;
+  private anchoActual = 0;
+
   ngAfterViewInit(): void {
     this.inicializar(0);
+  }
+
+  ngOnDestroy(): void {
+    this.observador?.disconnect();
   }
 
   private inicializar(intentos: number): void {
@@ -55,17 +72,44 @@ export class GoogleButton implements AfterViewInit {
       return;
     }
 
+    this.google = google;
     google.accounts.id.initialize({
       client_id: environment.googleClientId,
       callback: (respuesta) => this.credencial.emit(respuesta.credential),
     });
 
-    google.accounts.id.renderButton(this.contenedor().nativeElement, {
+    this.renderizar();
+
+    // Re-renderiza cuando cambia el ancho disponible (rotacion, resize).
+    this.observador = new ResizeObserver(() => this.renderizar());
+    this.observador.observe(this.host.nativeElement);
+  }
+
+  private renderizar(): void {
+    if (!this.google) {
+      return;
+    }
+
+    const ancho = Math.min(
+      GoogleButton.ANCHO_MAX,
+      Math.floor(this.host.nativeElement.clientWidth),
+    );
+
+    // Evita re-renderizar sin cambios reales de ancho.
+    if (ancho <= 0 || ancho === this.anchoActual) {
+      return;
+    }
+    this.anchoActual = ancho;
+
+    const contenedor = this.contenedor().nativeElement;
+    contenedor.replaceChildren();
+
+    this.google.accounts.id.renderButton(contenedor, {
       theme: 'outline',
       size: 'large',
       text: 'continue_with',
       shape: 'rectangular',
-      width: 320,
+      width: ancho,
       locale: 'es',
     });
   }
