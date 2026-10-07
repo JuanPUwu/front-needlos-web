@@ -1,21 +1,26 @@
-<main class="seleccion">
-  <section class="card">
-    <header class="card__header">
-      <app-logo class="card__logo" variant="dark" />
-      <h1 class="card__title">Elige tu sastrería</h1>
-      <p class="card__subtitle">Tienes acceso a varias. Selecciona con cual entrar.</p>
+<main class="seleccionar-page">
+  <section class="seleccionar-card">
+    <header class="seleccionar-card__header">
+      <app-logo class="seleccionar-card__logo" variant="dark" />
+      <h1 class="seleccionar-card__titulo">Elige tu sastrería</h1>
+      <p class="seleccionar-card__subtitle">Tienes acceso a varias. Selecciona con cual entrar.</p>
     </header>
 
     @if (error()) {
-      <p class="banner banner--error" role="alert">{{ error() }}</p>
+      <p class="seleccionar-banner seleccionar-banner--error" role="alert">{{ error() }}</p>
     }
 
-    <ul class="lista">
+    <ul class="seleccionar-lista">
       @for (s of pendiente()?.sastrerias ?? []; track s.tenantId) {
         <li>
-          <button class="item" type="button" [disabled]="cargando()" (click)="elegir(s.tenantId)">
-            <span class="item__nombre">{{ s.nombre }}</span>
-            <span class="item__roles">{{ s.roles.join(', ') }}</span>
+          <button
+            class="seleccionar-item"
+            type="button"
+            [disabled]="cargando()"
+            (click)="elegir(s.tenantId)"
+          >
+            <span class="seleccionar-item__nombre">{{ s.nombre }}</span>
+            <span class="seleccionar-item__roles">{{ s.roles.join(', ') }}</span>
           </button>
         </li>
       }

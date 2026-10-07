@@ -1,25 +1,246 @@
-@use '../../styles/tarjeta-auth';
+// Estilos propios del registro. No se comparten con otros componentes; solo se usan
+// los tokens globales (var(--...)). El espaciado interno va con gap, no con margin.
 
-// El registro tiene mas campos que el login: tarjeta un poco mas ancha.
-.card {
-  max-width: 560px;
-  padding-top: var(--space-8);
+.registro-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: var(--color-bg);
 }
 
-.seccion {
-  margin: var(--space-5) 0 var(--space-3);
+.registro-card {
+  width: 100%;
+  max-width: 700px;
+  padding: var(--space-10) var(--space-6) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.registro-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  text-align: center;
+}
+
+.registro-card__logo {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 5rem;
+}
+
+.registro-card__subtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+.registro-seccion {
   text-align: center;
   font-size: 0.85rem;
   color: var(--color-text-muted);
 }
 
+.registro-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
 // Dos campos por fila en pantallas anchas; uno por fila en el movil.
-.fila {
+.registro-fila {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
 
   @media (max-width: 520px) {
     grid-template-columns: 1fr;
+  }
+}
+
+.registro-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  // Permite que el campo se encoja dentro de su columna del grid; sin esto, el
+  // ancho intrinseco del input mantiene la columna mas ancha que 1fr y se
+  // desborda de la tarjeta.
+  min-width: 0;
+}
+
+.registro-field__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  // El label va primero y nunca se encoge; el error ocupa el espacio restante
+  // a la derecha, sobre la fila del label, por lo que no genera salto vertical.
+}
+
+.registro-field__label {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-left: var(--space-2);
+  color: var(--color-text);
+}
+
+.registro-field__control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 46px;
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  transition:
+    border-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+
+  &:focus-within {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.registro-field__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--color-text);
+
+  &::placeholder {
+    color: #b0b0b5;
+  }
+}
+
+.registro-field__toggle {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.registro-field__ayuda {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.registro-field__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.registro-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border-soft);
+  }
+}
+
+.registro-divider__text {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.registro-banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.registro-banner--error {
+  color: var(--color-danger);
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.registro-submit {
+  height: 48px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s var(--ease-out),
+    transform 0.1s var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.registro-pie {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.registro-pie__enlace {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .registro-field__control,
+  .registro-submit {
+    transition: none;
+  }
+
+  .registro-submit:active:not(:disabled) {
+    transform: none;
   }
 }

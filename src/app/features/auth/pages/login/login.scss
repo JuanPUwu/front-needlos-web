@@ -1,9 +1,142 @@
-@use '../../styles/tarjeta-auth';
+// Estilos propios del login. No se comparten con otros componentes; solo se usan
+// los tokens globales (var(--...)). El espaciado interno va con gap, no con margin.
 
-.olvido {
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: var(--color-bg);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 500px;
+  padding: var(--space-10) var(--space-6) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.login-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  text-align: center;
+}
+
+.login-card__logo {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 5rem;
+}
+
+.login-card__subtitle {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.login-field__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  // El label va primero y nunca se encoge; el error ocupa el espacio restante
+  // a la derecha, sobre la fila del label, por lo que no genera salto vertical.
+}
+
+.login-field__label {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-left: var(--space-2);
+  color: var(--color-text);
+}
+
+.login-field__control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 46px;
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  transition:
+    border-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+
+  &:focus-within {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.login-field__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--color-text);
+
+  &::placeholder {
+    color: #b0b0b5;
+  }
+}
+
+.login-field__toggle {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.login-field__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.login-olvido {
   align-self: flex-end;
   font-size: 0.85rem;
   font-weight: 500;
+  margin-top: var(--space-3);
+  margin-right: var(--space-2);
   color: var(--color-accent);
   text-decoration: none;
 
@@ -15,5 +148,95 @@
     outline: 3px solid var(--focus-ring);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
+  }
+}
+
+.login-banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.login-banner--error {
+  color: var(--color-danger);
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.login-submit {
+  height: 48px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s var(--ease-out),
+    transform 0.1s var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border-soft);
+  }
+}
+
+.login-divider__text {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.login-pie {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.login-pie__enlace {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-field__control,
+  .login-submit {
+    transition: none;
+  }
+
+  .login-submit:active:not(:disabled) {
+    transform: none;
   }
 }

@@ -1,9 +1,184 @@
-@use '../../styles/tarjeta-auth';
+// Estilos propios de "restablecer contraseña". No se comparten con otros componentes;
+// solo se usan los tokens globales (var(--...)). El espaciado interno va con gap.
+
+.restablecer-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: var(--color-bg);
+}
+
+.restablecer-card {
+  width: 100%;
+  max-width: 500px;
+  padding: var(--space-10) var(--space-6) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.restablecer-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  text-align: center;
+}
+
+.restablecer-card__logo {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 5rem;
+}
+
+.restablecer-card__subtitle {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.restablecer-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.restablecer-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.restablecer-field__label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-left: var(--space-2);
+  color: var(--color-text);
+}
+
+.restablecer-field__control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 46px;
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  transition:
+    border-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+
+  &:focus-within {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.restablecer-field__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--color-text);
+
+  &::placeholder {
+    color: #b0b0b5;
+  }
+}
+
+.restablecer-field__toggle {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.restablecer-field__ayuda {
+  font-size: 0.8rem;
+  margin-left: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.restablecer-field__error {
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.restablecer-banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.restablecer-banner--error {
+  color: var(--color-danger);
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.restablecer-banner--exito {
+  color: #1b7a34;
+  background: rgba(52, 200, 74, 0.12);
+}
+
+.restablecer-submit {
+  height: 48px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s var(--ease-out),
+    transform 0.1s var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
 
 // Enlace con apariencia de boton principal (acciones de navegacion).
-.submit--enlace {
+.restablecer-submit--enlace {
   display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .restablecer-field__control,
+  .restablecer-submit {
+    transition: none;
+  }
+
+  .restablecer-submit:active:not(:disabled) {
+    transform: none;
+  }
 }
