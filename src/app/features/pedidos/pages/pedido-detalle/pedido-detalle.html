@@ -1,0 +1,445 @@
+<main class="detalle-page">
+  <div class="detalle-contenedor">
+    <a class="detalle-volver" routerLink="/pedidos">← Pedidos</a>
+
+    @if (cargando()) {
+      <p class="detalle-ayuda" role="status">Cargando pedido...</p>
+    } @else if (pedido(); as p) {
+      <header class="detalle-cabecera">
+        <div class="detalle-cabecera__texto">
+          <div class="detalle-cabecera__linea">
+            <h1 class="detalle-titulo">Pedido {{ p.numero }}</h1>
+            <span class="detalle-chip" [attr.data-estado]="p.estado">
+              {{ etiquetaEstado[p.estado] }}
+            </span>
+            @if (p.vencido) {
+              <span class="detalle-chip" data-estado="VENCIDO">Vencido</span>
+            }
+            @if (p.pagado && !anulado()) {
+              <span class="detalle-chip" data-estado="ENTREGADO">Pagado</span>
+            }
+          </div>
+          <p class="detalle-subtitulo">
+            Recibido el {{ p.fecha | fecha }} · Entrega {{ p.fechaEntrega | fecha }}
+          </p>
+        </div>
+        <div class="detalle-cabecera__acciones">
+          <a class="detalle-boton detalle-boton--secundario" [routerLink]="['/ticket', p.id]">
+            Ver ticket
+          </a>
+          @if (esAdmin() && !anulado()) {
+            <a
+              class="detalle-boton detalle-boton--secundario"
+              [routerLink]="['/pedidos', p.id, 'editar']"
+            >
+              Editar
+            </a>
+            <button
+              class="detalle-boton detalle-boton--peligro"
+              type="button"
+              (click)="pedirAnular()"
+            >
+              Anular
+            </button>
+          }
+        </div>
+      </header>
+
+      @if (exito()) {
+        <p class="detalle-aviso detalle-aviso--exito" role="status">{{ exito() }}</p>
+      }
+      @if (error()) {
+        <p class="detalle-aviso detalle-aviso--error" role="alert">{{ error() }}</p>
+      }
+      @if (anulado()) {
+        <p class="detalle-aviso detalle-aviso--error">
+          Pedido anulado. Razón: <strong>{{ p.razonAnulacion }}</strong>
+        </p>
+      }
+
+      @if (anulando()) {
+        <form class="detalle-confirmar" [formGroup]="formAnular" (ngSubmit)="anular()" novalidate>
+          @if (abonosVigentes() > 0) {
+            <p class="detalle-confirmar__texto">
+              Este pedido tiene abonos. Antes de anularlo, registra la devolución anulando cada
+              abono (motivo "Devolución") en la sección Abonos.
+            </p>
+            <div class="detalle-confirmar__acciones">
+              <button
+                class="detalle-boton detalle-boton--secundario"
+                type="button"
+                (click)="cancelarAnular()"
+              >
+                Entendido
+              </button>
+            </div>
+          } @else {
+            <div class="detalle-field">
+              <div class="detalle-field__head">
+                <label class="detalle-field__label" for="razon">Razón de la anulación</label>
+                @if (formAnular.controls.razon.touched && formAnular.controls.razon.invalid) {
+                  <span class="detalle-field__error">Obligatoria</span>
+                }
+              </div>
+              <input class="detalle-field__input" id="razon" type="text" formControlName="razon" />
+            </div>
+            <div class="detalle-confirmar__acciones">
+              <button
+                class="detalle-boton detalle-boton--secundario"
+                type="button"
+                (click)="cancelarAnular()"
+              >
+                No anular
+              </button>
+              <button
+                class="detalle-boton detalle-boton--peligro-lleno"
+                type="submit"
+                [disabled]="ocupado() === 'anular'"
+              >
+                Sí, anular pedido
+              </button>
+            </div>
+          }
+        </form>
+      }
+
+      @if (confirmarEntrega(); as ids) {
+        <div class="detalle-confirmar detalle-confirmar--alerta" role="alert">
+          <p class="detalle-confirmar__texto">
+            Queda un saldo pendiente de <strong>{{ p.saldo | moneda }}</strong
+            >. ¿Entregar de todos modos?
+          </p>
+          <div class="detalle-confirmar__acciones">
+            <button
+              class="detalle-boton detalle-boton--secundario"
+              type="button"
+              (click)="cancelarEntrega()"
+            >
+              Cancelar
+            </button>
+            <button class="detalle-boton" type="button" (click)="entregar(ids)">
+              Entregar de todos modos
+            </button>
+          </div>
+        </div>
+      }
+
+      <div class="detalle-bento">
+        <!-- ── Cliente y montos ──────────────────────────────────── -->
+        <section class="detalle-bloque detalle-bloque--resumen" aria-labelledby="t-resumen">
+          <h2 class="detalle-bloque__titulo" id="t-resumen">Cliente</h2>
+          <div class="detalle-cliente">
+            <span class="detalle-cliente__nombre">
+              {{ p.cliente.nombre }} {{ p.cliente.apellido }}
+            </span>
+            <span class="detalle-cliente__telefono">{{ p.cliente.telefono }}</span>
+            <a
+              class="detalle-enlace"
+              routerLink="/pedidos"
+              [queryParams]="{
+                clienteId: p.cliente.id,
+                cliente: p.cliente.nombre + ' ' + p.cliente.apellido,
+              }"
+            >
+              Ver sus pedidos
+            </a>
+          </div>
+
+          <dl class="detalle-totales">
+            <div class="detalle-totales__fila">
+              <dt>Subtotal</dt>
+              <dd>{{ p.subtotal | moneda }}</dd>
+            </div>
+            @if (p.descuento > 0) {
+              <div class="detalle-totales__fila">
+                <dt>Descuento</dt>
+                <dd>− {{ p.descuento | moneda }}</dd>
+              </div>
+            }
+            <div class="detalle-totales__fila detalle-totales__fila--total">
+              <dt>Total</dt>
+              <dd>{{ p.total | moneda }}</dd>
+            </div>
+            <div class="detalle-totales__fila">
+              <dt>Abonado</dt>
+              <dd>{{ p.abonado | moneda }}</dd>
+            </div>
+            <div class="detalle-totales__fila detalle-totales__fila--saldo">
+              <dt>Saldo</dt>
+              <dd>{{ p.saldo | moneda }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- ── Prendas ───────────────────────────────────────────── -->
+        <section class="detalle-bloque detalle-bloque--prendas" aria-labelledby="t-prendas">
+          <div class="detalle-bloque__cabecera">
+            <h2 class="detalle-bloque__titulo" id="t-prendas">Prendas</h2>
+            @if (puedeEntregar() && !anulado() && finalizadas().length > 1) {
+              <button
+                class="detalle-boton detalle-boton--secundario"
+                type="button"
+                [disabled]="ocupado() !== null"
+                (click)="entregarFinalizadas()"
+              >
+                Entregar las {{ finalizadas().length }} finalizadas
+              </button>
+            }
+          </div>
+
+          <ul class="detalle-prendas">
+            @for (pr of p.prendas; track pr.id) {
+              <li class="detalle-prenda">
+                <div class="detalle-prenda__fila">
+                  <div class="detalle-prenda__info">
+                    <span class="detalle-prenda__tipo">
+                      {{ pr.cantidad }} × {{ pr.tipoPrenda }}
+                      <span class="detalle-chip" [attr.data-estado]="pr.estado">
+                        {{ etiquetaPrenda[pr.estado] }}
+                      </span>
+                    </span>
+                    <span class="detalle-prenda__descripcion">{{ pr.descripcion }}</span>
+                    <span class="detalle-prenda__precio">
+                      {{ pr.precioUnitario | moneda }} c/u · {{ pr.subtotal | moneda }}
+                    </span>
+                  </div>
+
+                  @if (!anulado()) {
+                    <div class="detalle-prenda__acciones">
+                      @if (pr.estado === 'EN_PROCESO' && puedeCambiarEstado()) {
+                        <button
+                          class="detalle-boton detalle-boton--secundario"
+                          type="button"
+                          [disabled]="ocupado() !== null"
+                          (click)="finalizar(pr)"
+                        >
+                          Finalizar
+                        </button>
+                      }
+                      @if (pr.estado === 'FINALIZADO') {
+                        @if (puedeCambiarEstado()) {
+                          <button
+                            class="detalle-boton detalle-boton--secundario"
+                            type="button"
+                            [disabled]="ocupado() !== null"
+                            (click)="volverAProceso(pr)"
+                          >
+                            Volver a proceso
+                          </button>
+                        }
+                        @if (puedeEntregar()) {
+                          <button
+                            class="detalle-boton"
+                            type="button"
+                            [disabled]="ocupado() !== null"
+                            (click)="entregar([pr.id])"
+                          >
+                            Entregar
+                          </button>
+                        }
+                      }
+                    </div>
+                  }
+                </div>
+
+                <div class="detalle-prenda__fila detalle-prenda__fila--meta">
+                  @if (puedeAsignar() && !anulado() && pr.estado !== 'ENTREGADO') {
+                    <label class="detalle-sastre">
+                      <span class="detalle-sastre__label">Sastre</span>
+                      <select
+                        #sastreSel
+                        class="detalle-sastre__select"
+                        [disabled]="ocupado() !== null"
+                        (change)="asignarSastre(pr, sastreSel.value)"
+                      >
+                        <option value="" [selected]="!pr.sastreId">Sin asignar</option>
+                        @for (s of sastres(); track s.accesoId) {
+                          <option [value]="s.accesoId" [selected]="s.accesoId === pr.sastreId">
+                            {{ s.nombre }}
+                          </option>
+                        }
+                      </select>
+                    </label>
+                  } @else {
+                    <span class="detalle-prenda__sastre">
+                      Sastre: {{ pr.sastre ?? 'sin asignar' }}
+                    </span>
+                  }
+                  <button
+                    class="detalle-enlace detalle-enlace--boton"
+                    type="button"
+                    [attr.aria-expanded]="historialAbierto().has(pr.id)"
+                    (click)="alternarHistorial(pr.id)"
+                  >
+                    {{ historialAbierto().has(pr.id) ? 'Ocultar historial' : 'Ver historial' }}
+                  </button>
+                </div>
+
+                @if (historialAbierto().has(pr.id)) {
+                  <ol class="detalle-historial">
+                    @for (h of pr.historial; track $index) {
+                      <li class="detalle-historial__item">
+                        <span class="detalle-historial__estado">{{
+                          etiquetaPrenda[h.estado]
+                        }}</span>
+                        <span class="detalle-historial__meta">
+                          {{ h.fecha | fechaHora }}{{ h.usuario ? ' · ' + h.usuario : '' }}
+                        </span>
+                      </li>
+                    }
+                  </ol>
+                }
+              </li>
+            }
+          </ul>
+        </section>
+
+        <!-- ── Abonos ────────────────────────────────────────────── -->
+        <section class="detalle-bloque detalle-bloque--abonos" aria-labelledby="t-abonos">
+          <h2 class="detalle-bloque__titulo" id="t-abonos">Abonos</h2>
+
+          @if (puedeCobrar() && !anulado() && p.saldo > 0) {
+            <form
+              class="detalle-abonar"
+              [formGroup]="formAbono"
+              (ngSubmit)="registrarAbono()"
+              novalidate
+            >
+              <div class="detalle-field">
+                <div class="detalle-field__head">
+                  <label class="detalle-field__label" for="monto">Monto</label>
+                  @if (formAbono.controls.monto.touched && formAbono.controls.monto.invalid) {
+                    <span class="detalle-field__error">Solo números</span>
+                  }
+                </div>
+                <input
+                  class="detalle-field__input"
+                  id="monto"
+                  type="text"
+                  inputmode="decimal"
+                  formControlName="monto"
+                  placeholder="0"
+                />
+              </div>
+              <div class="detalle-field">
+                <label class="detalle-field__label" for="metodo">Método</label>
+                <select class="detalle-field__input" id="metodo" formControlName="metodo">
+                  @for (m of metodos; track m.valor) {
+                    <option [value]="m.valor">{{ m.etiqueta }}</option>
+                  }
+                </select>
+              </div>
+              <div class="detalle-abonar__acciones">
+                <button
+                  class="detalle-boton detalle-boton--secundario"
+                  type="button"
+                  (click)="pagarSaldo()"
+                >
+                  Todo el saldo
+                </button>
+                <button class="detalle-boton" type="submit" [disabled]="ocupado() === 'abono'">
+                  Registrar abono
+                </button>
+              </div>
+            </form>
+          }
+
+          @if (p.abonos.length === 0) {
+            <p class="detalle-ayuda">Sin abonos todavía.</p>
+          } @else {
+            <ul class="detalle-abonos">
+              @for (a of p.abonos; track a.id) {
+                <li class="detalle-abono" [class.detalle-abono--anulado]="a.anulado">
+                  <div class="detalle-abono__fila">
+                    <div class="detalle-abono__info">
+                      <span class="detalle-abono__monto">{{ a.monto | moneda }}</span>
+                      <span class="detalle-abono__meta">
+                        {{ etiquetaMetodo(a.metodo) }} · {{ a.fecha | fechaHora }}
+                        {{ a.registradoPor ? '· ' + a.registradoPor : '' }}
+                      </span>
+                      @if (a.anulado) {
+                        <span class="detalle-abono__anulacion">
+                          {{
+                            a.motivoAnulacion === 'DEVOLUCION' ? 'Devuelto' : 'Anulado por error'
+                          }}:
+                          {{ a.razonAnulacion }}
+                        </span>
+                      }
+                    </div>
+                    @if (esAdmin() && !a.anulado && anulandoAbono() !== a.id) {
+                      <button
+                        class="detalle-boton detalle-boton--peligro"
+                        type="button"
+                        (click)="pedirAnularAbono(a)"
+                      >
+                        Anular
+                      </button>
+                    }
+                  </div>
+
+                  @if (anulandoAbono() === a.id) {
+                    <form
+                      class="detalle-anular-abono"
+                      [formGroup]="formAnularAbono"
+                      (ngSubmit)="anularAbono(a)"
+                      novalidate
+                    >
+                      <div class="detalle-field">
+                        <label class="detalle-field__label" [for]="'motivo' + a.id">Motivo</label>
+                        <select
+                          class="detalle-field__input"
+                          [id]="'motivo' + a.id"
+                          formControlName="motivo"
+                        >
+                          <option value="DEVOLUCION">Devolución (se le regresó el dinero)</option>
+                          <option value="ERROR_REGISTRO">Error al registrarlo</option>
+                        </select>
+                      </div>
+                      <div class="detalle-field">
+                        <div class="detalle-field__head">
+                          <label class="detalle-field__label" [for]="'razonAbono' + a.id">
+                            Razón
+                          </label>
+                          @if (
+                            formAnularAbono.controls.razon.touched &&
+                            formAnularAbono.controls.razon.invalid
+                          ) {
+                            <span class="detalle-field__error">Obligatoria</span>
+                          }
+                        </div>
+                        <input
+                          class="detalle-field__input"
+                          [id]="'razonAbono' + a.id"
+                          type="text"
+                          formControlName="razon"
+                        />
+                      </div>
+                      <div class="detalle-confirmar__acciones">
+                        <button
+                          class="detalle-boton detalle-boton--secundario"
+                          type="button"
+                          (click)="cancelarAnularAbono()"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          class="detalle-boton detalle-boton--peligro-lleno"
+                          type="submit"
+                          [disabled]="ocupado() === a.id"
+                        >
+                          Anular abono
+                        </button>
+                      </div>
+                    </form>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      </div>
+    } @else if (error()) {
+      <p class="detalle-aviso detalle-aviso--error" role="alert">{{ error() }}</p>
+    }
+  </div>
+</main>

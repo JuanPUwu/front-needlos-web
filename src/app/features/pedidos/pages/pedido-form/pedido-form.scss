@@ -1,0 +1,413 @@
+// Estilos propios del formulario de pedido. Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.pedidoform-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-7) var(--space-4);
+}
+
+.pedidoform-contenedor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.pedidoform-volver {
+  align-self: flex-start;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.pedidoform-titulo {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.pedidoform-ayuda {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// ── Bento: cliente | cobro arriba, prendas abajo ────────────
+.pedidoform-bento {
+  flex: 1;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'cliente cobro'
+    'prendas prendas'
+    'pie pie';
+
+  @container panel (max-width: 880px) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      'cliente'
+      'prendas'
+      'cobro'
+      'pie';
+  }
+}
+
+.pedidoform-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+  padding: var(--space-6);
+
+  @container panel (max-width: 480px) {
+    padding: var(--space-5) var(--space-4);
+  }
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container-type: inline-size;
+}
+
+.pedidoform-bloque--cliente {
+  grid-area: cliente;
+  container-name: pfcliente;
+}
+
+.pedidoform-bloque--cobro {
+  grid-area: cobro;
+  container-name: pfcobro;
+}
+
+.pedidoform-bloque--prendas {
+  grid-area: prendas;
+  container-name: pfprendas;
+}
+
+.pedidoform-bloque__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.pedidoform-bloque__titulo {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+// ── Campos ──────────────────────────────────────────────────
+.pedidoform-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+
+  @container (max-width: 420px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pedidoform-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.pedidoform-field__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.pedidoform-field__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.pedidoform-field__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.pedidoform-field__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+  transition:
+    border-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+
+  &:disabled {
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+  }
+}
+
+.pedidoform-nota {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--focus-ring);
+  font-size: 0.9rem;
+  color: var(--color-navy);
+}
+
+.pedidoform-nota--alerta {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.pedidoform-nota--ok {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+// ── Prendas ─────────────────────────────────────────────────
+.pedidoform-prendas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pedidoform-prenda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+}
+
+.pedidoform-prenda--entregada {
+  background: var(--color-bg);
+}
+
+.pedidoform-prenda__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.pedidoform-prenda__numero {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.pedidoform-prenda__campos {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 0.8fr) minmax(0, 1.4fr) minmax(0, 1.6fr);
+  grid-template-areas: 'tipo cantidad precio sastre' 'descripcion descripcion descripcion descripcion';
+  gap: var(--space-4);
+
+  @container pfprendas (max-width: 640px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: 'tipo tipo' 'cantidad precio' 'sastre sastre' 'descripcion descripcion';
+  }
+}
+
+.pedidoform-field--tipo {
+  grid-area: tipo;
+}
+.pedidoform-field--cantidad {
+  grid-area: cantidad;
+}
+.pedidoform-field--precio {
+  grid-area: precio;
+}
+.pedidoform-field--sastre {
+  grid-area: sastre;
+}
+.pedidoform-field--descripcion {
+  grid-area: descripcion;
+}
+
+.pedidoform-chip {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+// ── Totales ─────────────────────────────────────────────────
+.pedidoform-totales {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.pedidoform-totales__fila {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+
+  dt,
+  dd {
+    margin: 0;
+  }
+
+  dd {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+  }
+}
+
+.pedidoform-totales__fila--total {
+  font-size: 1.1rem;
+  font-weight: 700;
+
+  dt,
+  dd {
+    color: var(--color-navy);
+  }
+}
+
+// ── Pie, avisos y botones ───────────────────────────────────
+.pedidoform-pie {
+  grid-area: pie;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pedidoform-pie__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.pedidoform-aviso {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.pedidoform-aviso--error {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.pedidoform-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s var(--ease-out),
+    transform 0.1s var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.pedidoform-boton--secundario {
+  height: 38px;
+  padding: 0 var(--space-4);
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-border-soft);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+.pedidoform-boton--peligro {
+  height: 32px;
+  padding: 0 var(--space-3);
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-border-soft);
+
+  &:hover:not(:disabled) {
+    background: var(--color-danger-bg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pedidoform-field__input,
+  .pedidoform-boton {
+    transition: none;
+  }
+
+  .pedidoform-boton:active:not(:disabled) {
+    transform: none;
+  }
+}

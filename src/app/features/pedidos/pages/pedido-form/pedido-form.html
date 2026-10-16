@@ -1,0 +1,366 @@
+<main class="pedidoform-page">
+  <div class="pedidoform-contenedor">
+    <a
+      class="pedidoform-volver"
+      [routerLink]="editando() ? ['/pedidos', editando()!.id] : ['/pedidos']"
+    >
+      ← {{ editando() ? 'Pedido ' + editando()!.numero : 'Pedidos' }}
+    </a>
+    <header class="pedidoform-cabecera">
+      <h1 class="pedidoform-titulo">
+        {{ editando() ? 'Editar pedido ' + editando()!.numero : 'Nuevo pedido' }}
+      </h1>
+    </header>
+
+    @if (cargando()) {
+      <p class="pedidoform-ayuda" role="status">Cargando pedido...</p>
+    } @else {
+      <form class="pedidoform-bento" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+        <!-- ── Cliente ───────────────────────────────────────────── -->
+        <section class="pedidoform-bloque pedidoform-bloque--cliente" aria-labelledby="t-cliente">
+          <h2 class="pedidoform-bloque__titulo" id="t-cliente">Cliente</h2>
+
+          <div class="pedidoform-field">
+            <div class="pedidoform-field__head">
+              <label class="pedidoform-field__label" for="telefono">Teléfono</label>
+              @if (errorTelefono()) {
+                <span class="pedidoform-field__error">{{ errorTelefono() }}</span>
+              } @else if (form.controls.telefono.touched && form.controls.telefono.invalid) {
+                <span class="pedidoform-field__error">7 a 15 dígitos</span>
+              }
+            </div>
+            <input
+              class="pedidoform-field__input"
+              id="telefono"
+              type="tel"
+              inputmode="numeric"
+              formControlName="telefono"
+              placeholder="3001234567"
+              autocomplete="off"
+            />
+          </div>
+
+          @if (!editando()) {
+            @if (buscandoCliente()) {
+              <p class="pedidoform-ayuda" role="status">Buscando cliente...</p>
+            } @else if (clienteEncontrado(); as c) {
+              <p class="pedidoform-nota pedidoform-nota--ok" role="status">
+                Cliente registrado: <strong>{{ c.nombre }} {{ c.apellido }}</strong
+                >. Para corregir sus datos, usa la sección Clientes.
+              </p>
+              @if (c.saldoPendiente > 0) {
+                <p class="pedidoform-nota pedidoform-nota--alerta" role="status">
+                  Tiene un saldo pendiente de <strong>{{ c.saldoPendiente | moneda }}</strong> en
+                  otros pedidos.
+                </p>
+              }
+            } @else if (telefonoConsultado()) {
+              <p class="pedidoform-nota" role="status">
+                Cliente nuevo: se registrará junto con el pedido.
+              </p>
+            }
+          }
+
+          <div class="pedidoform-fila">
+            <div class="pedidoform-field">
+              <div class="pedidoform-field__head">
+                <label class="pedidoform-field__label" for="nombre">Nombre</label>
+                @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+                  <span class="pedidoform-field__error">Mínimo 2 letras</span>
+                }
+              </div>
+              <input
+                class="pedidoform-field__input"
+                id="nombre"
+                type="text"
+                formControlName="nombre"
+              />
+            </div>
+            <div class="pedidoform-field">
+              <div class="pedidoform-field__head">
+                <label class="pedidoform-field__label" for="apellido">Apellido</label>
+                @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
+                  <span class="pedidoform-field__error">Mínimo 2 letras</span>
+                }
+              </div>
+              <input
+                class="pedidoform-field__input"
+                id="apellido"
+                type="text"
+                formControlName="apellido"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Entrega y cobro ───────────────────────────────────── -->
+        <section class="pedidoform-bloque pedidoform-bloque--cobro" aria-labelledby="t-cobro">
+          <h2 class="pedidoform-bloque__titulo" id="t-cobro">Entrega y cobro</h2>
+
+          <div class="pedidoform-fila">
+            <div class="pedidoform-field">
+              <div class="pedidoform-field__head">
+                <label class="pedidoform-field__label" for="fechaEntrega">Fecha de entrega</label>
+                @if (form.controls.fechaEntrega.touched && form.controls.fechaEntrega.invalid) {
+                  <span class="pedidoform-field__error">Obligatoria</span>
+                }
+              </div>
+              <input
+                class="pedidoform-field__input"
+                id="fechaEntrega"
+                type="date"
+                [min]="hoy"
+                formControlName="fechaEntrega"
+              />
+            </div>
+            <div class="pedidoform-field">
+              <div class="pedidoform-field__head">
+                <label class="pedidoform-field__label" for="descuento">Descuento (opcional)</label>
+                @if (form.controls.descuento.invalid) {
+                  <span class="pedidoform-field__error">Solo números</span>
+                } @else if (descuentoInvalido()) {
+                  <span class="pedidoform-field__error">Mayor que el valor</span>
+                }
+              </div>
+              <input
+                class="pedidoform-field__input"
+                id="descuento"
+                type="text"
+                inputmode="decimal"
+                formControlName="descuento"
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          @if (!editando() && puedeCobrar()) {
+            <div class="pedidoform-fila">
+              <div class="pedidoform-field">
+                <div class="pedidoform-field__head">
+                  <label class="pedidoform-field__label" for="abonoMonto">
+                    Abono inicial (opcional)
+                  </label>
+                  @if (form.controls.abonoMonto.invalid) {
+                    <span class="pedidoform-field__error">Solo números</span>
+                  } @else if (abonoInvalido()) {
+                    <span class="pedidoform-field__error">Supera el total</span>
+                  }
+                </div>
+                <input
+                  class="pedidoform-field__input"
+                  id="abonoMonto"
+                  type="text"
+                  inputmode="decimal"
+                  formControlName="abonoMonto"
+                  placeholder="0"
+                />
+              </div>
+              <div class="pedidoform-field">
+                <label class="pedidoform-field__label" for="abonoMetodo">Método de pago</label>
+                <select
+                  class="pedidoform-field__input"
+                  id="abonoMetodo"
+                  formControlName="abonoMetodo"
+                >
+                  @for (m of metodos; track m.valor) {
+                    <option [value]="m.valor">{{ m.etiqueta }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          }
+
+          <dl class="pedidoform-totales">
+            <div class="pedidoform-totales__fila">
+              <dt>Subtotal</dt>
+              <dd>{{ subtotal() | moneda }}</dd>
+            </div>
+            @if (descuento() > 0) {
+              <div class="pedidoform-totales__fila">
+                <dt>Descuento</dt>
+                <dd>− {{ descuento() | moneda }}</dd>
+              </div>
+            }
+            <div class="pedidoform-totales__fila pedidoform-totales__fila--total">
+              <dt>Total</dt>
+              <dd>{{ total() | moneda }}</dd>
+            </div>
+            @if (editando(); as p) {
+              <div class="pedidoform-totales__fila">
+                <dt>Ya abonado</dt>
+                <dd>{{ p.abonado | moneda }}</dd>
+              </div>
+            } @else if (abono() > 0) {
+              <div class="pedidoform-totales__fila">
+                <dt>Abono inicial</dt>
+                <dd>{{ abono() | moneda }}</dd>
+              </div>
+            }
+            <div class="pedidoform-totales__fila">
+              <dt>Saldo</dt>
+              <dd>{{ saldo() | moneda }}</dd>
+            </div>
+          </dl>
+          @if (totalBajoAbonado()) {
+            <p class="pedidoform-aviso pedidoform-aviso--error" role="alert">
+              El total queda por debajo de lo ya abonado. Primero registra la devolución anulando
+              abonos en el detalle del pedido.
+            </p>
+          }
+        </section>
+
+        <!-- ── Prendas ───────────────────────────────────────────── -->
+        <section class="pedidoform-bloque pedidoform-bloque--prendas" aria-labelledby="t-prendas">
+          <div class="pedidoform-bloque__cabecera">
+            <h2 class="pedidoform-bloque__titulo" id="t-prendas">Prendas</h2>
+            <button
+              class="pedidoform-boton pedidoform-boton--secundario"
+              type="button"
+              (click)="agregarPrenda()"
+            >
+              + Agregar prenda
+            </button>
+          </div>
+
+          <ol class="pedidoform-prendas" formArrayName="prendas">
+            @for (fila of filas.controls; track fila; let i = $index) {
+              <li
+                class="pedidoform-prenda"
+                [class.pedidoform-prenda--entregada]="esEntregada(i)"
+                [formGroupName]="i"
+              >
+                <div class="pedidoform-prenda__cabecera">
+                  <span class="pedidoform-prenda__numero">Prenda {{ i + 1 }}</span>
+                  @if (esEntregada(i)) {
+                    <span class="pedidoform-chip">Entregada: no se modifica</span>
+                  } @else if (filas.length > 1) {
+                    <button
+                      class="pedidoform-boton pedidoform-boton--peligro"
+                      type="button"
+                      (click)="quitarPrenda(i)"
+                    >
+                      Quitar
+                    </button>
+                  }
+                </div>
+
+                <div class="pedidoform-prenda__campos">
+                  <div class="pedidoform-field pedidoform-field--tipo">
+                    <div class="pedidoform-field__head">
+                      <label class="pedidoform-field__label" [for]="'tipo' + i">Tipo</label>
+                      @if (
+                        fila.controls.tipoPrendaId.touched && fila.controls.tipoPrendaId.invalid
+                      ) {
+                        <span class="pedidoform-field__error">Elige uno</span>
+                      }
+                    </div>
+                    <select
+                      class="pedidoform-field__input"
+                      [id]="'tipo' + i"
+                      formControlName="tipoPrendaId"
+                      (change)="alCambiarTipo(fila)"
+                    >
+                      <option value="" disabled>Elige…</option>
+                      @for (t of tipos(); track t.id) {
+                        <option [value]="t.id">{{ t.nombre }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="pedidoform-field pedidoform-field--cantidad">
+                    <div class="pedidoform-field__head">
+                      <label class="pedidoform-field__label" [for]="'cantidad' + i">Cant.</label>
+                      @if (fila.controls.cantidad.touched && fila.controls.cantidad.invalid) {
+                        <span class="pedidoform-field__error">1–999</span>
+                      }
+                    </div>
+                    <input
+                      class="pedidoform-field__input"
+                      [id]="'cantidad' + i"
+                      type="number"
+                      min="1"
+                      max="999"
+                      formControlName="cantidad"
+                    />
+                  </div>
+
+                  <div class="pedidoform-field pedidoform-field--precio">
+                    <div class="pedidoform-field__head">
+                      <label class="pedidoform-field__label" [for]="'precio' + i">
+                        Precio unitario
+                      </label>
+                      @if (fila.controls.precio.touched && fila.controls.precio.invalid) {
+                        <span class="pedidoform-field__error">Mayor que 0</span>
+                      }
+                    </div>
+                    <input
+                      class="pedidoform-field__input"
+                      [id]="'precio' + i"
+                      type="text"
+                      inputmode="decimal"
+                      formControlName="precio"
+                      placeholder="25000"
+                    />
+                  </div>
+
+                  @if (puedeAsignar()) {
+                    <div class="pedidoform-field pedidoform-field--sastre">
+                      <label class="pedidoform-field__label" [for]="'sastre' + i">
+                        Sastre (opcional)
+                      </label>
+                      <select
+                        class="pedidoform-field__input"
+                        [id]="'sastre' + i"
+                        formControlName="sastreId"
+                      >
+                        <option value="">Sin asignar</option>
+                        @for (s of sastres(); track s.accesoId) {
+                          <option [value]="s.accesoId">{{ s.nombre }}</option>
+                        }
+                      </select>
+                    </div>
+                  }
+
+                  <div class="pedidoform-field pedidoform-field--descripcion">
+                    <div class="pedidoform-field__head">
+                      <label class="pedidoform-field__label" [for]="'desc' + i">
+                        Descripción del trabajo
+                      </label>
+                      @if (fila.controls.descripcion.touched && fila.controls.descripcion.invalid) {
+                        <span class="pedidoform-field__error">Mínimo 3 letras</span>
+                      }
+                    </div>
+                    <input
+                      class="pedidoform-field__input"
+                      [id]="'desc' + i"
+                      type="text"
+                      formControlName="descripcion"
+                      placeholder="Ajuste de mangas, bota recta…"
+                    />
+                  </div>
+                </div>
+              </li>
+            }
+          </ol>
+        </section>
+
+        <div class="pedidoform-pie">
+          @if (error()) {
+            <p class="pedidoform-aviso pedidoform-aviso--error" role="alert">{{ error() }}</p>
+          }
+          <div class="pedidoform-pie__acciones">
+            <a
+              class="pedidoform-boton pedidoform-boton--secundario"
+              [routerLink]="editando() ? ['/pedidos', editando()!.id] : ['/pedidos']"
+            >
+              Cancelar
+            </a>
+            <button class="pedidoform-boton" type="submit" [disabled]="guardando()">
+              {{ guardando() ? 'Guardando...' : editando() ? 'Guardar cambios' : 'Crear pedido' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    }
+  </div>
+</main>

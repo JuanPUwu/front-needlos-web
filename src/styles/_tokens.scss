@@ -20,6 +20,16 @@
   --focus-ring: rgba(2, 40, 89, 0.15);
 
   --color-danger: #c62828;
+  --color-danger-bg: rgba(198, 40, 40, 0.08);
+
+  // Estados (chips y avisos)
+  --color-success: #1b7a34;
+  --color-success-bg: rgba(52, 200, 74, 0.12);
+  --color-warning: #8a5a00;
+  --color-warning-bg: rgba(255, 176, 32, 0.16);
+
+  // Impresion (tickets): negro puro, las termicas no imprimen grises
+  --color-tinta: #000000;
 
   // ── Radios ──────────────────────────────────────────────────
   --radius-sm: 10px;

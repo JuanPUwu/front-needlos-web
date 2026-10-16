@@ -10,6 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import { PERMISOS, Permiso } from '../../../../core/auth/permisos';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { coincide } from '../../../../shared/util/texto';
 import { Empleado, Invitacion } from '../../models/empleado.model';
@@ -82,6 +83,12 @@ export class Equipo implements OnInit {
     );
   });
 
+  readonly permisosDisponibles = PERMISOS;
+  /** Permisos marcados en el formulario de edición (solo aplican al rol Sastre). */
+  readonly permisosElegidos = signal<Set<Permiso>>(new Set());
+  /** Rol elegido en el formulario (para mostrar u ocultar los permisos). */
+  readonly rolForm = signal<'SASTRE' | 'SASTRE_ADMIN'>('SASTRE');
+
   readonly form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(60), Validators.pattern(CON_TEXTO)]],
     apellido: ['', [Validators.required, Validators.maxLength(60), Validators.pattern(CON_TEXTO)]],
@@ -92,7 +99,22 @@ export class Equipo implements OnInit {
   });
 
   ngOnInit(): void {
+    this.form.controls.rol.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((rol) => this.rolForm.set(rol));
     this.cargar();
+  }
+
+  alternarPermiso(permiso: Permiso, marcado: boolean): void {
+    this.permisosElegidos.update((actual) => {
+      const nuevo = new Set(actual);
+      if (marcado) {
+        nuevo.add(permiso);
+      } else {
+        nuevo.delete(permiso);
+      }
+      return nuevo;
+    });
   }
 
   alBuscar(texto: string): void {
@@ -142,7 +164,10 @@ export class Equipo implements OnInit {
 
     if (id) {
       this.service
-        .actualizar(id, datos)
+        .actualizar(id, {
+          ...datos,
+          permisos: datos.rol === 'SASTRE' ? [...this.permisosElegidos()] : [],
+        })
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (emp) => {
@@ -188,11 +213,15 @@ export class Equipo implements OnInit {
       numeroDocumento: emp.numeroDocumento ?? '',
       rol: emp.roles.includes('SASTRE_ADMIN') ? 'SASTRE_ADMIN' : 'SASTRE',
     });
+    this.rolForm.set(emp.roles.includes('SASTRE_ADMIN') ? 'SASTRE_ADMIN' : 'SASTRE');
+    this.permisosElegidos.set(new Set(emp.permisos ?? []));
   }
 
   cancelar(): void {
     this.editandoId.set(null);
     this.form.reset({ rol: 'SASTRE' });
+    this.rolForm.set('SASTRE');
+    this.permisosElegidos.set(new Set());
   }
 
   desactivar(emp: Empleado): void {

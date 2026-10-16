@@ -1,0 +1,97 @@
+// Página del ticket: barra de acciones en pantalla; al imprimir solo sale el ticket.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.ticketpag-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-7) var(--space-4);
+  background: var(--color-bg);
+}
+
+.ticketpag-barra {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.ticketpag-volver {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.ticketpag-boton {
+  height: 40px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-accent-hover);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.ticketpag-papel {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.ticketpag-ayuda {
+  color: var(--color-text-muted);
+}
+
+.ticketpag-error {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+@page {
+  size: 80mm auto;
+  margin: 4mm;
+}
+
+@media print {
+  .ticketpag-page {
+    padding: 0;
+    background: none;
+  }
+
+  .ticketpag-barra {
+    display: none;
+  }
+
+  .ticketpag-papel {
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

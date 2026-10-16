@@ -7,6 +7,8 @@ export interface Cliente {
   telefono: string;
   /** yyyy-MM-dd */
   fechaRegistro: string;
+  /** Lo que debe sumando sus pedidos no anulados (0 si está al día). */
+  saldoPendiente: number;
   /** Se envía en If-Match al editar (bloqueo optimista). */
   version: number;
 }

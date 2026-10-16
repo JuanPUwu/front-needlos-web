@@ -1,5 +1,7 @@
 // Modelos del equipo (empleados), alineados con /api/v1/empleados del backend.
 
+import { Permiso } from '../../../core/auth/permisos';
+
 /** Roles que un SASTRE_ADMIN puede asignar (SUPER_ADMIN no es asignable). */
 export type RolEmpleado = 'SASTRE' | 'SASTRE_ADMIN';
 
@@ -12,6 +14,8 @@ export interface Empleado {
   telefono: string | null;
   numeroDocumento: string | null;
   roles: string[];
+  /** Permisos otorgados (vacío para un admin, que los tiene todos). */
+  permisos: Permiso[];
   activo: boolean;
 }
 
@@ -41,4 +45,11 @@ export interface ActualizarEmpleadoRequest {
   telefono: string | null;
   numeroDocumento: string | null;
   rol: RolEmpleado;
+  permisos: Permiso[];
+}
+
+/** Miembro activo al que se le puede asignar una prenda. */
+export interface MiembroAsignable {
+  accesoId: string;
+  nombre: string;
 }

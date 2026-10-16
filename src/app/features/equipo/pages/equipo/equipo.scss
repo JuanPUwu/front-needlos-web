@@ -103,6 +103,10 @@
   flex-direction: column;
   gap: var(--space-5);
   padding: var(--space-6);
+
+  @container panel (max-width: 480px) {
+    padding: var(--space-5) var(--space-4);
+  }
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
@@ -304,6 +308,67 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+}
+
+// ── Permisos (formulario de edición) ────────────────────────
+.equipo-permisos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.equipo-permisos__lista {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3);
+
+  @container formcard (max-width: 420px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.equipo-permiso {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+
+  &:has(.equipo-permiso__casilla:checked) {
+    border-color: var(--color-border);
+    background: var(--focus-ring);
+  }
+}
+
+.equipo-permiso__casilla {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent);
+}
+
+.equipo-permiso__texto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.equipo-permiso__nombre {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.equipo-permiso__ayuda {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }
 
 // ── Filtros ─────────────────────────────────────────────────

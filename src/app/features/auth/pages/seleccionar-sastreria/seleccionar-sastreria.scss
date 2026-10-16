@@ -3,10 +3,15 @@
 
 .seleccionar-page {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-5);
+
+  @media (max-width: 480px) {
+    padding: var(--space-3);
+  }
   background: var(--color-bg);
 }
 

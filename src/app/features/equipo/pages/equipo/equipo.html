@@ -110,6 +110,38 @@
             </select>
           </div>
 
+          @if (rolForm() === 'SASTRE') {
+            <fieldset class="equipo-permisos">
+              <legend class="equipo-field__label">Permisos</legend>
+              @if (editando()) {
+                <div class="equipo-permisos__lista">
+                  @for (p of permisosDisponibles; track p.valor) {
+                    <label class="equipo-permiso">
+                      <input
+                        #casilla
+                        class="equipo-permiso__casilla"
+                        type="checkbox"
+                        [checked]="permisosElegidos().has(p.valor)"
+                        (change)="alternarPermiso(p.valor, casilla.checked)"
+                      />
+                      <span class="equipo-permiso__texto">
+                        <span class="equipo-permiso__nombre">{{ p.etiqueta }}</span>
+                        <span class="equipo-permiso__ayuda">{{ p.ayuda }}</span>
+                      </span>
+                    </label>
+                  }
+                </div>
+              } @else {
+                <p class="equipo-bloque__ayuda">
+                  Un sastre nuevo no tiene permisos. Asígnalos editándolo cuando acepte la
+                  invitación.
+                </p>
+              }
+            </fieldset>
+          } @else {
+            <p class="equipo-bloque__ayuda">Un administrador tiene todos los permisos.</p>
+          }
+
           @if (errorForm()) {
             <p class="equipo-aviso equipo-aviso--error" role="alert">{{ errorForm() }}</p>
           }

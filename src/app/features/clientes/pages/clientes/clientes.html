@@ -9,7 +9,7 @@
       <p class="clientes-aviso clientes-aviso--exito" role="status">{{ exito() }}</p>
     }
 
-    <div class="clientes-bento">
+    <div class="clientes-bento" [class.clientes-bento--sin-form]="!puedeGestionar()">
       <!-- ── Resumen ───────────────────────────────────────────── -->
       <div class="clientes-stat">
         <span class="clientes-stat__num">{{ total() }}</span>
@@ -18,84 +18,88 @@
         </span>
       </div>
 
-      <!-- ── Alta / edición ────────────────────────────────────── -->
-      <section class="clientes-bloque clientes-bloque--form" aria-labelledby="titulo-form">
-        <h2 class="clientes-bloque__titulo" id="titulo-form">
-          {{ editando() ? 'Editar cliente' : 'Nuevo cliente' }}
-        </h2>
+      <!-- ── Alta / edición (permiso GESTIONAR_CLIENTES) ────────── -->
+      @if (puedeGestionar()) {
+        <section class="clientes-bloque clientes-bloque--form" aria-labelledby="titulo-form">
+          <h2 class="clientes-bloque__titulo" id="titulo-form">
+            {{ editando() ? 'Editar cliente' : 'Nuevo cliente' }}
+          </h2>
 
-        <form class="clientes-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
-          <div class="clientes-fila">
+          <form class="clientes-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+            <div class="clientes-fila">
+              <div class="clientes-field">
+                <div class="clientes-field__head">
+                  <label class="clientes-field__label" for="nombre">Nombre</label>
+                  @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+                    <span class="clientes-field__error">Mínimo 2 letras</span>
+                  }
+                </div>
+                <input
+                  class="clientes-field__input"
+                  id="nombre"
+                  type="text"
+                  formControlName="nombre"
+                />
+              </div>
+
+              <div class="clientes-field">
+                <div class="clientes-field__head">
+                  <label class="clientes-field__label" for="apellido">Apellido</label>
+                  @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
+                    <span class="clientes-field__error">Mínimo 2 letras</span>
+                  }
+                </div>
+                <input
+                  class="clientes-field__input"
+                  id="apellido"
+                  type="text"
+                  formControlName="apellido"
+                />
+              </div>
+            </div>
+
             <div class="clientes-field">
               <div class="clientes-field__head">
-                <label class="clientes-field__label" for="nombre">Nombre</label>
-                @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
-                  <span class="clientes-field__error">Mínimo 2 letras</span>
+                <label class="clientes-field__label" for="telefono">Teléfono</label>
+                @if (errorTelefono()) {
+                  <span class="clientes-field__error" role="alert">{{ errorTelefono() }}</span>
+                } @else if (form.controls.telefono.touched && form.controls.telefono.invalid) {
+                  <span class="clientes-field__error">7 a 15 dígitos</span>
                 }
               </div>
               <input
                 class="clientes-field__input"
-                id="nombre"
-                type="text"
-                formControlName="nombre"
+                id="telefono"
+                type="tel"
+                inputmode="numeric"
+                formControlName="telefono"
+                placeholder="3001234567"
               />
             </div>
 
-            <div class="clientes-field">
-              <div class="clientes-field__head">
-                <label class="clientes-field__label" for="apellido">Apellido</label>
-                @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
-                  <span class="clientes-field__error">Mínimo 2 letras</span>
-                }
-              </div>
-              <input
-                class="clientes-field__input"
-                id="apellido"
-                type="text"
-                formControlName="apellido"
-              />
-            </div>
-          </div>
-
-          <div class="clientes-field">
-            <div class="clientes-field__head">
-              <label class="clientes-field__label" for="telefono">Teléfono</label>
-              @if (errorTelefono()) {
-                <span class="clientes-field__error" role="alert">{{ errorTelefono() }}</span>
-              } @else if (form.controls.telefono.touched && form.controls.telefono.invalid) {
-                <span class="clientes-field__error">7 a 15 dígitos</span>
-              }
-            </div>
-            <input
-              class="clientes-field__input"
-              id="telefono"
-              type="tel"
-              inputmode="numeric"
-              formControlName="telefono"
-              placeholder="3001234567"
-            />
-          </div>
-
-          @if (errorForm()) {
-            <p class="clientes-aviso clientes-aviso--error" role="alert">{{ errorForm() }}</p>
-          }
-
-          <div class="clientes-form__acciones">
-            @if (editando()) {
-              <button
-                class="clientes-boton clientes-boton--secundario"
-                type="button"
-                (click)="cancelar()"
-              >
-                Cancelar
-              </button>
+            @if (errorForm()) {
+              <p class="clientes-aviso clientes-aviso--error" role="alert">{{ errorForm() }}</p>
             }
-            <button class="clientes-boton" type="submit" [disabled]="guardando()">
-              {{ guardando() ? 'Guardando...' : editando() ? 'Guardar cambios' : 'Crear cliente' }}
-            </button>
-          </div>
-        </form>
-      </section>
+
+            <div class="clientes-form__acciones">
+              @if (editando()) {
+                <button
+                  class="clientes-boton clientes-boton--secundario"
+                  type="button"
+                  (click)="cancelar()"
+                >
+                  Cancelar
+                </button>
+              }
+              <button class="clientes-boton" type="submit" [disabled]="guardando()">
+                {{
+                  guardando() ? 'Guardando...' : editando() ? 'Guardar cambios' : 'Crear cliente'
+                }}
+              </button>
+            </div>
+          </form>
+        </section>
+      }
 
       <!-- ── Lista ─────────────────────────────────────────────── -->
       <section class="clientes-bloque clientes-bloque--lista" aria-labelledby="titulo-lista">
@@ -112,7 +116,26 @@
           />
         </div>
 
-        <div class="clientes-filtros" role="group" aria-label="Filtros">
+        <button
+          class="clientes-boton clientes-boton--secundario clientes-filtros-toggle"
+          type="button"
+          aria-controls="clientes-filtros"
+          [attr.aria-expanded]="filtrosAbiertos()"
+          (click)="alternarFiltros()"
+        >
+          {{ filtrosAbiertos() ? 'Ocultar filtros' : 'Filtros y orden' }}
+          @if (cantidadFiltros() > 0) {
+            ({{ cantidadFiltros() }})
+          }
+        </button>
+
+        <div
+          class="clientes-filtros"
+          id="clientes-filtros"
+          role="group"
+          aria-label="Filtros"
+          [class.clientes-filtros--abiertos]="filtrosAbiertos()"
+        >
           <div class="clientes-filtro">
             <label class="clientes-filtro__label" for="orden">Ordenar por</label>
             <select
@@ -190,6 +213,9 @@
                   <span class="clientes-item__detalle">
                     {{ c.telefono }} · Desde {{ c.fechaRegistro | fecha }}
                   </span>
+                  @if (c.saldoPendiente > 0) {
+                    <span class="clientes-item__saldo">Debe {{ c.saldoPendiente | moneda }}</span>
+                  }
                 </div>
 
                 <div class="clientes-item__acciones">
@@ -211,13 +237,22 @@
                       No
                     </button>
                   } @else {
-                    <button
+                    <a
                       class="clientes-boton clientes-boton--secundario"
-                      type="button"
-                      (click)="editar(c)"
+                      routerLink="/pedidos"
+                      [queryParams]="{ clienteId: c.id, cliente: c.nombre + ' ' + c.apellido }"
                     >
-                      Editar
-                    </button>
+                      Pedidos
+                    </a>
+                    @if (puedeGestionar()) {
+                      <button
+                        class="clientes-boton clientes-boton--secundario"
+                        type="button"
+                        (click)="editar(c)"
+                      >
+                        Editar
+                      </button>
+                    }
                     @if (esAdmin()) {
                       <button
                         class="clientes-boton clientes-boton--peligro"

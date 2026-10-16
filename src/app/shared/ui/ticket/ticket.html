@@ -1,0 +1,98 @@
+@let t = datos();
+<article class="ticket" aria-label="Ticket del pedido">
+  <header class="ticket-encabezado">
+    <h2 class="ticket-sastreria">{{ t.sastreria.nombre }}</h2>
+    @if (t.sastreria.nit) {
+      <p class="ticket-dato">NIT {{ t.sastreria.nit }}</p>
+    }
+    @if (t.sastreria.direccion) {
+      <p class="ticket-dato">{{ t.sastreria.direccion }}</p>
+    }
+    @if (t.sastreria.telefono) {
+      <p class="ticket-dato">Tel. {{ t.sastreria.telefono }}</p>
+    }
+  </header>
+
+  @if (t.anulado) {
+    <p class="ticket-anulado">PEDIDO ANULADO</p>
+  }
+
+  <section class="ticket-seccion">
+    <p class="ticket-numero">Pedido {{ t.numero }}</p>
+    <div class="ticket-linea">
+      <span>Recibido</span>
+      <span>{{ t.fecha | fecha }}</span>
+    </div>
+    <div class="ticket-linea ticket-linea--fuerte">
+      <span>Entrega</span>
+      <span>{{ t.fechaEntrega | fecha }}</span>
+    </div>
+    <div class="ticket-linea">
+      <span>Cliente</span>
+      <span>{{ t.cliente.nombre }} {{ t.cliente.apellido }}</span>
+    </div>
+    <div class="ticket-linea">
+      <span>Teléfono</span>
+      <span>{{ t.cliente.telefono }}</span>
+    </div>
+  </section>
+
+  <section class="ticket-seccion">
+    @for (p of t.prendas; track $index) {
+      <div class="ticket-prenda">
+        <div class="ticket-linea ticket-linea--fuerte">
+          <span>{{ p.cantidad }} × {{ p.tipoPrenda }}</span>
+          <span>{{ p.subtotal | moneda }}</span>
+        </div>
+        <p class="ticket-descripcion">{{ p.descripcion }}</p>
+        @if (p.cantidad > 1) {
+          <p class="ticket-descripcion">{{ p.precioUnitario | moneda }} c/u</p>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="ticket-seccion">
+    <div class="ticket-linea">
+      <span>Subtotal</span>
+      <span>{{ t.subtotal | moneda }}</span>
+    </div>
+    @if (t.descuento > 0) {
+      <div class="ticket-linea">
+        <span>Descuento</span>
+        <span>− {{ t.descuento | moneda }}</span>
+      </div>
+    }
+    <div class="ticket-linea ticket-linea--total">
+      <span>TOTAL</span>
+      <span>{{ t.total | moneda }}</span>
+    </div>
+  </section>
+
+  @if (t.abonos.length > 0) {
+    <section class="ticket-seccion">
+      @for (a of t.abonos; track $index) {
+        <div class="ticket-linea">
+          <span>Abono {{ a.fecha | fechaHora }} · {{ metodo(a.metodo) }}</span>
+          <span>{{ a.monto | moneda }}</span>
+        </div>
+      }
+      <div class="ticket-linea">
+        <span>Abonado</span>
+        <span>{{ t.abonado | moneda }}</span>
+      </div>
+    </section>
+  }
+
+  <section class="ticket-seccion">
+    <div class="ticket-linea ticket-linea--total">
+      <span>{{ t.saldo > 0 ? 'SALDO' : 'PAGADO' }}</span>
+      <span>{{ t.saldo | moneda }}</span>
+    </div>
+  </section>
+
+  <footer class="ticket-pie">
+    <p>Presente este ticket al recoger su pedido.</p>
+    <p class="ticket-emitido">Emitido {{ t.emitido | fechaHora }}</p>
+  </footer>
+</article>

@@ -73,34 +73,20 @@
         }
       </section>
 
-      <!-- ── Resumen / vista previa del ticket ─────────────────── -->
+      <!-- ── Vista previa del ticket ───────────────────────────── -->
       <section class="sastreria-bloque sastreria-bloque--resumen" aria-labelledby="titulo-resumen">
-        <h2 class="sastreria-bloque__titulo" id="titulo-resumen">Resumen</h2>
-        @if (sastreria(); as s) {
-          <dl class="sastreria-resumen">
-            <div class="sastreria-resumen__fila">
-              <dt class="sastreria-resumen__clave">Plan</dt>
-              <dd class="sastreria-resumen__valor">{{ s.plan }}</dd>
-            </div>
-            <div class="sastreria-resumen__fila">
-              <dt class="sastreria-resumen__clave">Nombre</dt>
-              <dd class="sastreria-resumen__valor">{{ s.nombre }}</dd>
-            </div>
-            <div class="sastreria-resumen__fila">
-              <dt class="sastreria-resumen__clave">NIT</dt>
-              <dd class="sastreria-resumen__valor">{{ s.nit || '—' }}</dd>
-            </div>
-            <div class="sastreria-resumen__fila">
-              <dt class="sastreria-resumen__clave">Dirección</dt>
-              <dd class="sastreria-resumen__valor">{{ s.direccion || '—' }}</dd>
-            </div>
-            <div class="sastreria-resumen__fila">
-              <dt class="sastreria-resumen__clave">Teléfono</dt>
-              <dd class="sastreria-resumen__valor">{{ s.telefono || '—' }}</dd>
-            </div>
-          </dl>
-          <p class="sastreria-bloque__ayuda">Así aparecerán tus datos en las facturas.</p>
-        }
+        <h2 class="sastreria-bloque__titulo" id="titulo-resumen">Vista previa del ticket</h2>
+        <p class="sastreria-bloque__ayuda">
+          Así se verá el ticket de tus pedidos (impresora térmica de 80 mm). Los datos del cliente y
+          las prendas son de ejemplo.
+          @if (sastreria(); as s) {
+            Plan actual: <strong>{{ s.plan }}</strong
+            >.
+          }
+        </p>
+        <div class="sastreria-ticket">
+          <app-ticket [datos]="vistaPrevia()" />
+        </div>
       </section>
     </div>
   </div>

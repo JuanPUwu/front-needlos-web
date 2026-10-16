@@ -2,7 +2,9 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
+import { provideRouter } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { PermisosService } from '../../../../core/auth/permisos';
 import { Cliente } from '../../models/cliente.model';
 import { ClienteService } from '../../services/cliente.service';
 import { Clientes } from './clientes';
@@ -14,6 +16,7 @@ function cliente(parcial: Partial<Cliente> = {}): Cliente {
     apellido: 'Gómez',
     telefono: '3001234567',
     fechaRegistro: '2026-10-15',
+    saldoPendiente: 0,
     version: 3,
     ...parcial,
   };
@@ -46,6 +49,8 @@ describe('Clientes', () => {
       providers: [
         { provide: ClienteService, useValue: service },
         { provide: AuthService, useValue: { roles } },
+        { provide: PermisosService, useValue: { puede: () => true } },
+        provideRouter([]),
       ],
     });
     componente = TestBed.createComponent(Clientes).componentInstance;

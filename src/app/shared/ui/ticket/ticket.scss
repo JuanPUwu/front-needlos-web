@@ -1,0 +1,117 @@
+// Ticket para impresora térmica de 80 mm (área imprimible ~72 mm). Solo tokens globales.
+
+:host {
+  display: block;
+}
+
+.ticket {
+  width: 72mm;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.ticket-encabezado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.ticket-sastreria {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ticket-dato {
+  font-size: 11px;
+}
+
+.ticket-anulado {
+  padding: var(--space-1);
+  border: 2px solid currentColor;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+
+// Las secciones se separan con una línea punteada, como en los tickets de papel.
+.ticket-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--color-text);
+}
+
+.ticket-numero {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ticket-linea {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+
+  span:last-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+}
+
+.ticket-linea--fuerte {
+  font-weight: 600;
+}
+
+.ticket-linea--total {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ticket-prenda {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ticket-descripcion {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.ticket-pie {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--color-text);
+  font-size: 11px;
+  text-align: center;
+}
+
+.ticket-emitido {
+  color: var(--color-text-muted);
+}
+
+@media print {
+  .ticket {
+    padding: 0;
+    color: var(--color-tinta);
+  }
+
+  .ticket-descripcion,
+  .ticket-emitido {
+    color: var(--color-tinta);
+  }
+}

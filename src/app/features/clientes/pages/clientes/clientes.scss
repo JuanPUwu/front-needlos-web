@@ -60,6 +60,22 @@
   }
 }
 
+// Sin permiso para crear/editar: solo resumen y lista.
+.clientes-bento--sin-form {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'stat'
+    'lista';
+
+  @container panel (max-width: 880px) {
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'stat'
+      'lista';
+  }
+}
+
 .clientes-stat {
   grid-area: stat;
   display: flex;
@@ -91,6 +107,10 @@
   gap: var(--space-5);
   min-width: 0;
   padding: var(--space-6);
+
+  @container panel (max-width: 480px) {
+    padding: var(--space-5) var(--space-4);
+  }
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
@@ -223,6 +243,10 @@
 
 // ── Botones ─────────────────────────────────────────────────
 .clientes-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   height: 44px;
   padding: 0 var(--space-5);
   border: none;
@@ -313,6 +337,22 @@
 
   @container clienteslista (max-width: 380px) {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.clientes-filtros-toggle {
+  display: none;
+  align-self: flex-start;
+}
+
+// Teléfono: filtros plegados detrás de un botón para que la lista quede a la vista.
+@container clienteslista (max-width: 520px) {
+  .clientes-filtros-toggle {
+    display: inline-flex;
+  }
+
+  .clientes-filtros:not(.clientes-filtros--abiertos) {
+    display: none;
   }
 }
 
@@ -408,6 +448,12 @@
   white-space: nowrap;
   font-size: 0.85rem;
   color: var(--color-text-muted);
+}
+
+.clientes-item__saldo {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-warning);
 }
 
 .clientes-item__acciones {

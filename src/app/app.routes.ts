@@ -73,13 +73,47 @@ export const routes: Routes = [
       import('./features/super-admin/pages/dashboard/dashboard').then((m) => m.SuperAdminDashboard),
   },
 
+  {
+    // Ticket imprimible: sin barra lateral, para que al imprimir solo salga el ticket.
+    path: 'ticket/:id',
+    canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
+    loadComponent: () =>
+      import('./features/pedidos/pages/ticket/ticket-pagina').then((m) => m.TicketPagina),
+  },
+
   // ── App autenticada (marco con barra lateral) ─────────────────────
   {
     path: '',
     canActivate: [autenticadoGuard],
     loadComponent: () => import('./features/panel/pages/panel/panel').then((m) => m.Panel),
     children: [
-      { path: 'pedidos', ...placeholder('Pedidos') },
+      {
+        path: 'pedidos',
+        canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
+        loadComponent: () =>
+          import('./features/pedidos/pages/pedidos/pedidos').then((m) => m.Pedidos),
+      },
+      {
+        // Crear exige el permiso CREAR_PEDIDOS: el botón solo se muestra con él y el backend lo valida.
+        path: 'pedidos/nuevo',
+        canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
+        loadComponent: () =>
+          import('./features/pedidos/pages/pedido-form/pedido-form').then((m) => m.PedidoForm),
+      },
+      {
+        path: 'pedidos/:id/editar',
+        canActivate: [rolGuard('SASTRE_ADMIN')],
+        loadComponent: () =>
+          import('./features/pedidos/pages/pedido-form/pedido-form').then((m) => m.PedidoForm),
+      },
+      {
+        path: 'pedidos/:id',
+        canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
+        loadComponent: () =>
+          import('./features/pedidos/pages/pedido-detalle/pedido-detalle').then(
+            (m) => m.PedidoDetalle,
+          ),
+      },
       {
         path: 'clientes',
         canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],

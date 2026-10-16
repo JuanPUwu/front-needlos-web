@@ -28,6 +28,10 @@ export class ClienteService {
   }
 
   /** Cliente dueño del teléfono (el teléfono es único). 404 si nadie lo tiene. */
+  obtener(id: string): Observable<Cliente> {
+    return this.http.get<Cliente>(`${this.base}/${id}`);
+  }
+
   porTelefono(telefono: string): Observable<Cliente> {
     return this.http.get<Cliente>(`${this.base}/por-telefono/${encodeURIComponent(telefono)}`);
   }

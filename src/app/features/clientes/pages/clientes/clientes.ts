@@ -9,10 +9,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Subject, debounceTime } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { PermisosService } from '../../../../core/auth/permisos';
 import { codigoDeError, mensajeDeError } from '../../../../core/http/api-error';
 import { FechaPipe } from '../../../../shared/pipes/fecha.pipe';
+import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
 import {
   Cliente,
   FILTROS_CLIENTES_INICIALES,
@@ -42,7 +45,7 @@ const ORDENES: { valor: OrdenClientes; etiqueta: string }[] = [
  */
 @Component({
   selector: 'app-clientes',
-  imports: [ReactiveFormsModule, FechaPipe],
+  imports: [ReactiveFormsModule, RouterLink, FechaPipe, MonedaPipe],
   templateUrl: './clientes.html',
   styleUrl: './clientes.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,10 +54,15 @@ export class Clientes implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ClienteService);
   private readonly auth = inject(AuthService);
+  private readonly permisos = inject(PermisosService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly busqueda$ = new Subject<string>();
 
   readonly esAdmin = computed(() => this.auth.roles().includes('SASTRE_ADMIN'));
+  /** Crear y editar exige el permiso GESTIONAR_CLIENTES (el admin lo tiene siempre). */
+  readonly puedeGestionar = computed(
+    () => this.esAdmin() || this.permisos.puede('GESTIONAR_CLIENTES'),
+  );
   readonly ordenes = ORDENES;
 
   readonly clientes = signal<Cliente[]>([]);
@@ -67,6 +75,11 @@ export class Clientes implements OnInit {
     return f.buscar !== '' || f.desde !== '' || f.hasta !== '';
   });
   readonly errorFiltros = signal<string | null>(null);
+  /** En pantallas angostas los filtros se pliegan detrás de un botón. */
+  readonly filtrosAbiertos = signal(false);
+  readonly cantidadFiltros = computed(
+    () => [this.filtros().desde, this.filtros().hasta].filter(Boolean).length,
+  );
   readonly cargando = signal(true);
   readonly error = signal<string | null>(null);
 
@@ -116,6 +129,10 @@ export class Clientes implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.errorTelefono.set(null));
     this.cargar(0);
+  }
+
+  alternarFiltros(): void {
+    this.filtrosAbiertos.update((v) => !v);
   }
 
   alBuscar(texto: string): void {

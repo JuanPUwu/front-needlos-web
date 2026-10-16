@@ -7,6 +7,7 @@ import {
   CrearEmpleadoRequest,
   Empleado,
   Invitacion,
+  MiembroAsignable,
 } from '../models/empleado.model';
 
 @Injectable({ providedIn: 'root' })
@@ -21,6 +22,11 @@ export class EmpleadoService {
   /** Invita por correo: crea una invitación pendiente (no agrega al instante). */
   invitar(req: CrearEmpleadoRequest): Observable<Invitacion> {
     return this.http.post<Invitacion>(this.base, req);
+  }
+
+  /** Miembros activos para asignar prendas (disponible para todo el equipo). */
+  asignables(): Observable<MiembroAsignable[]> {
+    return this.http.get<MiembroAsignable[]>(`${this.base}/asignables`);
   }
 
   listarInvitaciones(): Observable<Invitacion[]> {

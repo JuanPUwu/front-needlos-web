@@ -3,23 +3,30 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { map, startWith } from 'rxjs';
 import { mensajeDeError } from '../../../../core/http/api-error';
+import { TicketComponent, TicketDatos } from '../../../../shared/ui/ticket/ticket';
+import { hoyIso } from '../../../../shared/util/fechas';
 import { Sastreria } from '../../models/sastreria.model';
 import { SastreriaService } from '../../services/sastreria.service';
 
 /** Al menos un caracter visible (el backend rechaza textos solo con espacios). */
 const CON_TEXTO = /\S/;
 
-/** Configuración de la sastrería: nombre y datos opcionales para el ticket. */
+/**
+ * Configuración de la sastrería: nombre y datos opcionales para el ticket, con una vista
+ * previa del ticket (datos de ejemplo) que se actualiza mientras se escribe.
+ */
 @Component({
   selector: 'app-configuracion-sastreria',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TicketComponent],
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,6 +47,56 @@ export class ConfiguracionSastreria implements OnInit {
     nit: ['', [Validators.maxLength(30)]],
     direccion: ['', [Validators.maxLength(200)]],
     telefono: ['', [Validators.maxLength(20)]],
+  });
+
+  private readonly valores = toSignal(
+    this.form.valueChanges.pipe(
+      startWith(null),
+      map(() => this.form.getRawValue()),
+    ),
+    { initialValue: this.form.getRawValue() },
+  );
+
+  /** Ticket de ejemplo con los datos del negocio tal como están en el formulario. */
+  readonly vistaPrevia = computed<TicketDatos>(() => {
+    const v = this.valores();
+    const hoy = hoyIso();
+    return {
+      sastreria: {
+        nombre: v.nombre.trim() || 'Nombre de tu sastrería',
+        nit: v.nit.trim() || null,
+        direccion: v.direccion.trim() || null,
+        telefono: v.telefono.trim() || null,
+      },
+      numero: '#1024-58',
+      fecha: hoy,
+      fechaEntrega: hoy,
+      cliente: { nombre: 'Laura', apellido: 'Gómez', telefono: '3001234567' },
+      prendas: [
+        {
+          tipoPrenda: 'Pantalón',
+          descripcion: 'Bota recta y ruedo',
+          cantidad: 2,
+          precioUnitario: 18000,
+          subtotal: 36000,
+        },
+        {
+          tipoPrenda: 'Camisa',
+          descripcion: 'Ajuste de mangas',
+          cantidad: 1,
+          precioUnitario: 15000,
+          subtotal: 15000,
+        },
+      ],
+      subtotal: 51000,
+      descuento: 1000,
+      total: 50000,
+      abonos: [{ fecha: new Date().toISOString(), metodo: 'NEQUI', monto: 20000 }],
+      abonado: 20000,
+      saldo: 30000,
+      anulado: false,
+      emitido: new Date().toISOString(),
+    };
   });
 
   ngOnInit(): void {

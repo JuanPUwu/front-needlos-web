@@ -1,0 +1,18 @@
+<main class="ticketpag-page">
+  <div class="ticketpag-barra">
+    <a class="ticketpag-volver" [routerLink]="['/pedidos', id]">← Volver al pedido</a>
+    @if (ticket()) {
+      <button class="ticketpag-boton" type="button" (click)="imprimir()">Imprimir</button>
+    }
+  </div>
+
+  @if (error()) {
+    <p class="ticketpag-error" role="alert">{{ error() }}</p>
+  } @else if (ticket(); as t) {
+    <div class="ticketpag-papel">
+      <app-ticket [datos]="t" />
+    </div>
+  } @else {
+    <p class="ticketpag-ayuda" role="status">Cargando ticket...</p>
+  }
+</main>

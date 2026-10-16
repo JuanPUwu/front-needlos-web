@@ -16,6 +16,7 @@ function empleado(parcial: Partial<Empleado> = {}): Empleado {
     telefono: null,
     numeroDocumento: null,
     roles: ['SASTRE'],
+    permisos: [],
     activo: true,
     ...parcial,
   };
@@ -109,6 +110,24 @@ describe('Equipo', () => {
     expect(service.actualizar).toHaveBeenCalledWith(
       'acc-9',
       expect.objectContaining({ nombre: 'Ana', rol: 'SASTRE_ADMIN' }),
+    );
+  });
+
+  it('al editar un sastre envía sus permisos; a un admin no le envía permisos sueltos', () => {
+    componente.editar(empleado({ accesoId: 'acc-1', permisos: ['CREAR_PEDIDOS'] }));
+    componente.alternarPermiso('REGISTRAR_ABONOS', true);
+    componente.enviar();
+    expect(service.actualizar).toHaveBeenLastCalledWith(
+      'acc-1',
+      expect.objectContaining({ permisos: ['CREAR_PEDIDOS', 'REGISTRAR_ABONOS'] }),
+    );
+
+    componente.editar(empleado({ accesoId: 'acc-2', permisos: ['CREAR_PEDIDOS'] }));
+    componente.form.controls.rol.setValue('SASTRE_ADMIN');
+    componente.enviar();
+    expect(service.actualizar).toHaveBeenLastCalledWith(
+      'acc-2',
+      expect.objectContaining({ rol: 'SASTRE_ADMIN', permisos: [] }),
     );
   });
 

@@ -1,0 +1,631 @@
+// Estilos propios del detalle de pedido. Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.detalle-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-7) var(--space-4);
+}
+
+.detalle-contenedor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.detalle-volver {
+  align-self: flex-start;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.detalle-ayuda {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// ── Cabecera ────────────────────────────────────────────────
+.detalle-cabecera {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.detalle-cabecera__texto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.detalle-cabecera__linea {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.detalle-titulo {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.detalle-subtitulo {
+  color: var(--color-text-muted);
+}
+
+.detalle-cabecera__acciones {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+// ── Bento: resumen | prendas, abonos debajo del resumen ─────
+.detalle-bento {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'resumen prendas'
+    'abonos prendas';
+
+  @container panel (max-width: 880px) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      'resumen'
+      'prendas'
+      'abonos';
+  }
+}
+
+.detalle-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+  padding: var(--space-6);
+
+  @container panel (max-width: 480px) {
+    padding: var(--space-5) var(--space-4);
+  }
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container-type: inline-size;
+}
+
+.detalle-bloque--resumen {
+  grid-area: resumen;
+}
+
+.detalle-bloque--prendas {
+  grid-area: prendas;
+  container-name: detprendas;
+}
+
+.detalle-bloque--abonos {
+  grid-area: abonos;
+  container-name: detabonos;
+}
+
+.detalle-bloque__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.detalle-bloque__titulo {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+// ── Cliente y totales ───────────────────────────────────────
+.detalle-cliente {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.detalle-cliente__nombre {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.detalle-cliente__telefono {
+  color: var(--color-text-muted);
+}
+
+.detalle-enlace {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.detalle-enlace--boton {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.detalle-totales {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.detalle-totales__fila {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+
+  dt,
+  dd {
+    margin: 0;
+  }
+
+  dd {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+  }
+}
+
+.detalle-totales__fila--total {
+  font-weight: 700;
+
+  dt,
+  dd {
+    color: var(--color-navy);
+  }
+}
+
+.detalle-totales__fila--saldo {
+  font-size: 1.1rem;
+  font-weight: 700;
+
+  dd {
+    color: var(--color-warning);
+  }
+}
+
+// ── Prendas ─────────────────────────────────────────────────
+.detalle-prendas,
+.detalle-abonos,
+.detalle-historial {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.detalle-prendas {
+  gap: var(--space-4);
+}
+
+.detalle-prenda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+}
+
+.detalle-prenda__fila {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+
+  @container detprendas (max-width: 460px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.detalle-prenda__fila--meta {
+  align-items: center;
+
+  @container detprendas (max-width: 460px) {
+    align-items: flex-start;
+  }
+}
+
+.detalle-prenda__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.detalle-prenda__tipo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.detalle-prenda__descripcion {
+  color: var(--color-text);
+}
+
+.detalle-prenda__precio,
+.detalle-prenda__sastre {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.detalle-prenda__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.detalle-sastre {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.detalle-sastre__label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.detalle-sastre__select {
+  min-width: 0;
+  height: 34px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.detalle-historial {
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+}
+
+.detalle-historial__item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.85rem;
+}
+
+.detalle-historial__estado {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.detalle-historial__meta {
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+// ── Abonos ──────────────────────────────────────────────────
+.detalle-abonar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
+
+  @container detabonos (max-width: 380px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.detalle-abonar__acciones {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.detalle-abonos {
+  gap: var(--space-3);
+}
+
+.detalle-abono {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+}
+
+.detalle-abono--anulado {
+  background: var(--color-bg);
+
+  .detalle-abono__monto {
+    text-decoration: line-through;
+    color: var(--color-text-muted);
+  }
+}
+
+.detalle-abono__fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.detalle-abono__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.detalle-abono__monto {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.detalle-abono__meta {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.detalle-abono__anulacion {
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.detalle-anular-abono {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// ── Campos ──────────────────────────────────────────────────
+.detalle-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.detalle-field__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.detalle-field__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.detalle-field__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.detalle-field__input {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+// ── Confirmaciones, avisos y chips ──────────────────────────
+.detalle-confirmar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.detalle-confirmar--alerta {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.detalle-confirmar__texto {
+  color: var(--color-text);
+}
+
+.detalle-confirmar__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.detalle-aviso {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.detalle-aviso--error {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.detalle-aviso--exito {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.detalle-chip {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--focus-ring);
+  color: var(--color-navy);
+
+  &[data-estado='FINALIZADO'] {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+  }
+
+  &[data-estado='ENTREGADO'] {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+  }
+
+  &[data-estado='ANULADO'],
+  &[data-estado='VENCIDO'] {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+  }
+}
+
+// ── Botones ─────────────────────────────────────────────────
+.detalle-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s var(--ease-out),
+    transform 0.1s var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.detalle-boton--secundario {
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-border-soft);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+.detalle-boton--peligro {
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-border-soft);
+
+  &:hover:not(:disabled) {
+    background: var(--color-danger-bg);
+  }
+}
+
+.detalle-boton--peligro-lleno {
+  background: var(--color-danger);
+
+  &:hover:not(:disabled) {
+    background: var(--color-danger);
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detalle-boton {
+    transition: none;
+  }
+
+  .detalle-boton:active:not(:disabled) {
+    transform: none;
+  }
+}

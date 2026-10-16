@@ -34,6 +34,10 @@
 .ajustes__bento {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 280px));
+
+  @container panel (max-width: 560px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
   gap: var(--space-4);
   justify-content: start;
   align-content: start;
@@ -45,6 +49,10 @@
   gap: var(--space-2);
   min-width: 0;
   padding: var(--space-6);
+
+  @container panel (max-width: 480px) {
+    padding: var(--space-5) var(--space-4);
+  }
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
