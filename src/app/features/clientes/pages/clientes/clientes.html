@@ -1,0 +1,263 @@
+<main class="clientes-page">
+  <div class="clientes-contenedor">
+    <header class="clientes-cabecera">
+      <h1 class="clientes-titulo">Clientes</h1>
+      <p class="clientes-subtitulo">Registra y busca a los clientes de tu sastrería.</p>
+    </header>
+
+    @if (exito()) {
+      <p class="clientes-aviso clientes-aviso--exito" role="status">{{ exito() }}</p>
+    }
+
+    <div class="clientes-bento">
+      <!-- ── Resumen ───────────────────────────────────────────── -->
+      <div class="clientes-stat">
+        <span class="clientes-stat__num">{{ total() }}</span>
+        <span class="clientes-stat__label">
+          {{ hayFiltros() ? 'Coinciden con los filtros' : 'Clientes registrados' }}
+        </span>
+      </div>
+
+      <!-- ── Alta / edición ────────────────────────────────────── -->
+      <section class="clientes-bloque clientes-bloque--form" aria-labelledby="titulo-form">
+        <h2 class="clientes-bloque__titulo" id="titulo-form">
+          {{ editando() ? 'Editar cliente' : 'Nuevo cliente' }}
+        </h2>
+
+        <form class="clientes-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+          <div class="clientes-fila">
+            <div class="clientes-field">
+              <div class="clientes-field__head">
+                <label class="clientes-field__label" for="nombre">Nombre</label>
+                @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+                  <span class="clientes-field__error">Mínimo 2 letras</span>
+                }
+              </div>
+              <input
+                class="clientes-field__input"
+                id="nombre"
+                type="text"
+                formControlName="nombre"
+              />
+            </div>
+
+            <div class="clientes-field">
+              <div class="clientes-field__head">
+                <label class="clientes-field__label" for="apellido">Apellido</label>
+                @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
+                  <span class="clientes-field__error">Mínimo 2 letras</span>
+                }
+              </div>
+              <input
+                class="clientes-field__input"
+                id="apellido"
+                type="text"
+                formControlName="apellido"
+              />
+            </div>
+          </div>
+
+          <div class="clientes-field">
+            <div class="clientes-field__head">
+              <label class="clientes-field__label" for="telefono">Teléfono</label>
+              @if (errorTelefono()) {
+                <span class="clientes-field__error" role="alert">{{ errorTelefono() }}</span>
+              } @else if (form.controls.telefono.touched && form.controls.telefono.invalid) {
+                <span class="clientes-field__error">7 a 15 dígitos</span>
+              }
+            </div>
+            <input
+              class="clientes-field__input"
+              id="telefono"
+              type="tel"
+              inputmode="numeric"
+              formControlName="telefono"
+              placeholder="3001234567"
+            />
+          </div>
+
+          @if (errorForm()) {
+            <p class="clientes-aviso clientes-aviso--error" role="alert">{{ errorForm() }}</p>
+          }
+
+          <div class="clientes-form__acciones">
+            @if (editando()) {
+              <button
+                class="clientes-boton clientes-boton--secundario"
+                type="button"
+                (click)="cancelar()"
+              >
+                Cancelar
+              </button>
+            }
+            <button class="clientes-boton" type="submit" [disabled]="guardando()">
+              {{ guardando() ? 'Guardando...' : editando() ? 'Guardar cambios' : 'Crear cliente' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ── Lista ─────────────────────────────────────────────── -->
+      <section class="clientes-bloque clientes-bloque--lista" aria-labelledby="titulo-lista">
+        <div class="clientes-lista-cabecera">
+          <h2 class="clientes-bloque__titulo" id="titulo-lista">Listado</h2>
+          <input
+            #buscador
+            class="clientes-field__input clientes-buscador"
+            type="search"
+            placeholder="Buscar por nombre, apellido o teléfono"
+            aria-label="Buscar clientes"
+            [value]="filtros().buscar"
+            (input)="alBuscar(buscador.value)"
+          />
+        </div>
+
+        <div class="clientes-filtros" role="group" aria-label="Filtros">
+          <div class="clientes-filtro">
+            <label class="clientes-filtro__label" for="orden">Ordenar por</label>
+            <select
+              #orden
+              class="clientes-filtro__control"
+              id="orden"
+              (change)="alCambiarOrden(orden.value)"
+            >
+              @for (o of ordenes; track o.valor) {
+                <option [value]="o.valor" [selected]="o.valor === filtros().orden">
+                  {{ o.etiqueta }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="clientes-filtro">
+            <label class="clientes-filtro__label" for="desde">Registrado desde</label>
+            <input
+              #desde
+              class="clientes-filtro__control"
+              id="desde"
+              type="date"
+              [value]="filtros().desde"
+              [max]="filtros().hasta"
+              (change)="alCambiarDesde(desde.value)"
+            />
+          </div>
+          <div class="clientes-filtro">
+            <label class="clientes-filtro__label" for="hasta">Hasta</label>
+            <input
+              #hasta
+              class="clientes-filtro__control"
+              id="hasta"
+              type="date"
+              [value]="filtros().hasta"
+              [min]="filtros().desde"
+              (change)="alCambiarHasta(hasta.value)"
+            />
+          </div>
+          @if (hayFiltros()) {
+            <button
+              class="clientes-boton clientes-boton--secundario clientes-filtros__limpiar"
+              type="button"
+              (click)="limpiarFiltros()"
+            >
+              Limpiar filtros
+            </button>
+          }
+        </div>
+
+        @if (errorFiltros()) {
+          <p class="clientes-aviso clientes-aviso--error" role="alert">{{ errorFiltros() }}</p>
+        }
+
+        @if (error()) {
+          <p class="clientes-aviso clientes-aviso--error" role="alert">{{ error() }}</p>
+        }
+
+        @if (cargando()) {
+          <p class="clientes-bloque__ayuda" role="status">Cargando clientes...</p>
+        } @else if (clientes().length === 0) {
+          <p class="clientes-bloque__ayuda">
+            {{
+              hayFiltros()
+                ? 'Ningún cliente coincide con los filtros.'
+                : 'Aún no hay clientes. Crea el primero.'
+            }}
+          </p>
+        } @else {
+          <ul class="clientes-lista">
+            @for (c of clientes(); track c.id) {
+              <li class="clientes-item" [class.clientes-item--editando]="editando()?.id === c.id">
+                <div class="clientes-item__info">
+                  <span class="clientes-item__nombre">{{ c.nombre }} {{ c.apellido }}</span>
+                  <span class="clientes-item__detalle">
+                    {{ c.telefono }} · Desde {{ c.fechaRegistro | fecha }}
+                  </span>
+                </div>
+
+                <div class="clientes-item__acciones">
+                  @if (confirmarEliminarId() === c.id) {
+                    <span class="clientes-item__pregunta">¿Eliminar?</span>
+                    <button
+                      class="clientes-boton clientes-boton--peligro"
+                      type="button"
+                      [disabled]="accionId() === c.id"
+                      (click)="eliminar(c)"
+                    >
+                      Sí, eliminar
+                    </button>
+                    <button
+                      class="clientes-boton clientes-boton--secundario"
+                      type="button"
+                      (click)="noEliminar()"
+                    >
+                      No
+                    </button>
+                  } @else {
+                    <button
+                      class="clientes-boton clientes-boton--secundario"
+                      type="button"
+                      (click)="editar(c)"
+                    >
+                      Editar
+                    </button>
+                    @if (esAdmin()) {
+                      <button
+                        class="clientes-boton clientes-boton--peligro"
+                        type="button"
+                        (click)="pedirEliminar(c)"
+                      >
+                        Eliminar
+                      </button>
+                    }
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+
+          @if (totalPaginas() > 1) {
+            <nav class="clientes-paginacion" aria-label="Paginación">
+              <button
+                class="clientes-boton clientes-boton--secundario"
+                type="button"
+                [disabled]="pagina() === 0"
+                (click)="irAPagina(pagina() - 1)"
+              >
+                Anterior
+              </button>
+              <span class="clientes-paginacion__texto">
+                Página {{ pagina() + 1 }} de {{ totalPaginas() }}
+              </span>
+              <button
+                class="clientes-boton clientes-boton--secundario"
+                type="button"
+                [disabled]="pagina() + 1 >= totalPaginas()"
+                (click)="irAPagina(pagina() + 1)"
+              >
+                Siguiente
+              </button>
+            </nav>
+          }
+        }
+      </section>
+    </div>
+  </div>
+</main>

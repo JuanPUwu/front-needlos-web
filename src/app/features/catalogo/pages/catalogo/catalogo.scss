@@ -1,0 +1,393 @@
+// Estilos propios del catálogo de prendas. Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.catalogo-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-7) var(--space-4);
+}
+
+.catalogo-contenedor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.catalogo-volver {
+  align-self: flex-start;
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.catalogo-cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.catalogo-titulo {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.catalogo-subtitulo {
+  color: var(--color-text-muted);
+}
+
+// ── Bento: resumen (arriba-izq), formulario (abajo-izq), lista (derecha) ──
+.catalogo-bento {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'stats lista'
+    'form lista';
+
+  @container panel (max-width: 880px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      'stats'
+      'form'
+      'lista';
+  }
+}
+
+.catalogo-stats {
+  grid-area: stats;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.catalogo-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.catalogo-stat__num {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.catalogo-stat__label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+// ── Bloques ─────────────────────────────────────────────────
+.catalogo-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.catalogo-bloque--form {
+  grid-area: form;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.catalogo-bloque--lista {
+  grid-area: lista;
+  min-height: 0;
+  container-type: inline-size;
+  container-name: catalogolista;
+}
+
+.catalogo-bloque__titulo {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.catalogo-bloque__ayuda {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// ── Formulario ──────────────────────────────────────────────
+.catalogo-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.catalogo-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.catalogo-field__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.catalogo-field__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.catalogo-field__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+  transition:
+    border-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.catalogo-field__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.catalogo-form__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+// ── Avisos ──────────────────────────────────────────────────
+.catalogo-aviso {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.catalogo-aviso--error {
+  color: var(--color-danger);
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.catalogo-aviso--exito {
+  color: #1b7a34;
+  background: rgba(52, 200, 74, 0.12);
+}
+
+// ── Botones ─────────────────────────────────────────────────
+.catalogo-boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s var(--ease-out),
+    transform 0.1s var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.catalogo-boton--secundario {
+  height: 38px;
+  padding: 0 var(--space-4);
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-border-soft);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+.catalogo-boton--peligro {
+  height: 38px;
+  padding: 0 var(--space-4);
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-border-soft);
+
+  &:hover:not(:disabled) {
+    background: rgba(198, 40, 40, 0.08);
+  }
+}
+
+// ── Lista ───────────────────────────────────────────────────
+// ── Filtros ─────────────────────────────────────────────────
+.catalogo-filtros {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 180px) auto;
+  align-items: center;
+  gap: var(--space-4);
+
+  @container catalogolista (max-width: 480px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.catalogo-filtros__control {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.catalogo-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.catalogo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--color-border-soft);
+
+  &:first-child {
+    border-top: none;
+  }
+
+  @container catalogolista (max-width: 420px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.catalogo-item--inactivo {
+  opacity: 0.6;
+}
+
+.catalogo-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.catalogo-item__nombre {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.catalogo-item__detalle {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.catalogo-item__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.catalogo-chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-border-soft);
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalogo-field__input,
+  .catalogo-boton {
+    transition: none;
+  }
+
+  .catalogo-boton:active:not(:disabled) {
+    transform: none;
+  }
+}

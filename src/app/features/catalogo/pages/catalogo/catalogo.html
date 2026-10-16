@@ -1,0 +1,186 @@
+<main class="catalogo-page">
+  <div class="catalogo-contenedor">
+    <a class="catalogo-volver" routerLink="/ajustes">← Ajustes</a>
+    <header class="catalogo-cabecera">
+      <h1 class="catalogo-titulo">Catálogo de prendas</h1>
+      <p class="catalogo-subtitulo">
+        Los tipos de prenda que ofreces. El precio base es opcional: se usa como sugerencia mientras
+        no hayas cobrado ese tipo en un pedido.
+      </p>
+    </header>
+
+    @if (exito()) {
+      <p class="catalogo-aviso catalogo-aviso--exito" role="status">{{ exito() }}</p>
+    }
+
+    <div class="catalogo-bento">
+      <!-- ── Resumen ───────────────────────────────────────────── -->
+      <div class="catalogo-stats">
+        <div class="catalogo-stat">
+          <span class="catalogo-stat__num">{{ activos() }}</span>
+          <span class="catalogo-stat__label">Activos</span>
+        </div>
+        <div class="catalogo-stat">
+          <span class="catalogo-stat__num">{{ inactivos() }}</span>
+          <span class="catalogo-stat__label">Desactivados</span>
+        </div>
+      </div>
+
+      <!-- ── Alta / edición ────────────────────────────────────── -->
+      <section class="catalogo-bloque catalogo-bloque--form" aria-labelledby="titulo-form">
+        <h2 class="catalogo-bloque__titulo" id="titulo-form">
+          {{ editando() ? 'Editar tipo de prenda' : 'Nuevo tipo de prenda' }}
+        </h2>
+
+        <form class="catalogo-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+          <div class="catalogo-field">
+            <div class="catalogo-field__head">
+              <label class="catalogo-field__label" for="nombre">Nombre</label>
+              @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+                <span class="catalogo-field__error">Obligatorio</span>
+              }
+            </div>
+            <input
+              class="catalogo-field__input"
+              id="nombre"
+              type="text"
+              formControlName="nombre"
+              placeholder="Camisa"
+            />
+          </div>
+
+          <div class="catalogo-field">
+            <div class="catalogo-field__head">
+              <label class="catalogo-field__label" for="precioBase">Precio base (opcional)</label>
+              @if (form.controls.precioBase.touched && form.controls.precioBase.invalid) {
+                <span class="catalogo-field__error">Solo números, p. ej. 25000</span>
+              }
+            </div>
+            <input
+              class="catalogo-field__input"
+              id="precioBase"
+              type="text"
+              inputmode="decimal"
+              formControlName="precioBase"
+              placeholder="25000"
+            />
+          </div>
+
+          @if (errorForm()) {
+            <p class="catalogo-aviso catalogo-aviso--error" role="alert">{{ errorForm() }}</p>
+          }
+
+          <div class="catalogo-form__acciones">
+            @if (editando()) {
+              <button
+                class="catalogo-boton catalogo-boton--secundario"
+                type="button"
+                (click)="cancelar()"
+              >
+                Cancelar
+              </button>
+            }
+            <button class="catalogo-boton" type="submit" [disabled]="guardando()">
+              {{ guardando() ? 'Guardando...' : editando() ? 'Guardar cambios' : 'Agregar' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ── Lista ─────────────────────────────────────────────── -->
+      <section class="catalogo-bloque catalogo-bloque--lista" aria-labelledby="titulo-lista">
+        <h2 class="catalogo-bloque__titulo" id="titulo-lista">Tipos de prenda</h2>
+
+        <div class="catalogo-filtros" role="group" aria-label="Filtros">
+          <input
+            #buscador
+            class="catalogo-filtros__control catalogo-filtros__buscador"
+            type="search"
+            placeholder="Buscar por nombre"
+            aria-label="Buscar tipos de prenda"
+            [value]="buscar()"
+            (input)="alBuscar(buscador.value)"
+          />
+          <select
+            #estadoSel
+            class="catalogo-filtros__control"
+            aria-label="Estado"
+            (change)="alCambiarEstado(estadoSel.value)"
+          >
+            <option value="todos" [selected]="estado() === 'todos'">Todos</option>
+            <option value="activos" [selected]="estado() === 'activos'">Activos</option>
+            <option value="inactivos" [selected]="estado() === 'inactivos'">Desactivados</option>
+          </select>
+          @if (hayFiltros()) {
+            <button
+              class="catalogo-boton catalogo-boton--secundario"
+              type="button"
+              (click)="limpiarFiltros()"
+            >
+              Limpiar filtros
+            </button>
+          }
+        </div>
+
+        @if (error()) {
+          <p class="catalogo-aviso catalogo-aviso--error" role="alert">{{ error() }}</p>
+        }
+
+        @if (cargando()) {
+          <p class="catalogo-bloque__ayuda" role="status">Cargando catálogo...</p>
+        } @else if (tipos().length === 0) {
+          <p class="catalogo-bloque__ayuda">Aún no hay tipos de prenda. Agrega el primero.</p>
+        } @else if (visibles().length === 0) {
+          <p class="catalogo-bloque__ayuda">Ningún tipo de prenda coincide con los filtros.</p>
+        } @else {
+          <ul class="catalogo-lista">
+            @for (t of visibles(); track t.id) {
+              <li class="catalogo-item" [class.catalogo-item--inactivo]="!t.activo">
+                <div class="catalogo-item__info">
+                  <span class="catalogo-item__nombre">
+                    {{ t.nombre }}
+                    @if (!t.activo) {
+                      <span class="catalogo-chip">Desactivado</span>
+                    }
+                  </span>
+                  <span class="catalogo-item__detalle">
+                    {{ t.precioBase === null ? 'Sin precio base' : (t.precioBase | moneda) }}
+                  </span>
+                </div>
+
+                <div class="catalogo-item__acciones">
+                  <button
+                    class="catalogo-boton catalogo-boton--secundario"
+                    type="button"
+                    (click)="editar(t)"
+                  >
+                    Editar
+                  </button>
+                  @if (t.activo) {
+                    <button
+                      class="catalogo-boton catalogo-boton--peligro"
+                      type="button"
+                      [disabled]="accionId() === t.id"
+                      (click)="desactivar(t)"
+                    >
+                      Desactivar
+                    </button>
+                  } @else {
+                    <button
+                      class="catalogo-boton catalogo-boton--secundario"
+                      type="button"
+                      [disabled]="accionId() === t.id"
+                      (click)="reactivar(t)"
+                    >
+                      Reactivar
+                    </button>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  </div>
+</main>

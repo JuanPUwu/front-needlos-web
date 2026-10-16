@@ -80,6 +80,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/panel/pages/panel/panel').then((m) => m.Panel),
     children: [
       { path: 'pedidos', ...placeholder('Pedidos') },
+      {
+        path: 'clientes',
+        canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
+        loadComponent: () =>
+          import('./features/clientes/pages/clientes/clientes').then((m) => m.Clientes),
+      },
+      {
+        // Catálogo de prendas: se entra desde Ajustes (solo admin).
+        path: 'catalogo',
+        canActivate: [rolGuard('SASTRE_ADMIN')],
+        loadComponent: () =>
+          import('./features/catalogo/pages/catalogo/catalogo').then((m) => m.Catalogo),
+      },
       { path: 'inventario', ...placeholder('Inventario') },
       { path: 'gastos', ...placeholder('Gastos') },
       { path: 'caja', ...placeholder('Caja') },

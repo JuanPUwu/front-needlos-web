@@ -11,11 +11,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { mensajeDeError } from '../../../../core/http/api-error';
+import { coincide } from '../../../../shared/util/texto';
 import { Empleado, Invitacion } from '../../models/empleado.model';
 import { EmpleadoService } from '../../services/empleado.service';
 
 /** Al menos un caracter visible (el backend rechaza textos solo con espacios). */
 const CON_TEXTO = /\S/;
+
+export type RolFiltro = 'todos' | 'SASTRE_ADMIN' | 'SASTRE';
+export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
 
 /** Gestión del equipo: invitar por correo, miembros e invitaciones pendientes. */
 @Component({
@@ -51,6 +55,33 @@ export class Equipo implements OnInit {
   );
   readonly pendientes = computed(() => this.invitaciones().length);
 
+  // Filtros (el equipo llega completo: se filtra en el navegador). Texto y rol aplican
+  // también a las invitaciones; el estado solo a los miembros.
+  readonly buscar = signal('');
+  readonly rol = signal<RolFiltro>('todos');
+  readonly estado = signal<EstadoFiltro>('todos');
+  readonly hayFiltros = computed(
+    () => this.buscar() !== '' || this.rol() !== 'todos' || this.estado() !== 'todos',
+  );
+  readonly miembrosVisibles = computed(() => {
+    const rol = this.rol();
+    const estado = this.estado();
+    return this.empleados().filter(
+      (e) =>
+        coincide(this.buscar(), `${e.nombre} ${e.apellido}`, e.email) &&
+        (rol === 'todos' || this.rolPrincipal(e.roles) === rol) &&
+        (estado === 'todos' || (estado === 'activos') === e.activo),
+    );
+  });
+  readonly invitacionesVisibles = computed(() => {
+    const rol = this.rol();
+    return this.invitaciones().filter(
+      (i) =>
+        coincide(this.buscar(), `${i.nombre} ${i.apellido}`, i.email) &&
+        (rol === 'todos' || i.rol === rol),
+    );
+  });
+
   readonly form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(60), Validators.pattern(CON_TEXTO)]],
     apellido: ['', [Validators.required, Validators.maxLength(60), Validators.pattern(CON_TEXTO)]],
@@ -62,6 +93,29 @@ export class Equipo implements OnInit {
 
   ngOnInit(): void {
     this.cargar();
+  }
+
+  alBuscar(texto: string): void {
+    this.buscar.set(texto.trim());
+  }
+
+  alCambiarRol(rol: string): void {
+    this.rol.set(rol as RolFiltro);
+  }
+
+  alCambiarEstado(estado: string): void {
+    this.estado.set(estado as EstadoFiltro);
+  }
+
+  limpiarFiltros(): void {
+    this.buscar.set('');
+    this.rol.set('todos');
+    this.estado.set('todos');
+  }
+
+  /** Un admin también puede tener SASTRE: cuenta como admin. */
+  private rolPrincipal(roles: string[]): RolFiltro {
+    return roles.includes('SASTRE_ADMIN') ? 'SASTRE_ADMIN' : 'SASTRE';
   }
 
   enviar(): void {

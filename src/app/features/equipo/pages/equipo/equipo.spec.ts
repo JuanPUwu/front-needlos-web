@@ -121,4 +121,31 @@ describe('Equipo', () => {
     expect(service.cancelarInvitacion).toHaveBeenCalledWith('inv-9');
     expect(componente.invitaciones().length).toBe(0);
   });
+
+  it('filtra miembros por texto, rol y estado; texto y rol también a invitaciones', () => {
+    service.listar.mockReturnValue(
+      of([
+        empleado({ accesoId: 'a1', nombre: 'Ana', roles: ['SASTRE_ADMIN', 'SASTRE'] }),
+        empleado({ accesoId: 'a2', nombre: 'Luis', email: 'luis@x.com', activo: false }),
+      ]),
+    );
+    service.listarInvitaciones.mockReturnValue(
+      of([invitacion({ id: 'i1', nombre: 'Marta', rol: 'SASTRE' })]),
+    );
+    componente.ngOnInit();
+
+    componente.alCambiarRol('SASTRE_ADMIN');
+    expect(componente.miembrosVisibles().map((e) => e.accesoId)).toEqual(['a1']);
+    expect(componente.invitacionesVisibles().length).toBe(0);
+
+    componente.limpiarFiltros();
+    componente.alCambiarEstado('inactivos');
+    expect(componente.miembrosVisibles().map((e) => e.accesoId)).toEqual(['a2']);
+    expect(componente.invitacionesVisibles().length).toBe(1);
+
+    componente.limpiarFiltros();
+    componente.alBuscar('LUIS@');
+    expect(componente.miembrosVisibles().map((e) => e.accesoId)).toEqual(['a2']);
+    expect(componente.hayFiltros()).toBe(true);
+  });
 });

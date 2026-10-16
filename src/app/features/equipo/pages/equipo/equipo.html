@@ -137,6 +137,47 @@
       <section class="equipo-bloque equipo-bloque--lista" aria-labelledby="titulo-lista">
         <h2 class="equipo-bloque__titulo" id="titulo-lista">Miembros</h2>
 
+        <div class="equipo-filtros" role="group" aria-label="Filtros">
+          <input
+            #buscador
+            class="equipo-filtros__control equipo-filtros__buscador"
+            type="search"
+            placeholder="Buscar por nombre o correo"
+            aria-label="Buscar en el equipo"
+            [value]="buscar()"
+            (input)="alBuscar(buscador.value)"
+          />
+          <select
+            #rolSel
+            class="equipo-filtros__control"
+            aria-label="Rol"
+            (change)="alCambiarRol(rolSel.value)"
+          >
+            <option value="todos" [selected]="rol() === 'todos'">Todos los roles</option>
+            <option value="SASTRE_ADMIN" [selected]="rol() === 'SASTRE_ADMIN'">Admin</option>
+            <option value="SASTRE" [selected]="rol() === 'SASTRE'">Sastre</option>
+          </select>
+          <select
+            #estadoSel
+            class="equipo-filtros__control"
+            aria-label="Estado"
+            (change)="alCambiarEstado(estadoSel.value)"
+          >
+            <option value="todos" [selected]="estado() === 'todos'">Todos</option>
+            <option value="activos" [selected]="estado() === 'activos'">Activos</option>
+            <option value="inactivos" [selected]="estado() === 'inactivos'">Inactivos</option>
+          </select>
+          @if (hayFiltros()) {
+            <button
+              class="equipo-boton equipo-boton--secundario"
+              type="button"
+              (click)="limpiarFiltros()"
+            >
+              Limpiar filtros
+            </button>
+          }
+        </div>
+
         @if (error()) {
           <p class="equipo-aviso equipo-aviso--error" role="alert">{{ error() }}</p>
         }
@@ -147,9 +188,11 @@
           <div class="equipo-lista-scroll">
             @if (empleados().length === 0) {
               <p class="equipo-bloque__ayuda">Aún no hay miembros. Invita al primero arriba.</p>
+            } @else if (miembrosVisibles().length === 0) {
+              <p class="equipo-bloque__ayuda">Ningún miembro coincide con los filtros.</p>
             } @else {
               <ul class="equipo-lista">
-                @for (emp of empleados(); track emp.accesoId) {
+                @for (emp of miembrosVisibles(); track emp.accesoId) {
                   <li class="equipo-item" [class.equipo-item--inactivo]="!emp.activo">
                     <div class="equipo-item__info">
                       <span class="equipo-item__nombre">
@@ -197,10 +240,10 @@
               </ul>
             }
 
-            @if (invitaciones().length > 0) {
+            @if (invitacionesVisibles().length > 0) {
               <h3 class="equipo-subtitulo-lista">Invitaciones pendientes</h3>
               <ul class="equipo-lista">
-                @for (inv of invitaciones(); track inv.id) {
+                @for (inv of invitacionesVisibles(); track inv.id) {
                   <li class="equipo-item">
                     <div class="equipo-item__info">
                       <span class="equipo-item__nombre">

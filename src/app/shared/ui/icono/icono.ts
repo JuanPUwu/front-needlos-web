@@ -13,7 +13,8 @@ export type NombreIcono =
   | 'ojo'
   | 'ojo-cerrado'
   | 'menu'
-  | 'cerrar';
+  | 'cerrar'
+  | 'clientes';
 
 /**
  * Ícono de línea reutilizable (SVG inline). Hereda el color con `currentColor`

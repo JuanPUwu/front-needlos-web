@@ -32,6 +32,7 @@ export class Panel {
   /** Secciones del negocio (términos del glosario: Pedidos, Equipo…). */
   readonly secciones: SeccionNav[] = [
     { etiqueta: 'Pedidos', ruta: '/pedidos', icono: 'pedidos' },
+    { etiqueta: 'Clientes', ruta: '/clientes', icono: 'clientes' },
     { etiqueta: 'Inventario', ruta: '/inventario', icono: 'inventario' },
     { etiqueta: 'Gastos', ruta: '/gastos', icono: 'gastos' },
     { etiqueta: 'Caja', ruta: '/caja', icono: 'caja' },
