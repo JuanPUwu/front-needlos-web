@@ -35,7 +35,6 @@ export class MiCuenta implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly sesion = this.auth.sesion;
-  readonly rutaVolver = this.auth.rutaInicial();
 
   // ── Contrasena ──────────────────────────────────────────────────
   readonly guardando = signal(false);

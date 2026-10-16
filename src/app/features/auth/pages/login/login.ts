@@ -5,12 +5,13 @@ import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { mensajeDeError } from '../../../../core/http/api-error';
+import { Icono } from '../../../../shared/ui/icono/icono';
 import { Logo } from '../../../../shared/ui/logo/logo';
 import { GoogleButton } from '../../components/google-button/google-button';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, Logo, GoogleButton],
+  imports: [ReactiveFormsModule, RouterLink, Logo, GoogleButton, Icono],
   templateUrl: './login.html',
   styleUrl: './login.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

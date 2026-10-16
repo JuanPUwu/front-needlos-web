@@ -1,0 +1,409 @@
+// Estilos propios de la gestión de equipo. Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.equipo-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-7) var(--space-4);
+}
+
+.equipo-contenedor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// ── Bento: resumen (arriba-izq), formulario (abajo-izq), lista (derecha) ──
+.equipo-bento {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: var(--space-4);
+  // minmax(0, …) deja que las columnas encojan por debajo del contenido
+  // (sin esto, el grid se desborda horizontalmente).
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'stats lista'
+    'form lista';
+
+  // Apila (una columna) cuando el CONTENIDO (no el viewport) se estrecha.
+  @container panel (max-width: 880px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      'stats'
+      'form'
+      'lista';
+  }
+}
+
+.equipo-stats {
+  grid-area: stats;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container panel (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.equipo-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.equipo-stat__num {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.equipo-stat__label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.equipo-cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.equipo-titulo {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.equipo-subtitulo {
+  color: var(--color-text-muted);
+}
+
+// ── Bloques ─────────────────────────────────────────────────
+.equipo-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+// El formulario ocupa su celda; si es más alto que ella, scrollea dentro.
+.equipo-bloque--form {
+  grid-area: form;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  // Contenedor propio: la fila de dos campos se apila según el ancho de ESTA
+  // tarjeta, no del contenido completo.
+  container-type: inline-size;
+  container-name: formcard;
+}
+
+// La lista ocupa toda la columna derecha; su contenido scrollea dentro.
+.equipo-bloque--lista {
+  grid-area: lista;
+  min-width: 0;
+  min-height: 0;
+  // Contenedor propio: cada fila de miembro se apila según el ancho de ESTA tarjeta.
+  container-type: inline-size;
+  container-name: listacard;
+}
+
+.equipo-bloque__titulo {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.equipo-bloque__ayuda {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// ── Formulario ──────────────────────────────────────────────
+.equipo-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.equipo-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+
+  // Un campo por fila cuando la tarjeta del formulario se estrecha.
+  @container formcard (max-width: 420px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.equipo-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.equipo-field__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.equipo-field__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.equipo-field__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+  transition:
+    border-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.equipo-field__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.equipo-form__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+// ── Avisos ──────────────────────────────────────────────────
+.equipo-aviso {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.equipo-aviso--error {
+  color: var(--color-danger);
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.equipo-aviso--exito {
+  color: #1b7a34;
+  background: rgba(52, 200, 74, 0.12);
+}
+
+// ── Botones ─────────────────────────────────────────────────
+.equipo-boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s var(--ease-out),
+    transform 0.1s var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.equipo-boton--secundario {
+  height: 38px;
+  padding: 0 var(--space-4);
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-border-soft);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+.equipo-boton--peligro {
+  height: 38px;
+  padding: 0 var(--space-4);
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-border-soft);
+
+  &:hover:not(:disabled) {
+    background: rgba(198, 40, 40, 0.08);
+  }
+}
+
+// ── Lista ───────────────────────────────────────────────────
+// Zona que ocupa el alto restante de la tarjeta y scrollea (miembros + pendientes).
+.equipo-lista-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.equipo-subtitulo-lista {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.equipo-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.equipo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--color-border-soft);
+
+  &:first-child {
+    border-top: none;
+  }
+
+  // Si la tarjeta de la lista se estrecha, los datos van arriba y las acciones debajo.
+  @container listacard (max-width: 420px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.equipo-item--inactivo {
+  opacity: 0.6;
+}
+
+.equipo-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.equipo-item__nombre {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.equipo-item__detalle {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.equipo-item__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+// ── Chips ───────────────────────────────────────────────────
+.equipo-chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.equipo-chip--admin {
+  background: var(--color-navy);
+  color: #ffffff;
+}
+
+.equipo-chip--inactivo {
+  background: var(--color-border-soft);
+  color: var(--color-text-muted);
+}
+
+.equipo-chip--pendiente {
+  background: rgba(2, 40, 89, 0.08);
+  color: var(--color-navy);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .equipo-field__input,
+  .equipo-boton {
+    transition: none;
+  }
+
+  .equipo-boton:active:not(:disabled) {
+    transform: none;
+  }
+}

@@ -150,7 +150,7 @@
               (click)="verPassword.set(!verPassword())"
               [attr.aria-label]="verPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
             >
-              {{ verPassword() ? 'Ocultar' : 'Mostrar' }}
+              <app-icono [nombre]="verPassword() ? 'ojo-cerrado' : 'ojo'" />
             </button>
           </div>
         </div>

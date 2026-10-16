@@ -1,0 +1,103 @@
+<main class="aceptar-page">
+  <section class="aceptar-card">
+    <header class="aceptar-card__header">
+      <app-logo class="aceptar-card__logo" variant="dark" />
+    </header>
+
+    @switch (estado()) {
+      @case ('cargando') {
+        <p class="aceptar-card__subtitle" role="status">Cargando invitación...</p>
+      }
+      @case ('invalida') {
+        <p class="aceptar-banner aceptar-banner--error" role="alert">
+          La invitación no es válida o ya venció. Pídele a tu jefe que te envíe una nueva.
+        </p>
+        <a class="aceptar-submit aceptar-submit--enlace" routerLink="/login">Ir a iniciar sesión</a>
+      }
+      @case ('aceptada') {
+        <h1 class="aceptar-card__titulo">¡Bienvenido al equipo!</h1>
+        <p class="aceptar-banner aceptar-banner--exito" role="status">
+          Ya eres parte de {{ info()?.sastreria }}. Inicia sesión para entrar.
+        </p>
+        <a class="aceptar-submit aceptar-submit--enlace" routerLink="/login">Iniciar sesión</a>
+      }
+      @default {
+        <h1 class="aceptar-card__titulo">Te invitaron a {{ info()?.sastreria }}</h1>
+        <p class="aceptar-card__subtitle">Para {{ info()?.email }}</p>
+
+        @if (info()?.requiereContrasena) {
+          <form class="aceptar-form" [formGroup]="form" (ngSubmit)="aceptar()" novalidate>
+            <div class="aceptar-field">
+              <div class="aceptar-field__head">
+                <label class="aceptar-field__label" for="contrasena">Crea tu contraseña</label>
+                @if (form.controls.contrasena.touched && form.controls.contrasena.invalid) {
+                  <span class="aceptar-field__error">No cumple la política</span>
+                }
+              </div>
+              <div class="aceptar-field__control">
+                <input
+                  class="aceptar-field__input"
+                  id="contrasena"
+                  [type]="verPassword() ? 'text' : 'password'"
+                  formControlName="contrasena"
+                  autocomplete="new-password"
+                  aria-describedby="politica"
+                />
+                <button
+                  class="aceptar-field__toggle"
+                  type="button"
+                  (click)="verPassword.set(!verPassword())"
+                  [attr.aria-label]="verPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                >
+                  <app-icono [nombre]="verPassword() ? 'ojo-cerrado' : 'ojo'" />
+                </button>
+              </div>
+              <span class="aceptar-field__ayuda" id="politica"
+                >8 a 72 caracteres, con mayúscula, minúscula, número y carácter especial.</span
+              >
+            </div>
+
+            <div class="aceptar-field">
+              <div class="aceptar-field__head">
+                <label class="aceptar-field__label" for="confirmacion"
+                  >Confirma la contraseña</label
+                >
+                @if (form.controls.confirmacion.touched && form.hasError('noCoinciden')) {
+                  <span class="aceptar-field__error">No coinciden</span>
+                }
+              </div>
+              <div class="aceptar-field__control">
+                <input
+                  class="aceptar-field__input"
+                  id="confirmacion"
+                  [type]="verPassword() ? 'text' : 'password'"
+                  formControlName="confirmacion"
+                  autocomplete="new-password"
+                />
+              </div>
+            </div>
+
+            @if (error()) {
+              <p class="aceptar-banner aceptar-banner--error" role="alert">{{ error() }}</p>
+            }
+
+            <button class="aceptar-submit" type="submit" [disabled]="cargando()">
+              {{ cargando() ? 'Aceptando...' : 'Aceptar y crear contraseña' }}
+            </button>
+          </form>
+        } @else {
+          <p class="aceptar-card__texto">
+            Ya tienes una cuenta en NeedlOS. Acepta para unirte; entras con tu contraseña o Google
+            de siempre.
+          </p>
+          @if (error()) {
+            <p class="aceptar-banner aceptar-banner--error" role="alert">{{ error() }}</p>
+          }
+          <button class="aceptar-submit" type="button" [disabled]="cargando()" (click)="aceptar()">
+            {{ cargando() ? 'Aceptando...' : 'Aceptar invitación' }}
+          </button>
+        }
+      }
+    }
+  </section>
+</main>

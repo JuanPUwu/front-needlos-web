@@ -1,0 +1,242 @@
+<main class="equipo-page">
+  <div class="equipo-contenedor">
+    <header class="equipo-cabecera">
+      <h1 class="equipo-titulo">Equipo</h1>
+      <p class="equipo-subtitulo">Habilita a tus empleados por correo y gestiona sus roles.</p>
+    </header>
+
+    @if (exito()) {
+      <p class="equipo-aviso equipo-aviso--exito" role="status">{{ exito() }}</p>
+    }
+
+    <div class="equipo-bento">
+      <!-- ── Resumen ───────────────────────────────────────────── -->
+      <div class="equipo-stats">
+        <div class="equipo-stat">
+          <span class="equipo-stat__num">{{ total() }}</span>
+          <span class="equipo-stat__label">Miembros</span>
+        </div>
+        <div class="equipo-stat">
+          <span class="equipo-stat__num">{{ admins() }}</span>
+          <span class="equipo-stat__label">Administradores</span>
+        </div>
+        <div class="equipo-stat">
+          <span class="equipo-stat__num">{{ pendientes() }}</span>
+          <span class="equipo-stat__label">Invitaciones pendientes</span>
+        </div>
+      </div>
+
+      <!-- ── Alta / edición ────────────────────────────────────── -->
+      <section class="equipo-bloque equipo-bloque--form" aria-labelledby="titulo-form">
+        <h2 class="equipo-bloque__titulo" id="titulo-form">
+          {{ editando() ? 'Editar empleado' : 'Agregar empleado' }}
+        </h2>
+
+        <form class="equipo-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+          <div class="equipo-fila">
+            <div class="equipo-field">
+              <div class="equipo-field__head">
+                <label class="equipo-field__label" for="nombre">Nombre</label>
+                @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+                  <span class="equipo-field__error">Obligatorio</span>
+                }
+              </div>
+              <input class="equipo-field__input" id="nombre" type="text" formControlName="nombre" />
+            </div>
+
+            <div class="equipo-field">
+              <div class="equipo-field__head">
+                <label class="equipo-field__label" for="apellido">Apellido</label>
+                @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
+                  <span class="equipo-field__error">Obligatorio</span>
+                }
+              </div>
+              <input
+                class="equipo-field__input"
+                id="apellido"
+                type="text"
+                formControlName="apellido"
+              />
+            </div>
+          </div>
+
+          @if (!editando()) {
+            <div class="equipo-field">
+              <div class="equipo-field__head">
+                <label class="equipo-field__label" for="email">Correo</label>
+                @if (form.controls.email.touched && form.controls.email.invalid) {
+                  <span class="equipo-field__error">Correo no válido</span>
+                }
+              </div>
+              <input
+                class="equipo-field__input"
+                id="email"
+                type="email"
+                formControlName="email"
+                autocomplete="off"
+                placeholder="empleado@ejemplo.com"
+              />
+            </div>
+          }
+
+          <div class="equipo-fila">
+            <div class="equipo-field">
+              <label class="equipo-field__label" for="telefono">Teléfono (opcional)</label>
+              <input
+                class="equipo-field__input"
+                id="telefono"
+                type="tel"
+                formControlName="telefono"
+              />
+            </div>
+
+            <div class="equipo-field">
+              <label class="equipo-field__label" for="numeroDocumento">Documento (opcional)</label>
+              <input
+                class="equipo-field__input"
+                id="numeroDocumento"
+                type="text"
+                inputmode="numeric"
+                formControlName="numeroDocumento"
+              />
+            </div>
+          </div>
+
+          <div class="equipo-field">
+            <label class="equipo-field__label" for="rol">Rol</label>
+            <select class="equipo-field__input" id="rol" formControlName="rol">
+              <option value="SASTRE">Sastre (empleado)</option>
+              <option value="SASTRE_ADMIN">Administrador</option>
+            </select>
+          </div>
+
+          @if (errorForm()) {
+            <p class="equipo-aviso equipo-aviso--error" role="alert">{{ errorForm() }}</p>
+          }
+
+          <div class="equipo-form__acciones">
+            @if (editando()) {
+              <button
+                class="equipo-boton equipo-boton--secundario"
+                type="button"
+                (click)="cancelar()"
+              >
+                Cancelar
+              </button>
+            }
+            <button class="equipo-boton" type="submit" [disabled]="guardando()">
+              {{
+                guardando() ? 'Guardando...' : editando() ? 'Guardar cambios' : 'Enviar invitación'
+              }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ── Miembros e invitaciones ───────────────────────────── -->
+      <section class="equipo-bloque equipo-bloque--lista" aria-labelledby="titulo-lista">
+        <h2 class="equipo-bloque__titulo" id="titulo-lista">Miembros</h2>
+
+        @if (error()) {
+          <p class="equipo-aviso equipo-aviso--error" role="alert">{{ error() }}</p>
+        }
+
+        @if (cargando()) {
+          <p class="equipo-bloque__ayuda" role="status">Cargando equipo...</p>
+        } @else {
+          <div class="equipo-lista-scroll">
+            @if (empleados().length === 0) {
+              <p class="equipo-bloque__ayuda">Aún no hay miembros. Invita al primero arriba.</p>
+            } @else {
+              <ul class="equipo-lista">
+                @for (emp of empleados(); track emp.accesoId) {
+                  <li class="equipo-item" [class.equipo-item--inactivo]="!emp.activo">
+                    <div class="equipo-item__info">
+                      <span class="equipo-item__nombre">
+                        {{ emp.nombre }} {{ emp.apellido }}
+                        @if (esAdmin(emp)) {
+                          <span class="equipo-chip equipo-chip--admin">Admin</span>
+                        }
+                        @if (!emp.activo) {
+                          <span class="equipo-chip equipo-chip--inactivo">Inactivo</span>
+                        }
+                      </span>
+                      <span class="equipo-item__detalle">{{ emp.email }}</span>
+                    </div>
+
+                    <div class="equipo-item__acciones">
+                      <button
+                        class="equipo-boton equipo-boton--secundario"
+                        type="button"
+                        (click)="editar(emp)"
+                      >
+                        Editar
+                      </button>
+                      @if (emp.activo) {
+                        <button
+                          class="equipo-boton equipo-boton--peligro"
+                          type="button"
+                          [disabled]="accionId() === emp.accesoId"
+                          (click)="desactivar(emp)"
+                        >
+                          Desactivar
+                        </button>
+                      } @else {
+                        <button
+                          class="equipo-boton equipo-boton--secundario"
+                          type="button"
+                          [disabled]="accionId() === emp.accesoId"
+                          (click)="reactivar(emp)"
+                        >
+                          Reactivar
+                        </button>
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+
+            @if (invitaciones().length > 0) {
+              <h3 class="equipo-subtitulo-lista">Invitaciones pendientes</h3>
+              <ul class="equipo-lista">
+                @for (inv of invitaciones(); track inv.id) {
+                  <li class="equipo-item">
+                    <div class="equipo-item__info">
+                      <span class="equipo-item__nombre">
+                        {{ inv.nombre }} {{ inv.apellido }}
+                        <span class="equipo-chip equipo-chip--pendiente">
+                          {{ inv.rol === 'SASTRE_ADMIN' ? 'Admin' : 'Sastre' }}
+                        </span>
+                      </span>
+                      <span class="equipo-item__detalle">{{ inv.email }}</span>
+                    </div>
+
+                    <div class="equipo-item__acciones">
+                      <button
+                        class="equipo-boton equipo-boton--secundario"
+                        type="button"
+                        [disabled]="accionId() === inv.id"
+                        (click)="reenviarInvitacion(inv)"
+                      >
+                        Reenviar
+                      </button>
+                      <button
+                        class="equipo-boton equipo-boton--peligro"
+                        type="button"
+                        [disabled]="accionId() === inv.id"
+                        (click)="cancelarInvitacion(inv)"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+</main>

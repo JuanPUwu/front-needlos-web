@@ -43,7 +43,7 @@ export class AuthService {
 
   /** Ruta de entrada segun el tipo de sesion (SUPER_ADMIN no tiene sastreria). */
   rutaInicial(): string {
-    return this._sesion()?.sastreria ? '/inicio' : '/super-admin';
+    return this._sesion()?.sastreria ? '/pedidos' : '/super-admin';
   }
 
   // ── Inicio de sesion ────────────────────────────────────────────
@@ -137,9 +137,13 @@ export class AuthService {
   // ── Helpers ─────────────────────────────────────────────────────
 
   private procesarLogin(res: LoginResponse): void {
-    if (res.requiereSeleccion && res.preauthToken && res.sastrerias) {
+    if (res.requiereSeleccion && res.preauthToken && res.sastrerias?.length) {
+      // Con varias sastrerias se entra directo a la primera; el cambio de sastreria
+      // se hara mas adelante desde dentro de la app. Si falla, cae al selector.
       this._seleccionPendiente.set({ preauthToken: res.preauthToken, sastrerias: res.sastrerias });
-      this.router.navigate(['/elegir-sastreria']);
+      this.seleccionar(res.sastrerias[0].tenantId).subscribe({
+        error: () => this.router.navigate(['/elegir-sastreria']),
+      });
     } else if (res.sesion) {
       this.entrar(res.sesion);
     }

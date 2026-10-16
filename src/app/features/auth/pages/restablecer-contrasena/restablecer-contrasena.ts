@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { codigoDeError, mensajeDeError } from '../../../../core/http/api-error';
+import { Icono } from '../../../../shared/ui/icono/icono';
 import { Logo } from '../../../../shared/ui/logo/logo';
 import {
   POLITICA_CONTRASENA,
@@ -20,7 +21,7 @@ type Estado = 'formulario' | 'listo' | 'enlaceInvalido';
  */
 @Component({
   selector: 'app-restablecer-contrasena',
-  imports: [ReactiveFormsModule, RouterLink, Logo],
+  imports: [ReactiveFormsModule, RouterLink, Logo, Icono],
   templateUrl: './restablecer-contrasena.html',
   styleUrl: './restablecer-contrasena.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

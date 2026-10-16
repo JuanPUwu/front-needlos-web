@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { mensajeDeError } from '../../../../core/http/api-error';
+import { Icono } from '../../../../shared/ui/icono/icono';
 import { Logo } from '../../../../shared/ui/logo/logo';
 import {
   POLITICA_CONTRASENA,
@@ -22,7 +23,7 @@ const CON_TEXTO = /\S/;
  */
 @Component({
   selector: 'app-registrar-sastreria',
-  imports: [ReactiveFormsModule, RouterLink, Logo, GoogleButton],
+  imports: [ReactiveFormsModule, RouterLink, Logo, GoogleButton, Icono],
   templateUrl: './registrar-sastreria.html',
   styleUrl: './registrar-sastreria.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

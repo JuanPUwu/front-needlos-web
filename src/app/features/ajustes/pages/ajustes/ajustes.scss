@@ -1,0 +1,108 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+// Mismos paddings/gaps que la sección de Equipo.
+.ajustes {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-7) var(--space-4);
+}
+
+.ajustes__cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ajustes__titulo {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.ajustes__subtitulo {
+  color: var(--color-text-muted);
+}
+
+// ── Tiles compactos (no se estiran; el espacio libre queda a la derecha/abajo) ──
+.ajustes__bento {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 280px));
+  gap: var(--space-4);
+  justify-content: start;
+  align-content: start;
+}
+
+.ajustes__tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  transition:
+    border-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+
+  &:hover {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.ajustes__tile-titulo {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.ajustes__tile-detalle {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// El tile de sesión no navega: no reacciona al hover de enlace.
+.ajustes__tile--sesion {
+  cursor: default;
+
+  &:hover {
+    border-color: var(--color-border-soft);
+    box-shadow: var(--shadow-card);
+  }
+}
+
+.ajustes__logout {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-danger);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ajustes__tile {
+    transition: none;
+  }
+}

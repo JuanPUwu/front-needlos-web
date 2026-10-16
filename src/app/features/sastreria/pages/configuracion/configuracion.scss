@@ -1,0 +1,247 @@
+// Estilos propios de la configuración de la sastrería. Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.sastreria-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-7) var(--space-4);
+}
+
+.sastreria-contenedor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.sastreria-volver {
+  align-self: flex-start;
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.sastreria-cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sastreria-titulo {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.sastreria-subtitulo {
+  color: var(--color-text-muted);
+}
+
+// ── Bento ───────────────────────────────────────────────────
+.sastreria-bento {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-areas: 'form resumen';
+
+  @container panel (max-width: 820px) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'form'
+      'resumen';
+  }
+}
+
+.sastreria-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.sastreria-bloque--form {
+  grid-area: form;
+  overflow-y: auto;
+}
+
+.sastreria-bloque--resumen {
+  grid-area: resumen;
+}
+
+.sastreria-bloque__titulo {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.sastreria-bloque__ayuda {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// ── Resumen ─────────────────────────────────────────────────
+.sastreria-resumen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.sastreria-resumen__fila {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.sastreria-resumen__clave {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.sastreria-resumen__valor {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.sastreria-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.sastreria-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sastreria-field__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.sastreria-field__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.sastreria-field__input {
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+  transition:
+    border-color 0.15s var(--ease-out),
+    box-shadow 0.15s var(--ease-out);
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.sastreria-field__error {
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.sastreria-aviso {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.sastreria-aviso--error {
+  color: var(--color-danger);
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.sastreria-aviso--exito {
+  color: #1b7a34;
+  background: rgba(52, 200, 74, 0.12);
+}
+
+.sastreria-form__acciones {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sastreria-boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s var(--ease-out),
+    transform 0.1s var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sastreria-field__input,
+  .sastreria-boton {
+    transition: none;
+  }
+
+  .sastreria-boton:active:not(:disabled) {
+    transform: none;
+  }
+}

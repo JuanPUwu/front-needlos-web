@@ -1,0 +1,229 @@
+// Panel principal. Estilos propios; solo tokens globales; espaciado con gap.
+
+.panel {
+  display: flex;
+  flex-direction: row;
+  // Altura fija del viewport: la página no crece. El scroll vive dentro del
+  // contenido, no en la barra lateral.
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+// ── Barra superior y backdrop: solo aparecen en tablets/móvil ──
+.panel__topbar {
+  display: none;
+}
+
+.panel__hamburguesa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.panel__topbar-logo {
+  height: 2.4rem;
+  // El logo queda a la izquierda y la hamburguesa a la derecha.
+  margin-right: auto;
+}
+
+.panel__backdrop {
+  display: none;
+}
+
+// ── Barra lateral (fija, no se desplaza con el scroll del contenido) ──
+.panel__nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  // Ancho fluido: cede espacio al contenido en pantallas chicas, hasta un mínimo.
+  width: clamp(200px, 22vw, 260px);
+  height: 100%;
+  flex-shrink: 0;
+  padding: var(--space-6) var(--space-4) var(--space-4);
+  overflow-y: auto; // por si la barra no cabe en pantallas muy bajas
+}
+
+// El logo no trae tamaño propio: se la da el contenedor (escala por su altura).
+.panel__logo {
+  width: 100%;
+  height: 3.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.panel__separador {
+  width: 100%;
+  height: 1px;
+  background: var(--color-border-soft);
+}
+
+// Empuja lo que sigue (Ajustes) al fondo de la barra.
+.panel__separador--final {
+  margin-top: auto;
+}
+
+// ── Ítem de sección ─────────────────────────────────────────
+// Ítems como tarjetas suaves, en armonía con el bento: fondo surface, borde
+// 1px suave, sombra de card y esquinas redondeadas.
+.panel__item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  height: 3.25rem;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color 0.15s var(--ease-out),
+    color 0.15s var(--ease-out),
+    background-color 0.15s var(--ease-out),
+    transform 0.1s var(--ease-out);
+
+  &:hover {
+    border-color: var(--color-border);
+  }
+
+  &:active {
+    transform: scale(var(--press-scale));
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.panel__item--activo {
+  background: var(--color-navy);
+  border-color: var(--color-navy);
+  color: #ffffff;
+}
+
+.panel__item-icono {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.panel__item-texto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ── Divisor y contenido ─────────────────────────────────────
+.panel__divisor {
+  width: 1px;
+  margin: var(--space-5) 0;
+  background: var(--color-border-soft);
+}
+
+// El área donde se pintan las secciones: ocupa todo el alto y hace scroll
+// internamente si la sección crece (la barra lateral no se mueve).
+.panel__contenido {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  // Columna flex: cada sección (el componente del router-outlet) puede estirarse
+  // al 100% con `:host { flex: 1; }` y así no dejar huecos vacíos.
+  display: flex;
+  flex-direction: column;
+  // Contenedor de consulta: las secciones adaptan su layout al ANCHO REAL del
+  // contenido (no al del viewport), que es el espacio que queda tras la barra.
+  container-type: inline-size;
+  container-name: panel;
+}
+
+// ── Tablets y pantallas delgadas: barra lateral como cajón (hamburguesa) ──
+@media (max-width: 900px) {
+  .panel {
+    flex-direction: column;
+  }
+
+  .panel__topbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-shrink: 0;
+    padding: var(--space-3) var(--space-5);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border-soft);
+  }
+
+  // El nav se saca del flujo y entra desde la derecha al abrir el menú
+  // (la hamburguesa está a la derecha).
+  .panel__nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1000;
+    width: min(280px, 82vw);
+    height: 100%;
+    background: var(--color-bg);
+    box-shadow: var(--shadow-card);
+    transform: translateX(100%);
+    transition: transform 0.2s var(--ease-out);
+  }
+
+  .panel__nav--abierto {
+    transform: translateX(0);
+  }
+
+  .panel__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  // En móvil no hay divisor vertical; el cajón tiene su propia sombra.
+  .panel__divisor {
+    display: none;
+  }
+
+  // En columna, el contenido ocupa el alto restante bajo la barra superior y
+  // scrollea ahí. Se conserva el contenedor de consulta para que los bentos
+  // colapsen según el ancho (ahora el del viewport completo).
+  .panel__contenido {
+    height: auto;
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel__item {
+    transition: none;
+  }
+
+  .panel__nav {
+    transition: none;
+  }
+}

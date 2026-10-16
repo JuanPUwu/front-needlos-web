@@ -1,0 +1,55 @@
+<main class="panel" [class.panel--menu-abierto]="menuAbierto()">
+  <!-- Barra superior: solo en tablets/móvil -->
+  <header class="panel__topbar">
+    <app-logo class="panel__topbar-logo" variant="dark" />
+    <button
+      class="panel__hamburguesa"
+      type="button"
+      (click)="alternarMenu()"
+      [attr.aria-expanded]="menuAbierto()"
+      [attr.aria-label]="menuAbierto() ? 'Cerrar menú' : 'Abrir menú'"
+    >
+      <app-icono [nombre]="menuAbierto() ? 'cerrar' : 'menu'" />
+    </button>
+  </header>
+
+  @if (menuAbierto()) {
+    <div class="panel__backdrop" (click)="cerrarMenu()" aria-hidden="true"></div>
+  }
+
+  <nav class="panel__nav" [class.panel__nav--abierto]="menuAbierto()" aria-label="Secciones">
+    <app-logo class="panel__logo" variant="dark" />
+    <div class="panel__separador"></div>
+
+    @for (seccion of secciones; track seccion.etiqueta) {
+      @if (esVisible(seccion)) {
+        <a
+          class="panel__item"
+          [routerLink]="seccion.ruta"
+          routerLinkActive="panel__item--activo"
+          (click)="cerrarMenu()"
+        >
+          <app-icono class="panel__item-icono" [nombre]="seccion.icono" />
+          <span class="panel__item-texto">{{ seccion.etiqueta }}</span>
+        </a>
+      }
+    }
+
+    <div class="panel__separador panel__separador--final"></div>
+    <a
+      class="panel__item"
+      routerLink="/ajustes"
+      routerLinkActive="panel__item--activo"
+      (click)="cerrarMenu()"
+    >
+      <app-icono class="panel__item-icono" nombre="ajustes" />
+      <span class="panel__item-texto">Ajustes</span>
+    </a>
+  </nav>
+
+  <div class="panel__divisor"></div>
+
+  <section class="panel__contenido">
+    <router-outlet />
+  </section>
+</main>

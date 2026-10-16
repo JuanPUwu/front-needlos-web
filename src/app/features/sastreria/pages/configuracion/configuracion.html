@@ -1,0 +1,107 @@
+<main class="sastreria-page">
+  <div class="sastreria-contenedor">
+    <a class="sastreria-volver" routerLink="/ajustes">← Ajustes</a>
+    <header class="sastreria-cabecera">
+      <h1 class="sastreria-titulo">Mi sastrería</h1>
+      <p class="sastreria-subtitulo">
+        El nombre es obligatorio; los demás datos son opcionales y saldrán en tus facturas.
+      </p>
+    </header>
+
+    <div class="sastreria-bento">
+      <!-- ── Datos del negocio ─────────────────────────────────── -->
+      <section class="sastreria-bloque sastreria-bloque--form" aria-labelledby="titulo-datos">
+        <h2 class="sastreria-bloque__titulo" id="titulo-datos">Datos del negocio</h2>
+
+        @if (cargando()) {
+          <p class="sastreria-bloque__ayuda" role="status">Cargando...</p>
+        } @else {
+          <form class="sastreria-form" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+            <div class="sastreria-field">
+              <div class="sastreria-field__head">
+                <label class="sastreria-field__label" for="nombre">Nombre del negocio</label>
+                @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+                  <span class="sastreria-field__error">Obligatorio</span>
+                }
+              </div>
+              <input
+                class="sastreria-field__input"
+                id="nombre"
+                type="text"
+                formControlName="nombre"
+              />
+            </div>
+
+            <div class="sastreria-field">
+              <label class="sastreria-field__label" for="nit">NIT (opcional)</label>
+              <input class="sastreria-field__input" id="nit" type="text" formControlName="nit" />
+            </div>
+
+            <div class="sastreria-field">
+              <label class="sastreria-field__label" for="direccion">Dirección (opcional)</label>
+              <input
+                class="sastreria-field__input"
+                id="direccion"
+                type="text"
+                formControlName="direccion"
+              />
+            </div>
+
+            <div class="sastreria-field">
+              <label class="sastreria-field__label" for="telefono">Teléfono (opcional)</label>
+              <input
+                class="sastreria-field__input"
+                id="telefono"
+                type="tel"
+                formControlName="telefono"
+              />
+            </div>
+
+            @if (error()) {
+              <p class="sastreria-aviso sastreria-aviso--error" role="alert">{{ error() }}</p>
+            }
+            @if (exito()) {
+              <p class="sastreria-aviso sastreria-aviso--exito" role="status">Datos guardados.</p>
+            }
+
+            <div class="sastreria-form__acciones">
+              <button class="sastreria-boton" type="submit" [disabled]="guardando()">
+                {{ guardando() ? 'Guardando...' : 'Guardar' }}
+              </button>
+            </div>
+          </form>
+        }
+      </section>
+
+      <!-- ── Resumen / vista previa del ticket ─────────────────── -->
+      <section class="sastreria-bloque sastreria-bloque--resumen" aria-labelledby="titulo-resumen">
+        <h2 class="sastreria-bloque__titulo" id="titulo-resumen">Resumen</h2>
+        @if (sastreria(); as s) {
+          <dl class="sastreria-resumen">
+            <div class="sastreria-resumen__fila">
+              <dt class="sastreria-resumen__clave">Plan</dt>
+              <dd class="sastreria-resumen__valor">{{ s.plan }}</dd>
+            </div>
+            <div class="sastreria-resumen__fila">
+              <dt class="sastreria-resumen__clave">Nombre</dt>
+              <dd class="sastreria-resumen__valor">{{ s.nombre }}</dd>
+            </div>
+            <div class="sastreria-resumen__fila">
+              <dt class="sastreria-resumen__clave">NIT</dt>
+              <dd class="sastreria-resumen__valor">{{ s.nit || '—' }}</dd>
+            </div>
+            <div class="sastreria-resumen__fila">
+              <dt class="sastreria-resumen__clave">Dirección</dt>
+              <dd class="sastreria-resumen__valor">{{ s.direccion || '—' }}</dd>
+            </div>
+            <div class="sastreria-resumen__fila">
+              <dt class="sastreria-resumen__clave">Teléfono</dt>
+              <dd class="sastreria-resumen__valor">{{ s.telefono || '—' }}</dd>
+            </div>
+          </dl>
+          <p class="sastreria-bloque__ayuda">Así aparecerán tus datos en las facturas.</p>
+        }
+      </section>
+    </div>
+  </div>
+</main>

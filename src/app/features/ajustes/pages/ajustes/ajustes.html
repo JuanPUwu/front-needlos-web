@@ -1,0 +1,26 @@
+<section class="ajustes">
+  <header class="ajustes__cabecera">
+    <h1 class="ajustes__titulo">Ajustes</h1>
+    <p class="ajustes__subtitulo">Configura tu sastrería y tu cuenta.</p>
+  </header>
+
+  <div class="ajustes__bento">
+    @if (esAdmin()) {
+      <a class="ajustes__tile" routerLink="/sastreria">
+        <span class="ajustes__tile-titulo">Mi sastrería</span>
+        <span class="ajustes__tile-detalle">Nombre y datos del negocio para el ticket.</span>
+      </a>
+    }
+
+    <a class="ajustes__tile" routerLink="/mi-cuenta">
+      <span class="ajustes__tile-titulo">Mi cuenta</span>
+      <span class="ajustes__tile-detalle">Cambiar contraseña y gestionar sesiones.</span>
+    </a>
+
+    <div class="ajustes__tile ajustes__tile--sesion">
+      <span class="ajustes__tile-titulo">Sesión</span>
+      <span class="ajustes__tile-detalle">Cierra tu sesión en este dispositivo.</span>
+      <button class="ajustes__logout" type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+    </div>
+  </div>
+</section>
