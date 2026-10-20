@@ -71,8 +71,11 @@
   grid-column: 1 / -1;
 }
 
-// Pie: una línea arriba de cada lado (como "Entrega | Radicado" en el listado).
+// Pie: una línea arriba de cada lado (como "Entrega | Radicado" en el listado). Los dos lados
+// ocupan el alto de la fila (stretch): si uno es más bajo (prenda entregada, sin selector), sus
+// líneas siguen a la misma altura.
 .prt__pie {
+  align-self: stretch;
   display: flex;
   align-items: center;
   gap: var(--space-3);

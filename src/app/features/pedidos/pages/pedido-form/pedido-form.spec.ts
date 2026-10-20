@@ -4,6 +4,7 @@ import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { PermisosService } from '../../../../core/auth/permisos';
 import { Memoria } from '../../../../core/estado/memoria';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { TipoPrendaService } from '../../../catalogo/services/tipo-prenda.service';
 import { ClienteService } from '../../../clientes/services/cliente.service';
 import { EmpleadoService } from '../../../equipo/services/empleado.service';
@@ -22,6 +23,7 @@ describe('PedidoForm (nuevo)', () => {
   let clientes: { porTelefono: ReturnType<typeof vi.fn> };
   let tipos: { listar: ReturnType<typeof vi.fn>; precioSugerido: ReturnType<typeof vi.fn> };
   let componente: PedidoForm;
+  let confirmar: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -36,6 +38,7 @@ describe('PedidoForm (nuevo)', () => {
       ),
       precioSugerido: vi.fn(() => of({ precio: 25000, origen: 'HISTORICO' })),
     };
+    confirmar = vi.fn().mockResolvedValue(true);
     TestBed.configureTestingModule({
       imports: [PedidoForm],
       providers: [
@@ -45,6 +48,7 @@ describe('PedidoForm (nuevo)', () => {
         { provide: TipoPrendaService, useValue: tipos },
         { provide: EmpleadoService, useValue: { asignables: () => of([]) } },
         { provide: PermisosService, useValue: { puede: () => true } },
+        { provide: Confirmacion, useValue: { pedir: confirmar } },
       ],
     });
     componente = TestBed.createComponent(PedidoForm).componentInstance;
@@ -89,7 +93,7 @@ describe('PedidoForm (nuevo)', () => {
     componente.form.controls.fechaEntrega.setValue('2099-01-01');
   }
 
-  it('si el teléfono ya es de un cliente, rellena sus datos y envía su id', () => {
+  it('si el teléfono ya es de un cliente, rellena sus datos y envía su id', async () => {
     clientes.porTelefono.mockReturnValue(
       of({ id: 'c1', nombre: 'Laura', apellido: 'Gómez', telefono: '3001234567' }),
     );
@@ -100,14 +104,14 @@ describe('PedidoForm (nuevo)', () => {
     expect(componente.form.controls.nombre.disabled).toBe(true);
 
     llenarPrenda();
-    componente.enviar();
+    await componente.enviar();
     expect(pedidos.crear).toHaveBeenCalledWith(
       expect.objectContaining({ clienteId: 'c1', clienteNuevo: null }),
       expect.any(String),
     );
   });
 
-  it('si el teléfono no existe, crea el cliente junto con el pedido', () => {
+  it('si el teléfono no existe, crea el cliente junto con el pedido', async () => {
     componente.form.controls.telefono.setValue('3110000000');
     vi.advanceTimersByTime(300);
     expect(componente.telefonoConsultado()).toBe(true);
@@ -115,7 +119,7 @@ describe('PedidoForm (nuevo)', () => {
 
     componente.form.patchValue({ nombre: 'Pedro', apellido: 'Ruiz' });
     llenarPrenda();
-    componente.enviar();
+    await componente.enviar();
     expect(pedidos.crear).toHaveBeenCalledWith(
       expect.objectContaining({
         clienteId: null,
@@ -125,7 +129,7 @@ describe('PedidoForm (nuevo)', () => {
     );
   });
 
-  it('calcula el total en vivo y no deja un abono mayor que el total', () => {
+  it('calcula el total en vivo y no deja un abono mayor que el total', async () => {
     componente.form.controls.telefono.setValue('3110000000');
     vi.advanceTimersByTime(300);
     componente.form.patchValue({ nombre: 'Pedro', apellido: 'Ruiz', descuento: '5000' });
@@ -135,27 +139,27 @@ describe('PedidoForm (nuevo)', () => {
 
     componente.form.controls.abonoMonto.setValue('40000');
     expect(componente.abonoInvalido()).toBe(true);
-    componente.enviar();
+    await componente.enviar();
     expect(pedidos.crear).not.toHaveBeenCalled();
 
     componente.form.controls.abonoMonto.setValue('10000');
     expect(componente.saldo()).toBe(25000);
-    componente.enviar();
+    await componente.enviar();
     expect(pedidos.crear).toHaveBeenCalledWith(
       expect.objectContaining({ abonoInicial: { monto: 10000, metodo: 'EFECTIVO' } }),
       expect.any(String),
     );
   });
 
-  it('al reintentar tras un error usa la misma clave (no duplica el pedido)', () => {
+  it('al reintentar tras un error usa la misma clave (no duplica el pedido)', async () => {
     pedidos.crear.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 0 })));
     componente.form.controls.telefono.setValue('3110000000');
     vi.advanceTimersByTime(300);
     componente.form.patchValue({ nombre: 'Pedro', apellido: 'Ruiz' });
     llenarPrenda();
 
-    componente.enviar();
-    componente.enviar();
+    await componente.enviar();
+    await componente.enviar();
     const [, clave1] = pedidos.crear.mock.calls[0];
     const [, clave2] = pedidos.crear.mock.calls[1];
     expect(clave1).toBe(clave2);
@@ -167,12 +171,12 @@ describe('PedidoForm (nuevo)', () => {
     expect(componente.linea.controls.precio.value).toBe('25000');
   });
 
-  it('agrega, edita y quita prendas de la lista; no envía sin prendas', () => {
+  it('agrega, edita y quita prendas de la lista; no envía sin prendas', async () => {
     componente.form.controls.telefono.setValue('3110000000');
     vi.advanceTimersByTime(300);
     componente.form.patchValue({ nombre: 'Pedro', apellido: 'Ruiz', fechaEntrega: '2099-01-01' });
 
-    componente.enviar();
+    await componente.enviar();
     expect(componente.sinPrendas()).toBe(true);
     expect(pedidos.crear).not.toHaveBeenCalled();
 
@@ -196,15 +200,33 @@ describe('PedidoForm (nuevo)', () => {
     expect(componente.subtotal()).toBe(50000);
   });
 
-  it('el designado se asigna a todas las prendas', () => {
+  it('el designado se asigna a todas las prendas', async () => {
     componente.form.controls.telefono.setValue('3110000000');
     vi.advanceTimersByTime(300);
     componente.form.patchValue({ nombre: 'Pedro', apellido: 'Ruiz', designado: 's9' });
     llenarPrenda();
     llenarPrenda();
-    componente.enviar();
+    await componente.enviar();
     const [req] = pedidos.crear.mock.calls[0];
     expect(req.prendas.map((p: { sastreId: string }) => p.sastreId)).toEqual(['s9', 's9']);
+    // Con alguien asignado no pregunta.
+    expect(confirmar).not.toHaveBeenCalled();
+  });
+
+  it('al crear sin nadie asignado pide confirmar; "Asignar ahora" no lo crea', async () => {
+    componente.form.controls.telefono.setValue('3110000000');
+    vi.advanceTimersByTime(300);
+    componente.form.patchValue({ nombre: 'Pedro', apellido: 'Ruiz' });
+    llenarPrenda();
+    confirmar.mockResolvedValueOnce(false);
+    await componente.enviar();
+    expect(confirmar).toHaveBeenCalledWith(
+      expect.objectContaining({ titulo: '¿Crear el pedido sin asignar?' }),
+    );
+    expect(pedidos.crear).not.toHaveBeenCalled();
+
+    await componente.enviar();
+    expect(pedidos.crear).toHaveBeenCalledTimes(1);
   });
 
   it('la tarjeta de designado muestra iniciales del sastre, o la silueta si no hay nadie', () => {

@@ -409,6 +409,15 @@ export class PedidoForm implements OnInit {
     }
   }
 
+  /** Alguna prenda quedaría sin sastre (designado vacío, o "varios" con prendas sin asignar). */
+  private faltaAsignar(): boolean {
+    const v = this.form.getRawValue();
+    if (v.designado !== VARIOS) {
+      return !v.designado;
+    }
+    return v.prendas.some((p) => !p.sastreId);
+  }
+
   /** Al elegir el producto se precarga el precio sugerido (si el precio está vacío). */
   alCambiarTipo(): void {
     const fila = this.linea;
@@ -429,8 +438,11 @@ export class PedidoForm implements OnInit {
       });
   }
 
-  /** Crea (o guarda) el pedido; con `imprimir`, al crearlo abre el ticket para imprimir. */
-  enviar(imprimir = false): void {
+  /**
+   * Crea (o guarda) el pedido; con `imprimir`, al crearlo abre el ticket para imprimir. Al crear
+   * sin nadie asignado (quien crea puede asignar), pide confirmar antes (dueño 2026-10-20).
+   */
+  async enviar(imprimir = false): Promise<void> {
     this.sinPrendas.set(this.filas.length === 0);
     if (
       this.filas.length === 0 ||
@@ -444,6 +456,18 @@ export class PedidoForm implements OnInit {
     }
     if (this.guardando()) {
       return;
+    }
+    if (!this.editando() && this.puedeAsignar() && this.faltaAsignar()) {
+      const crear = await this.confirmacion.pedir({
+        titulo: '¿Crear el pedido sin asignar?',
+        mensaje:
+          'Este pedido tiene prendas sin una persona asignada para hacerlas. Puedes crearlo así y asignarlas después desde el detalle del pedido.',
+        aceptar: 'Sí, crearlo así',
+        cancelar: 'Asignar ahora',
+      });
+      if (!crear || this.guardando()) {
+        return;
+      }
     }
     this.guardando.set(true);
     this.error.set(null);

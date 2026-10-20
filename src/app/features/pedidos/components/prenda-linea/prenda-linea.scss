@@ -76,8 +76,10 @@
   grid-column: 1 / -1;
 }
 
-// Pie: una línea arriba de cada lado (como en la tarjeta del detalle).
+// Pie: una línea arriba de cada lado (como en la tarjeta del detalle); ambos lados ocupan el
+// alto de la fila para que las líneas queden a la misma altura.
 .prl__pie {
+  align-self: stretch;
   display: flex;
   align-items: center;
   gap: var(--space-3);
