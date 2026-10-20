@@ -14,7 +14,23 @@ export type NombreIcono =
   | 'ojo-cerrado'
   | 'menu'
   | 'cerrar'
-  | 'clientes';
+  | 'historial'
+  | 'clientes'
+  | 'proceso'
+  | 'finalizado'
+  | 'entregado'
+  | 'anulado'
+  | 'todo'
+  | 'recargar'
+  | 'filtros'
+  | 'flecha-derecha'
+  | 'percha'
+  | 'usuario'
+  | 'tienda'
+  | 'mas'
+  | 'buscar'
+  | 'editar'
+  | 'eliminar';
 
 /**
  * Ícono de línea reutilizable (SVG inline). Hereda el color con `currentColor`

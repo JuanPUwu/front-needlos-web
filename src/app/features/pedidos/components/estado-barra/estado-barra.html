@@ -1,0 +1,21 @@
+<div class="barra-pestanas" role="tablist" aria-label="Estado de los pedidos">
+  @for (t of pestanas; track t.valor) {
+    <button
+      class="barra-pestana"
+      type="button"
+      role="tab"
+      [attr.aria-selected]="estado() === t.valor"
+      [class.barra-pestana--activa]="estado() === t.valor"
+      [attr.data-estado]="t.valor || 'TODO'"
+      (click)="elegir.emit(t.valor)"
+    >
+      <span class="barra-pestana__texto">
+        {{ t.etiqueta }}
+        @if (cantidadDe(t.valor); as n) {
+          <span class="barra-pestana__cuenta">{{ n }}</span>
+        }
+      </span>
+      <app-icono class="barra-pestana__icono" [nombre]="t.icono" />
+    </button>
+  }
+</div>

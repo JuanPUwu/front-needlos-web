@@ -1,27 +1,34 @@
 <main class="catalogo-page">
   <div class="catalogo-contenedor">
-    <a class="catalogo-volver" routerLink="/ajustes">← Ajustes</a>
-    <header class="catalogo-cabecera">
-      <h1 class="catalogo-titulo">Catálogo de prendas</h1>
-      <p class="catalogo-subtitulo">
-        Los tipos de prenda que ofreces. El precio base es opcional: se usa como sugerencia mientras
-        no hayas cobrado ese tipo en un pedido.
-      </p>
-    </header>
-
-    @if (exito()) {
-      <p class="catalogo-aviso catalogo-aviso--exito" role="status">{{ exito() }}</p>
-    }
+    <app-encabezado
+      titulo="Catálogo de prendas"
+      subtitulo="Los tipos de prenda que ofreces. El precio base es opcional: se sugiere mientras no hayas cobrado ese tipo en un pedido."
+      icono="percha"
+      volverRuta="/ajustes"
+      volverEtiqueta="Ajustes"
+    />
 
     <div class="catalogo-bento">
       <!-- ── Resumen ───────────────────────────────────────────── -->
       <div class="catalogo-stats">
         <div class="catalogo-stat">
-          <span class="catalogo-stat__num">{{ activos() }}</span>
+          <span class="catalogo-stat__num">
+            @if (cargando()) {
+              <app-esqueleto forma="numero" texto="Cargando..." />
+            } @else {
+              {{ activos() }}
+            }
+          </span>
           <span class="catalogo-stat__label">Activos</span>
         </div>
         <div class="catalogo-stat">
-          <span class="catalogo-stat__num">{{ inactivos() }}</span>
+          <span class="catalogo-stat__num">
+            @if (cargando()) {
+              <app-esqueleto forma="numero" texto="Cargando..." />
+            } @else {
+              {{ inactivos() }}
+            }
+          </span>
           <span class="catalogo-stat__label">Desactivados</span>
         </div>
       </div>
@@ -35,7 +42,9 @@
         <form class="catalogo-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
           <div class="catalogo-field">
             <div class="catalogo-field__head">
-              <label class="catalogo-field__label" for="nombre">Nombre</label>
+              <label class="catalogo-field__label" for="nombre"
+                >Nombre <span class="catalogo-field__req">*</span></label
+              >
               @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
                 <span class="catalogo-field__error">Obligatorio</span>
               }
@@ -127,7 +136,7 @@
         }
 
         @if (cargando()) {
-          <p class="catalogo-bloque__ayuda" role="status">Cargando catálogo...</p>
+          <app-esqueleto forma="lista" [filas]="6" [alto]="72" texto="Cargando catálogo..." />
         } @else if (tipos().length === 0) {
           <p class="catalogo-bloque__ayuda">Aún no hay tipos de prenda. Agrega el primero.</p>
         } @else if (visibles().length === 0) {

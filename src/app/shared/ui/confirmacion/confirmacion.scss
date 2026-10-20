@@ -1,0 +1,129 @@
+// Popup de confirmación. Solo tokens globales.
+
+.conf {
+  position: fixed;
+  inset: 0;
+  // Por encima de los popups de las secciones.
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.conf__fondo {
+  position: absolute;
+  inset: 0;
+  background: var(--color-velo);
+}
+
+.conf__caja {
+  position: relative;
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.conf__titulo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.conf__mensaje {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.conf__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.conf__boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
+
+  &:hover {
+    background: var(--color-accent-hover);
+  }
+
+  &:active {
+    transform: scale(var(--press-scale));
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.conf__boton--secundario {
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-surface);
+  color: var(--color-accent);
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+}
+
+.conf__boton--peligro,
+.conf__boton--peligro:hover {
+  background: var(--color-danger);
+}
+
+// Simple: el conjunto (fondo + caja) aparece y desaparece con un fundido.
+.conf--entrar {
+  animation: conf-fundido var(--dur-entrar) var(--ease-out);
+}
+
+.conf--salir {
+  animation: conf-fundido var(--dur-salir) var(--ease-in) reverse forwards;
+}
+
+@keyframes conf-fundido {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .conf__acciones {
+    flex-direction: column-reverse;
+
+    .conf__boton {
+      width: 100%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .conf--entrar,
+  .conf--salir {
+    animation-duration: 1ms;
+  }
+
+  .conf__boton:active {
+    transform: none;
+  }
+}

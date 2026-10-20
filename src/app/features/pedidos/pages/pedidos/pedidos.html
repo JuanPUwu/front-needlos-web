@@ -1,114 +1,105 @@
 <main class="pedidos-page">
   <div class="pedidos-contenedor">
-    <header class="pedidos-cabecera">
-      <div class="pedidos-cabecera__texto">
-        <h1 class="pedidos-titulo">Pedidos</h1>
-        <p class="pedidos-subtitulo">Sigue cada prenda desde que llega hasta que se entrega.</p>
-      </div>
+    <app-encabezado
+      titulo="Pedidos"
+      subtitulo="Sigue cada prenda desde que llega hasta que se entrega."
+      icono="pedidos"
+    >
       @if (puedeCrear()) {
-        <a class="pedidos-boton" routerLink="/pedidos/nuevo">Nuevo pedido</a>
+        <button
+          class="pedidos-nuevo"
+          type="button"
+          aria-label="Nuevo pedido"
+          title="Nuevo pedido"
+          (click)="nuevoPedido()"
+        >
+          <app-icono class="pedidos-nuevo__icono" nombre="mas" />
+        </button>
       }
-    </header>
+    </app-encabezado>
 
-    <div class="pedidos-bento">
-      <!-- ── Resumen (cada tile filtra) ─────────────────────────── -->
-      <div class="pedidos-stats">
-        <button class="pedidos-stat" type="button" (click)="atajo('enProceso')">
-          <span class="pedidos-stat__num">{{ resumen()?.enProceso ?? '–' }}</span>
-          <span class="pedidos-stat__label">En proceso</span>
-        </button>
-        <button class="pedidos-stat" type="button" (click)="atajo('listos')">
-          <span class="pedidos-stat__num">{{ resumen()?.listosParaEntregar ?? '–' }}</span>
-          <span class="pedidos-stat__label">Listos para entregar</span>
-        </button>
-        <button class="pedidos-stat pedidos-stat--alerta" type="button" (click)="atajo('vencidos')">
-          <span class="pedidos-stat__num">{{ resumen()?.vencidos ?? '–' }}</span>
-          <span class="pedidos-stat__label">Vencidos</span>
-        </button>
-        <button class="pedidos-stat" type="button" (click)="atajo('hoy')">
-          <span class="pedidos-stat__num">{{ resumen()?.paraEntregarHoy ?? '–' }}</span>
-          <span class="pedidos-stat__label">Para entregar hoy</span>
-        </button>
+    <!-- ── Estados, búsqueda y filtros (una sola cápsula) ────── -->
+    <section class="pedidos-buscar" aria-label="Estados, búsqueda y filtros">
+      <!-- Estados del pedido -->
+      <app-estado-barra
+        [estado]="filtros().estado"
+        [enProceso]="resumen()?.enProceso ?? null"
+        [finalizados]="resumen()?.listosParaEntregar ?? null"
+        (elegir)="elegirEstado($event)"
+      />
+
+      <div class="pedidos-lista-cabecera">
+        <div class="pedidos-busqueda">
+          <div class="pedidos-buscador-caja">
+            <app-icono class="pedidos-buscador-caja__lupa" nombre="buscar" />
+            <input
+              #buscador
+              class="pedidos-filtro__control pedidos-buscador"
+              type="search"
+              placeholder="Buscar por número, cliente o teléfono"
+              aria-label="Buscar pedidos"
+              [value]="filtros().buscar"
+              (input)="alBuscar(buscador.value)"
+              (keydown.enter)="buscarAhora(buscador.value)"
+            />
+          </div>
+          <button class="pedidos-buscar-boton" type="button" (click)="buscarAhora(buscador.value)">
+            Buscar
+          </button>
+          <button
+            class="pedidos-herramienta"
+            type="button"
+            aria-label="Filtros"
+            title="Filtros"
+            aria-controls="pedidos-filtros"
+            [attr.aria-expanded]="filtrosAbiertos()"
+            [class.pedidos-herramienta--activa]="filtrosAbiertos()"
+            (click)="alternarFiltros()"
+          >
+            <app-icono class="pedidos-herramienta__icono" nombre="filtros" />
+            @if (cantidadFiltros() > 0) {
+              <span class="pedidos-herramienta__cuenta">{{ cantidadFiltros() }}</span>
+            }
+          </button>
+          <span class="pedidos-cuenta" role="status">
+            <strong>{{ total() }}</strong> {{ total() === 1 ? 'resultado' : 'resultados' }}
+          </span>
+          <!-- Avisos rápidos (vencidos / para hoy), a la derecha de los resultados. -->
+          @if (resumen(); as r) {
+            @if (r.vencidos > 0) {
+              <button
+                class="pedidos-aviso-rapido pedidos-aviso-rapido--alerta"
+                type="button"
+                (click)="atajo('vencidos')"
+              >
+                {{ r.vencidos }} {{ r.vencidos === 1 ? 'vencido' : 'vencidos' }}
+              </button>
+            }
+          }
+        </div>
       </div>
 
-      <!-- ── Lista ─────────────────────────────────────────────── -->
-      <section class="pedidos-bloque" aria-labelledby="titulo-lista">
-        <div class="pedidos-lista-cabecera">
-          <h2 class="pedidos-bloque__titulo" id="titulo-lista">
-            Listado <span class="pedidos-bloque__cuenta">({{ total() }})</span>
-          </h2>
-          <input
-            #buscador
-            class="pedidos-filtro__control pedidos-buscador"
-            type="search"
-            placeholder="Buscar por número, cliente o teléfono"
-            aria-label="Buscar pedidos"
-            [value]="filtros().buscar"
-            (input)="alBuscar(buscador.value)"
-          />
+      @if (clienteFiltrado(); as cliente) {
+        <div class="pedidos-chip-filtro">
+          <span>
+            Cliente: <strong>{{ cliente }}</strong>
+            @if (saldoCliente(); as saldo) {
+              · debe <strong>{{ saldo | moneda }}</strong>
+            }
+          </span>
+          <button
+            class="pedidos-chip-filtro__quitar"
+            type="button"
+            aria-label="Quitar filtro de cliente"
+            (click)="quitarCliente()"
+          >
+            ✕
+          </button>
         </div>
+      }
 
-        @if (clienteFiltrado(); as cliente) {
-          <div class="pedidos-chip-filtro">
-            <span
-              >Cliente: <strong>{{ cliente }}</strong>
-              @if (saldoCliente(); as saldo) {
-                · debe <strong>{{ saldo | moneda }}</strong>
-              }
-            </span>
-            <button
-              class="pedidos-chip-filtro__quitar"
-              type="button"
-              aria-label="Quitar filtro de cliente"
-              (click)="quitarCliente()"
-            >
-              ✕
-            </button>
-          </div>
-        }
-
-        <button
-          class="pedidos-boton pedidos-boton--secundario pedidos-filtros-toggle"
-          type="button"
-          aria-controls="pedidos-filtros"
-          [attr.aria-expanded]="filtrosAbiertos()"
-          (click)="alternarFiltros()"
-        >
-          {{ filtrosAbiertos() ? 'Ocultar filtros' : 'Filtros' }}
-          @if (cantidadFiltros() > 0) {
-            ({{ cantidadFiltros() }})
-          }
-        </button>
-
-        <div
-          class="pedidos-filtros"
-          id="pedidos-filtros"
-          role="group"
-          aria-label="Filtros"
-          [class.pedidos-filtros--abiertos]="filtrosAbiertos()"
-        >
-          <div class="pedidos-filtro">
-            <label class="pedidos-filtro__label" for="estado">Estado</label>
-            <select
-              #estadoSel
-              class="pedidos-filtro__control"
-              id="estado"
-              (change)="alCambiarEstado(estadoSel.value)"
-            >
-              <option value="" [selected]="filtros().estado === ''">Todos</option>
-              <option value="EN_PROCESO" [selected]="filtros().estado === 'EN_PROCESO'">
-                En proceso
-              </option>
-              <option value="FINALIZADO" [selected]="filtros().estado === 'FINALIZADO'">
-                Listo para entregar
-              </option>
-              <option value="ENTREGADO" [selected]="filtros().estado === 'ENTREGADO'">
-                Entregado
-              </option>
-              <option value="ANULADO" [selected]="filtros().estado === 'ANULADO'">Anulado</option>
-            </select>
-          </div>
-
+      @if (filtrosAbiertos()) {
+        <div class="pedidos-filtros" id="pedidos-filtros" role="group" aria-label="Filtros">
           <div class="pedidos-filtro">
             <label class="pedidos-filtro__label" for="sastre">Sastre</label>
             <select
@@ -117,14 +108,14 @@
               id="sastre"
               (change)="alCambiarSastre(sastreSel.value)"
             >
-              <option value="" [selected]="sastreElegido() === ''">Todos</option>
+              <option value="" [selected]="filtros().sastreId === ''">Todos</option>
               @if (tengoAcceso()) {
-                <option [value]="misPrendas" [selected]="sastreElegido() === misPrendas">
+                <option [value]="misPrendas" [selected]="filtros().sastreId === misPrendas">
                   Mis prendas
                 </option>
               }
               @for (s of sastres(); track s.accesoId) {
-                <option [value]="s.accesoId" [selected]="sastreElegido() === s.accesoId">
+                <option [value]="s.accesoId" [selected]="filtros().sastreId === s.accesoId">
                   {{ s.nombre }}
                 </option>
               }
@@ -174,33 +165,26 @@
           </div>
 
           <div class="pedidos-filtro pedidos-filtro--casillas">
-            <label class="pedidos-casilla">
-              <input
-                #vencidos
-                type="checkbox"
-                [checked]="filtros().vencidos"
-                (change)="alCambiarVencidos(vencidos.checked)"
-              />
-              Vencidos
-            </label>
-            <label class="pedidos-casilla">
-              <input
-                #saldo
-                type="checkbox"
-                [checked]="filtros().conSaldo"
-                (change)="alCambiarConSaldo(saldo.checked)"
-              />
-              Con saldo
-            </label>
-            <label class="pedidos-casilla">
-              <input
-                #sinEntregar
-                type="checkbox"
-                [checked]="filtros().sinEntregar"
-                (change)="alCambiarSinEntregar(sinEntregar.checked)"
-              />
-              Sin entregar
-            </label>
+            <app-casilla
+              etiqueta="Para hoy"
+              [marcada]="esParaHoy()"
+              (cambio)="alCambiarParaHoy($event)"
+            />
+            <app-casilla
+              etiqueta="Vencidos"
+              [marcada]="filtros().vencidos"
+              (cambio)="alCambiarVencidos($event)"
+            />
+            <app-casilla
+              etiqueta="Con saldo"
+              [marcada]="filtros().conSaldo"
+              (cambio)="alCambiarConSaldo($event)"
+            />
+            <app-casilla
+              etiqueta="Sin entregar"
+              [marcada]="filtros().sinEntregar"
+              (cambio)="alCambiarSinEntregar($event)"
+            />
           </div>
 
           @if (hayFiltros()) {
@@ -213,100 +197,70 @@
             </button>
           }
         </div>
+      }
 
-        @if (errorFiltros()) {
-          <p class="pedidos-aviso pedidos-aviso--error" role="alert">{{ errorFiltros() }}</p>
-        }
-        @if (error()) {
-          <p class="pedidos-aviso pedidos-aviso--error" role="alert">{{ error() }}</p>
-        }
+      @if (errorFiltros()) {
+        <p class="pedidos-aviso pedidos-aviso--error" role="alert">{{ errorFiltros() }}</p>
+      }
+    </section>
 
-        @if (cargando()) {
-          <p class="pedidos-bloque__ayuda" role="status">Cargando pedidos...</p>
-        } @else if (pedidos().length === 0) {
-          <p class="pedidos-bloque__ayuda">
-            {{
-              hayFiltros()
-                ? 'Ningún pedido coincide con los filtros.'
-                : 'Aún no hay pedidos. Crea el primero.'
-            }}
-          </p>
-        } @else {
-          <ul class="pedidos-lista">
-            @for (p of pedidos(); track p.id) {
-              <li>
-                <a
-                  class="pedidos-item"
-                  [class.pedidos-item--anulado]="p.estado === 'ANULADO'"
-                  [routerLink]="['/pedidos', p.id]"
-                >
-                  <span class="pedidos-item__numero">{{ p.numero }}</span>
-                  <span class="pedidos-item__info">
-                    <span class="pedidos-item__cliente">
-                      {{ p.cliente.nombre }} {{ p.cliente.apellido }}
-                    </span>
-                    <span class="pedidos-item__detalle">
-                      {{ p.cliente.telefono }} · {{ p.prendas }}
-                      {{ p.prendas === 1 ? 'prenda' : 'prendas' }}
-                    </span>
-                  </span>
-                  <span
-                    class="pedidos-item__entrega"
-                    [class.pedidos-item__entrega--vencida]="p.vencido"
-                  >
-                    <span class="pedidos-item__etiqueta">{{
-                      p.vencido ? 'Vencido' : 'Entrega'
-                    }}</span>
-                    {{ p.fechaEntrega | fecha }}
-                  </span>
-                  <span class="pedidos-chip" [attr.data-estado]="p.estado">
-                    {{ etiquetaEstado[p.estado] }}
-                  </span>
-                  <span class="pedidos-item__montos">
-                    <span class="pedidos-item__total">{{ p.total | moneda }}</span>
-                    <span
-                      class="pedidos-item__saldo"
-                      [class.pedidos-item__saldo--pagado]="p.saldo === 0"
-                    >
-                      {{
-                        p.estado === 'ANULADO'
-                          ? 'Anulado'
-                          : p.saldo === 0
-                            ? 'Pagado'
-                            : 'Debe ' + (p.saldo | moneda)
-                      }}
-                    </span>
-                  </span>
-                </a>
-              </li>
-            }
-          </ul>
+    <!-- ── Tabla ─────────────────────────────────────────────── -->
+    <section class="pedidos-bloque" aria-label="Listado de pedidos">
+      @if (error()) {
+        <p class="pedidos-aviso pedidos-aviso--error" role="alert">{{ error() }}</p>
+      }
 
-          @if (totalPaginas() > 1) {
-            <nav class="pedidos-paginacion" aria-label="Paginación">
-              <button
-                class="pedidos-boton pedidos-boton--secundario"
-                type="button"
-                [disabled]="pagina() === 0"
-                (click)="irAPagina(pagina() - 1)"
-              >
-                Anterior
-              </button>
-              <span class="pedidos-paginacion__texto">
-                Página {{ pagina() + 1 }} de {{ totalPaginas() }}
-              </span>
-              <button
-                class="pedidos-boton pedidos-boton--secundario"
-                type="button"
-                [disabled]="pagina() + 1 >= totalPaginas()"
-                (click)="irAPagina(pagina() + 1)"
-              >
-                Siguiente
-              </button>
-            </nav>
-          }
+      @if (cargando() && pedidos().length === 0) {
+        <app-esqueleto forma="tabla" [filas]="6" [alto]="63" texto="Cargando pedidos..." />
+      } @else if (pedidos().length === 0) {
+        <p class="pedidos-bloque__ayuda">
+          {{
+            hayFiltros() || filtros().estado !== ''
+              ? 'Ningún pedido coincide con lo elegido.'
+              : 'Aún no hay pedidos. Crea el primero.'
+          }}
+        </p>
+      } @else {
+        <app-pedidos-tabla [pedidos]="pedidos()" [cargando]="cargando()" (abrir)="abrir($event)" />
+
+        @if (totalPaginas() > 1) {
+          <nav class="pedidos-paginacion" aria-label="Paginación">
+            <button
+              class="pedidos-boton pedidos-boton--secundario"
+              type="button"
+              [disabled]="pagina() === 0"
+              (click)="irAPagina(pagina() - 1)"
+            >
+              Anterior
+            </button>
+            <span class="pedidos-paginacion__texto">
+              Página {{ pagina() + 1 }} de {{ totalPaginas() }}
+            </span>
+            <button
+              class="pedidos-boton pedidos-boton--secundario"
+              type="button"
+              [disabled]="pagina() + 1 >= totalPaginas()"
+              (click)="irAPagina(pagina() + 1)"
+            >
+              Siguiente
+            </button>
+          </nav>
         }
-      </section>
-    </div>
+      }
+    </section>
   </div>
 </main>
+
+@if (pedidoAbierto() || (creando() && puedeCrear())) {
+  <app-pedido-modal
+    animate.enter="modal-entrar"
+    animate.leave="modal-salir"
+    [pedidoId]="pedidoAbierto()"
+    (creado)="alCrear($event)"
+    [editando]="pedidoEditando()"
+    (modoCambiado)="alCambiarModo($event)"
+    (cerrado)="cerrarPedido()"
+    (cambio)="recargar()"
+    (verCliente)="verCliente($event)"
+  />
+}

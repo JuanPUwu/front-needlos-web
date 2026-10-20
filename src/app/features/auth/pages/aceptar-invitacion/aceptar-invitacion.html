@@ -6,7 +6,7 @@
 
     @switch (estado()) {
       @case ('cargando') {
-        <p class="aceptar-card__subtitle" role="status">Cargando invitación...</p>
+        <app-esqueleto forma="campos" [filas]="2" texto="Cargando invitación..." />
       }
       @case ('invalida') {
         <p class="aceptar-banner aceptar-banner--error" role="alert">
@@ -29,7 +29,9 @@
           <form class="aceptar-form" [formGroup]="form" (ngSubmit)="aceptar()" novalidate>
             <div class="aceptar-field">
               <div class="aceptar-field__head">
-                <label class="aceptar-field__label" for="contrasena">Crea tu contraseña</label>
+                <label class="aceptar-field__label" for="contrasena"
+                  >Crea tu contraseña <span class="aceptar-field__req">*</span></label
+                >
                 @if (form.controls.contrasena.touched && form.controls.contrasena.invalid) {
                   <span class="aceptar-field__error">No cumple la política</span>
                 }
@@ -60,7 +62,7 @@
             <div class="aceptar-field">
               <div class="aceptar-field__head">
                 <label class="aceptar-field__label" for="confirmacion"
-                  >Confirma la contraseña</label
+                  >Confirma la contraseña <span class="aceptar-field__req">*</span></label
                 >
                 @if (form.controls.confirmacion.touched && form.hasError('noCoinciden')) {
                   <span class="aceptar-field__error">No coinciden</span>

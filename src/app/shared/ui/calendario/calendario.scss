@@ -1,0 +1,142 @@
+// Calendario de un mes. Solo tokens globales.
+// Ocupa el ancho de su contenedor y cada día es una celda CUADRADA (alto = ancho de
+// columna = 1/7 del ancho): misma distancia entre filas y entre columnas. El alto del
+// calendario sale de ahí y es el que define el de su contenedor.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  container: calendario / inline-size;
+}
+
+.calendario {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.calendario__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.calendario__titulo {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-navy);
+  white-space: nowrap;
+}
+
+.calendario__mover {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+  }
+}
+
+.calendario__flecha {
+  width: 1rem;
+  height: 1rem;
+}
+
+.calendario__flecha--izq {
+  transform: scaleX(-1);
+}
+
+.calendario__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+
+  td {
+    height: calc(100cqw / 7);
+    padding: 0;
+    text-align: center;
+  }
+}
+
+.calendario__dia-semana {
+  padding-bottom: var(--space-1);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.calendario__dia {
+  // El círculo deja un respiro igual por todos lados dentro de su celda.
+  --calendario-dia: min(34px, calc(100cqw / 7 - 6px));
+
+  width: var(--calendario-dia);
+  height: var(--calendario-dia);
+  max-width: 100%;
+  vertical-align: middle;
+  padding: 0;
+  line-height: 1;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font: inherit;
+  // La letra escala con el círculo para que el número no lo toque.
+  font-size: min(0.8rem, calc(var(--calendario-dia) * 0.6));
+  color: var(--color-text);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:disabled {
+    color: var(--color-border-soft);
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+  }
+}
+
+.calendario__dia--fuera {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.calendario__dia--hoy {
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+.calendario__dia--elegido,
+.calendario__dia--elegido:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font-weight: 700;
+  opacity: 1;
+}
+
+// Solo lectura: se ve igual, pero los días no responden (sí se puede cambiar de mes).
+.calendario--lectura .calendario__dia {
+  pointer-events: none;
+}

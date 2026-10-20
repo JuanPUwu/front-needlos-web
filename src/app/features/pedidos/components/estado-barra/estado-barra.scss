@@ -1,0 +1,169 @@
+// Barra de estados de Pedidos: una cápsula por estado. Solo tokens globales.
+
+:host {
+  display: block;
+}
+
+// ── Fila de cápsulas (la tarjeta la pone la página) ─────────
+.barra-pestanas {
+  display: flex;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+// Si no caben, las pestañas se desplazan dentro de su propia barra (nunca la página).
+.barra-pestanas {
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.barra-pestana {
+  position: relative;
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:active {
+    transform: scale(var(--press-scale));
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: -3px;
+  }
+}
+
+.barra-pestana--activa,
+.barra-pestana--activa:hover {
+  background: var(--focus-ring);
+  color: var(--color-navy);
+  font-weight: 600;
+}
+
+// Cada pestaña lleva el color de su estado (azul, verde, amarillo, rojo).
+.barra-pestana[data-estado='EN_PROCESO'] {
+  --tono: var(--estado-proceso);
+  --tono-bg: var(--estado-proceso-bg);
+}
+
+.barra-pestana[data-estado='FINALIZADO'] {
+  --tono: var(--estado-finalizado);
+  --tono-bg: var(--estado-finalizado-bg);
+}
+
+.barra-pestana[data-estado='ENTREGADO'] {
+  --tono: var(--estado-entregado);
+  --tono-bg: var(--estado-entregado-bg);
+}
+
+.barra-pestana[data-estado='ANULADO'] {
+  --tono: var(--estado-anulado);
+  --tono-bg: var(--estado-anulado-bg);
+}
+
+.barra-pestana__icono {
+  color: var(--tono, var(--color-navy));
+}
+
+.barra-pestana--activa[data-estado],
+.barra-pestana--activa[data-estado]:hover {
+  background: var(--tono-bg, var(--focus-ring));
+  color: var(--tono, var(--color-navy));
+
+  .barra-pestana__cuenta {
+    background: var(--tono, var(--color-navy));
+  }
+}
+
+.barra-pestana__texto {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.barra-pestana__cuenta {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--color-navy);
+  color: var(--color-surface);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.barra-pestana__icono {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+// Tablet: pestañas compactas (ícono arriba, texto abajo) para que quepan las cinco.
+@container panel (max-width: 1000px) {
+  .barra-pestana {
+    flex: 1 1 0;
+    flex-direction: column-reverse;
+    justify-content: center;
+    gap: var(--space-1);
+    min-width: 0;
+    padding: var(--space-2) var(--space-1);
+    font-size: 0.8rem;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+// Teléfono: cápsulas más compactas para que quepan las cinco.
+@container panel (max-width: 560px) {
+  .barra-pestanas {
+    gap: var(--space-1);
+  }
+
+  .barra-pestana {
+    padding: var(--space-2) 0;
+    font-size: 0.66rem;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+
+  // La cantidad pasa a ser una marca sobre el ícono para no quitarle espacio al texto.
+  .barra-pestana__cuenta {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 18px;
+    padding: 0 5px;
+    font-size: 0.65rem;
+    line-height: 16px;
+  }
+}
+
+// Movimiento reducido: sin transiciones ni efecto de presión.
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    transform: none !important;
+  }
+}

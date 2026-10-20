@@ -1,0 +1,25 @@
+<header class="encabezado">
+  @if (icono(); as nombre) {
+    <span class="encabezado__icono" aria-hidden="true">
+      <app-icono class="encabezado__icono-svg" [nombre]="nombre" />
+    </span>
+  }
+
+  <div class="encabezado__texto">
+    <h1 class="encabezado__titulo" [attr.id]="idTitulo()">{{ titulo() }}</h1>
+    @if (subtitulo()) {
+      <p class="encabezado__subtitulo">{{ subtitulo() }}</p>
+    }
+  </div>
+
+  <div class="encabezado__acciones">
+    <ng-content />
+    <!-- Volver: al final de la cápsula, como una acción más (no agranda el título). -->
+    @if (volverRuta(); as ruta) {
+      <a class="encabezado__volver" [routerLink]="ruta">
+        <span class="encabezado__flecha" aria-hidden="true">←</span>
+        {{ volverEtiqueta() }}
+      </a>
+    }
+  </div>
+</header>

@@ -1,18 +1,21 @@
 <main class="clientes-page">
   <div class="clientes-contenedor">
-    <header class="clientes-cabecera">
-      <h1 class="clientes-titulo">Clientes</h1>
-      <p class="clientes-subtitulo">Registra y busca a los clientes de tu sastrería.</p>
-    </header>
-
-    @if (exito()) {
-      <p class="clientes-aviso clientes-aviso--exito" role="status">{{ exito() }}</p>
-    }
+    <app-encabezado
+      titulo="Clientes"
+      subtitulo="Registra y busca a los clientes de tu sastrería."
+      icono="clientes"
+    />
 
     <div class="clientes-bento" [class.clientes-bento--sin-form]="!puedeGestionar()">
       <!-- ── Resumen ───────────────────────────────────────────── -->
       <div class="clientes-stat">
-        <span class="clientes-stat__num">{{ total() }}</span>
+        <span class="clientes-stat__num">
+          @if (cargando()) {
+            <app-esqueleto forma="numero" texto="Cargando..." />
+          } @else {
+            {{ total() }}
+          }
+        </span>
         <span class="clientes-stat__label">
           {{ hayFiltros() ? 'Coinciden con los filtros' : 'Clientes registrados' }}
         </span>
@@ -29,7 +32,9 @@
             <div class="clientes-fila">
               <div class="clientes-field">
                 <div class="clientes-field__head">
-                  <label class="clientes-field__label" for="nombre">Nombre</label>
+                  <label class="clientes-field__label" for="nombre"
+                    >Nombre <span class="clientes-field__req">*</span></label
+                  >
                   @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
                     <span class="clientes-field__error">Mínimo 2 letras</span>
                   }
@@ -44,7 +49,9 @@
 
               <div class="clientes-field">
                 <div class="clientes-field__head">
-                  <label class="clientes-field__label" for="apellido">Apellido</label>
+                  <label class="clientes-field__label" for="apellido"
+                    >Apellido <span class="clientes-field__req">*</span></label
+                  >
                   @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
                     <span class="clientes-field__error">Mínimo 2 letras</span>
                   }
@@ -60,7 +67,9 @@
 
             <div class="clientes-field">
               <div class="clientes-field__head">
-                <label class="clientes-field__label" for="telefono">Teléfono</label>
+                <label class="clientes-field__label" for="telefono"
+                  >Teléfono <span class="clientes-field__req">*</span></label
+                >
                 @if (errorTelefono()) {
                   <span class="clientes-field__error" role="alert">{{ errorTelefono() }}</span>
                 } @else if (form.controls.telefono.touched && form.controls.telefono.invalid) {
@@ -195,7 +204,7 @@
         }
 
         @if (cargando()) {
-          <p class="clientes-bloque__ayuda" role="status">Cargando clientes...</p>
+          <app-esqueleto forma="lista" [filas]="6" [alto]="92" texto="Cargando clientes..." />
         } @else if (clientes().length === 0) {
           <p class="clientes-bloque__ayuda">
             {{
@@ -219,49 +228,30 @@
                 </div>
 
                 <div class="clientes-item__acciones">
-                  @if (confirmarEliminarId() === c.id) {
-                    <span class="clientes-item__pregunta">¿Eliminar?</span>
+                  <a
+                    class="clientes-boton clientes-boton--secundario"
+                    routerLink="/pedidos"
+                    [queryParams]="{ clienteId: c.id, cliente: c.nombre + ' ' + c.apellido }"
+                  >
+                    Pedidos
+                  </a>
+                  @if (puedeGestionar()) {
+                    <button
+                      class="clientes-boton clientes-boton--secundario"
+                      type="button"
+                      (click)="editar(c)"
+                    >
+                      Editar
+                    </button>
+                  }
+                  @if (esAdmin()) {
                     <button
                       class="clientes-boton clientes-boton--peligro"
                       type="button"
-                      [disabled]="accionId() === c.id"
-                      (click)="eliminar(c)"
+                      (click)="pedirEliminar(c)"
                     >
-                      Sí, eliminar
+                      Eliminar
                     </button>
-                    <button
-                      class="clientes-boton clientes-boton--secundario"
-                      type="button"
-                      (click)="noEliminar()"
-                    >
-                      No
-                    </button>
-                  } @else {
-                    <a
-                      class="clientes-boton clientes-boton--secundario"
-                      routerLink="/pedidos"
-                      [queryParams]="{ clienteId: c.id, cliente: c.nombre + ' ' + c.apellido }"
-                    >
-                      Pedidos
-                    </a>
-                    @if (puedeGestionar()) {
-                      <button
-                        class="clientes-boton clientes-boton--secundario"
-                        type="button"
-                        (click)="editar(c)"
-                      >
-                        Editar
-                      </button>
-                    }
-                    @if (esAdmin()) {
-                      <button
-                        class="clientes-boton clientes-boton--peligro"
-                        type="button"
-                        (click)="pedirEliminar(c)"
-                      >
-                        Eliminar
-                      </button>
-                    }
                   }
                 </div>
               </li>

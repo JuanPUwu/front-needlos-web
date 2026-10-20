@@ -9,25 +9,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
-  padding: var(--space-7) var(--space-4);
-}
-
-.ajustes__cabecera {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.ajustes__titulo {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--color-navy);
-}
-
-.ajustes__subtitulo {
-  color: var(--color-text-muted);
+  gap: var(--space-4);
+  padding: var(--space-4);
 }
 
 // ── Tiles compactos (no se estiran; el espacio libre queda a la derecha/abajo) ──
@@ -59,8 +42,8 @@
   box-shadow: var(--shadow-card);
   text-decoration: none;
   transition:
-    border-color 0.15s var(--ease-out),
-    box-shadow 0.15s var(--ease-out);
+    border-color var(--dur-color) var(--ease-out),
+    box-shadow var(--dur-color) var(--ease-out);
 
   &:hover {
     border-color: var(--color-border);

@@ -1,129 +1,244 @@
-<main class="pedidoform-page">
-  <div class="pedidoform-contenedor">
-    <a
-      class="pedidoform-volver"
-      [routerLink]="editando() ? ['/pedidos', editando()!.id] : ['/pedidos']"
+<div class="pf">
+  <app-encabezado
+    idTitulo="titulo-pedido"
+    [titulo]="pedidoId() ? 'Editando pedido ' + (editando()?.numero ?? '') : 'Creando pedido'"
+    [subtitulo]="
+      pedidoId()
+        ? 'Corrige las prendas, la fecha o el descuento.'
+        : 'Empieza por el teléfono del cliente: si ya existe, sus datos se llenan solos.'
+    "
+    icono="pedidos"
+  >
+    <ng-container [ngTemplateOutlet]="avisos" />
+    <button
+      class="pf-cerrar"
+      type="button"
+      aria-label="Cerrar"
+      title="Cerrar"
+      (click)="cerrar.emit()"
     >
-      ← {{ editando() ? 'Pedido ' + editando()!.numero : 'Pedidos' }}
-    </a>
-    <header class="pedidoform-cabecera">
-      <h1 class="pedidoform-titulo">
-        {{ editando() ? 'Editar pedido ' + editando()!.numero : 'Nuevo pedido' }}
-      </h1>
-    </header>
+      <app-icono class="pf-cerrar__icono" nombre="cerrar" />
+    </button>
+  </app-encabezado>
 
-    @if (cargando()) {
-      <p class="pedidoform-ayuda" role="status">Cargando pedido...</p>
-    } @else {
-      <form class="pedidoform-bento" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
-        <!-- ── Cliente ───────────────────────────────────────────── -->
-        <section class="pedidoform-bloque pedidoform-bloque--cliente" aria-labelledby="t-cliente">
-          <h2 class="pedidoform-bloque__titulo" id="t-cliente">Cliente</h2>
+  <!-- En teléfono los avisos bajan bajo el encabezado (el título necesita el ancho). -->
+  <div class="pf-avisos-movil">
+    <ng-container [ngTemplateOutlet]="avisos" />
+  </div>
 
-          <div class="pedidoform-field">
-            <div class="pedidoform-field__head">
-              <label class="pedidoform-field__label" for="telefono">Teléfono</label>
-              @if (errorTelefono()) {
-                <span class="pedidoform-field__error">{{ errorTelefono() }}</span>
-              } @else if (form.controls.telefono.touched && form.controls.telefono.invalid) {
-                <span class="pedidoform-field__error">7 a 15 dígitos</span>
-              }
-            </div>
-            <input
-              class="pedidoform-field__input"
-              id="telefono"
-              type="tel"
-              inputmode="numeric"
-              formControlName="telefono"
-              placeholder="3001234567"
-              autocomplete="off"
-            />
-          </div>
-
-          @if (!editando()) {
-            @if (buscandoCliente()) {
-              <p class="pedidoform-ayuda" role="status">Buscando cliente...</p>
-            } @else if (clienteEncontrado(); as c) {
-              <p class="pedidoform-nota pedidoform-nota--ok" role="status">
-                Cliente registrado: <strong>{{ c.nombre }} {{ c.apellido }}</strong
-                >. Para corregir sus datos, usa la sección Clientes.
-              </p>
-              @if (c.saldoPendiente > 0) {
-                <p class="pedidoform-nota pedidoform-nota--alerta" role="status">
-                  Tiene un saldo pendiente de <strong>{{ c.saldoPendiente | moneda }}</strong> en
-                  otros pedidos.
-                </p>
-              }
-            } @else if (telefonoConsultado()) {
-              <p class="pedidoform-nota" role="status">
-                Cliente nuevo: se registrará junto con el pedido.
-              </p>
-            }
+  <!--
+    Avisos fijos del cliente: en el encabezado, fuera de las tarjetas (no cambian su alto).
+  -->
+  <ng-template #avisos>
+    @if (!editando() && telefonoConsultado() && !buscandoCliente()) {
+      <div class="pf-avisos" role="status">
+        @if (clienteEncontrado(); as c) {
+          <span class="pf-aviso pf-aviso--ok" [title]="'Para corregir sus datos, usa Clientes.'">
+            Cliente registrado
+          </span>
+          @if (c.saldoPendiente > 0) {
+            <span class="pf-aviso pf-aviso--alerta">
+              Debe {{ c.saldoPendiente | moneda }} en otros pedidos
+            </span>
           }
+        } @else {
+          <span class="pf-aviso pf-aviso--info">Cliente nuevo: se registrará con el pedido</span>
+        }
+      </div>
+    }
+  </ng-template>
 
-          <div class="pedidoform-fila">
-            <div class="pedidoform-field">
-              <div class="pedidoform-field__head">
-                <label class="pedidoform-field__label" for="nombre">Nombre</label>
-                @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
-                  <span class="pedidoform-field__error">Mínimo 2 letras</span>
+  @if (cargando()) {
+    <!-- Esqueleto con la forma del formulario (mismas tarjetas que el detalle). -->
+    <app-pedido-esqueleto />
+  } @else {
+    <form class="pf-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+      <!-- Izquierda: datos del pedido. Derecha: las prendas y las acciones. -->
+      <div class="pf-col pf-col--datos">
+        <!-- ── Cliente: el teléfono va primero ───────────────────── -->
+        <section class="pf-seccion" aria-label="Cliente">
+          <div class="pf-fila pf-fila--cliente">
+            <div class="pf-campo">
+              <div class="pf-campo__head">
+                <label class="pf-campo__label" for="telefono">
+                  Teléfono <span class="pf-req">*</span>
+                </label>
+                @if (errorTelefono()) {
+                  <span class="pf-campo__error">{{ errorTelefono() }}</span>
+                } @else if (form.controls.telefono.touched && form.controls.telefono.invalid) {
+                  <span class="pf-campo__error">7 a 15 dígitos</span>
                 }
               </div>
               <input
-                class="pedidoform-field__input"
-                id="nombre"
-                type="text"
-                formControlName="nombre"
+                class="pf-campo__input"
+                id="telefono"
+                type="tel"
+                inputmode="numeric"
+                formControlName="telefono"
+                placeholder="3001234567"
+                autocomplete="off"
               />
             </div>
-            <div class="pedidoform-field">
-              <div class="pedidoform-field__head">
-                <label class="pedidoform-field__label" for="apellido">Apellido</label>
-                @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
-                  <span class="pedidoform-field__error">Mínimo 2 letras</span>
+            <div class="pf-campo">
+              <div class="pf-campo__head">
+                <label class="pf-campo__label" for="nombre">
+                  Nombre <span class="pf-req">*</span>
+                </label>
+                @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+                  <span class="pf-campo__error">Mínimo 2 letras</span>
                 }
               </div>
-              <input
-                class="pedidoform-field__input"
-                id="apellido"
-                type="text"
-                formControlName="apellido"
-              />
+              <input class="pf-campo__input" id="nombre" type="text" formControlName="nombre" />
+            </div>
+            <div class="pf-campo">
+              <div class="pf-campo__head">
+                <label class="pf-campo__label" for="apellido">
+                  Apellido <span class="pf-req">*</span>
+                </label>
+                @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
+                  <span class="pf-campo__error">Mínimo 2 letras</span>
+                }
+              </div>
+              <input class="pf-campo__input" id="apellido" type="text" formControlName="apellido" />
             </div>
           </div>
         </section>
 
-        <!-- ── Entrega y cobro ───────────────────────────────────── -->
-        <section class="pedidoform-bloque pedidoform-bloque--cobro" aria-labelledby="t-cobro">
-          <h2 class="pedidoform-bloque__titulo" id="t-cobro">Entrega y cobro</h2>
-
-          <div class="pedidoform-fila">
-            <div class="pedidoform-field">
-              <div class="pedidoform-field__head">
-                <label class="pedidoform-field__label" for="fechaEntrega">Fecha de entrega</label>
-                @if (form.controls.fechaEntrega.touched && form.controls.fechaEntrega.invalid) {
-                  <span class="pedidoform-field__error">Obligatoria</span>
-                }
+        <!-- ── Línea de captura de prendas ───────────────────────── -->
+        <section class="pf-seccion" aria-label="Agregar prenda" [formGroup]="linea">
+          <div class="pf-fila pf-fila--linea">
+            <div class="pf-campo">
+              <div class="pf-campo__head">
+                <label class="pf-campo__label" for="lineaCantidad">
+                  Cant. <span class="pf-req">*</span>
+                </label>
               </div>
               <input
-                class="pedidoform-field__input"
-                id="fechaEntrega"
-                type="date"
-                [min]="hoy"
-                formControlName="fechaEntrega"
+                class="pf-campo__input"
+                id="lineaCantidad"
+                type="number"
+                min="1"
+                max="999"
+                formControlName="cantidad"
               />
             </div>
-            <div class="pedidoform-field">
-              <div class="pedidoform-field__head">
-                <label class="pedidoform-field__label" for="descuento">Descuento (opcional)</label>
-                @if (form.controls.descuento.invalid) {
-                  <span class="pedidoform-field__error">Solo números</span>
-                } @else if (descuentoInvalido()) {
-                  <span class="pedidoform-field__error">Mayor que el valor</span>
+            <div class="pf-campo">
+              <div class="pf-campo__head">
+                <label class="pf-campo__label" for="lineaTipo">
+                  Producto <span class="pf-req">*</span>
+                </label>
+                @if (linea.controls.tipoPrendaId.touched && linea.controls.tipoPrendaId.invalid) {
+                  <span class="pf-campo__error">Elige uno</span>
+                }
+              </div>
+              <select
+                class="pf-campo__input"
+                id="lineaTipo"
+                formControlName="tipoPrendaId"
+                (change)="alCambiarTipo()"
+              >
+                <option value="" disabled>Elige…</option>
+                @for (t of tipos(); track t.id) {
+                  <option [value]="t.id">{{ t.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="pf-campo">
+              <div class="pf-campo__head">
+                <label class="pf-campo__label" for="lineaPrecio">
+                  Vlr. unit. <span class="pf-req">*</span>
+                </label>
+                @if (linea.controls.precio.touched && linea.controls.precio.invalid) {
+                  <span class="pf-campo__error">Mayor que 0</span>
                 }
               </div>
               <input
-                class="pedidoform-field__input"
+                class="pf-campo__input"
+                id="lineaPrecio"
+                type="text"
+                inputmode="decimal"
+                formControlName="precio"
+                placeholder="25000"
+              />
+            </div>
+          </div>
+
+          <div class="pf-fila pf-fila--detalle">
+            <div class="pf-campo">
+              <div class="pf-campo__head">
+                <label class="pf-campo__label" for="lineaDetalle">
+                  Detalles <span class="pf-req">*</span>
+                </label>
+                @if (linea.controls.descripcion.touched && linea.controls.descripcion.invalid) {
+                  <span class="pf-campo__error">Mínimo 3 letras</span>
+                }
+              </div>
+              <input
+                class="pf-campo__input"
+                id="lineaDetalle"
+                type="text"
+                formControlName="descripcion"
+                placeholder="Recorte 2 cm y entubado 4 cm"
+                (keydown.enter)="$event.preventDefault(); agregarALista()"
+              />
+            </div>
+            <div class="pf-captura__acciones">
+              @if (editandoLinea() !== null) {
+                <button class="pf-boton pf-boton--texto" type="button" (click)="cancelarLinea()">
+                  Cancelar
+                </button>
+              }
+              <button class="pf-boton pf-boton--borde" type="button" (click)="agregarALista()">
+                {{ editandoLinea() !== null ? 'Actualizar' : 'Agregar a la lista' }}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Entrega ─────────────────────────────────────────── -->
+        <section class="pf-seccion pf-entrega" aria-label="Entrega">
+          <!-- La etiqueta va fuera del calendario, como en los demás campos. -->
+          <div class="pf-campo">
+            <div class="pf-campo__head">
+              <span class="pf-campo__label">Fecha de entrega <span class="pf-req">*</span></span>
+              @if (form.controls.fechaEntrega.touched && form.controls.fechaEntrega.invalid) {
+                <span class="pf-campo__error">Elige un día</span>
+              }
+            </div>
+            <div class="pf-calendario">
+              <app-calendario
+                [valor]="form.controls.fechaEntrega.value"
+                [minimo]="hoy"
+                (cambio)="elegirFecha($event)"
+              />
+            </div>
+          </div>
+
+          <div class="pf-resumen">
+            <div class="pf-resumen__par">
+              <span class="pf-dato">
+                <span class="pf-dato__etiqueta">Días</span>
+                <strong>{{ dias() ?? '–' }}</strong>
+              </span>
+              <span class="pf-dato">
+                <span class="pf-dato__etiqueta">Pzs</span>
+                <strong>{{ piezas() }}</strong>
+              </span>
+            </div>
+            <div class="pf-campo">
+              <div class="pf-campo__head">
+                <label class="pf-campo__label" for="descuento">Descuento</label>
+                @if (descuentoInvalido()) {
+                  <span class="pf-campo__error">Supera el valor</span>
+                } @else if (form.controls.descuento.invalid) {
+                  <span class="pf-campo__error">Solo números</span>
+                }
+              </div>
+              <input
+                class="pf-campo__input"
+                [class.pf-campo__input--error]="
+                  descuentoInvalido() || form.controls.descuento.invalid
+                "
                 id="descuento"
                 type="text"
                 inputmode="decimal"
@@ -131,23 +246,114 @@
                 placeholder="0"
               />
             </div>
+            <!-- Designado: tarjeta que llena el alto libre, con el avatar de quien lo hará. -->
+            @let designado = designadoActual();
+            <div class="pf-designado">
+              <div class="pf-designado__persona">
+                <span
+                  class="pf-designado__avatar"
+                  [class.pf-designado__avatar--vacio]="!designado.iniciales"
+                  aria-hidden="true"
+                >
+                  @if (designado.iniciales) {
+                    {{ designado.iniciales }}
+                  } @else {
+                    <app-icono
+                      class="pf-designado__icono"
+                      [nombre]="designado.varios ? 'equipo' : 'usuario'"
+                    />
+                  }
+                </span>
+                <span class="pf-designado__textos">
+                  <strong class="pf-designado__titulo">Designado</strong>
+                  @if (puedeAsignar()) {
+                    <span class="pf-designado__ayuda">Quién hará el pedido</span>
+                  } @else {
+                    <span class="pf-designado__nombre">{{ designado.nombre }}</span>
+                  }
+                </span>
+              </div>
+              @if (puedeAsignar()) {
+                <select
+                  class="pf-dato pf-dato__select"
+                  formControlName="designado"
+                  aria-label="Sastre designado"
+                >
+                  <option value="">Sin asignar</option>
+                  @if (form.controls.designado.value === varios) {
+                    <option [value]="varios">Cada prenda el suyo</option>
+                  }
+                  @for (s of sastres(); track s.accesoId) {
+                    <option [value]="s.accesoId">{{ s.nombre }}</option>
+                  }
+                </select>
+              }
+            </div>
           </div>
+        </section>
+      </div>
 
-          @if (!editando() && puedeCobrar()) {
-            <div class="pedidoform-fila">
-              <div class="pedidoform-field">
-                <div class="pedidoform-field__head">
-                  <label class="pedidoform-field__label" for="abonoMonto">
-                    Abono inicial (opcional)
-                  </label>
-                  @if (form.controls.abonoMonto.invalid) {
-                    <span class="pedidoform-field__error">Solo números</span>
-                  } @else if (abonoInvalido()) {
-                    <span class="pedidoform-field__error">Supera el total</span>
+      <div class="pf-col pf-col--prendas">
+        <!-- ── Lista de prendas ──────────────────────────────────── -->
+        <section class="pf-seccion pf-lista" aria-label="Prendas del pedido">
+          <h3 class="pf-seccion__titulo">Prendas</h3>
+          @if (filas.length === 0) {
+            <p class="pf-ayuda" [class.pf-ayuda--error]="sinPrendas()">
+              {{
+                sinPrendas()
+                  ? 'Agrega al menos una prenda.'
+                  : 'Las prendas que agregues aparecerán aquí.'
+              }}
+            </p>
+          } @else {
+            <ul class="pf-items">
+              @for (fila of filas.controls; track fila; let i = $index) {
+                @let f = fila.getRawValue();
+                <li>
+                  <app-prenda-linea
+                    [numero]="i + 1"
+                    [cantidad]="f.cantidad"
+                    [producto]="nombreTipo(f.tipoPrendaId)"
+                    [descripcion]="f.descripcion"
+                    [precio]="aNumero(f.precio) ?? 0"
+                    [editando]="editandoLinea() === i"
+                    [entregada]="esEntregada(i)"
+                    (editar)="editarLinea(i)"
+                    (quitar)="quitarPrenda(i)"
+                  />
+                </li>
+              }
+            </ul>
+          }
+        </section>
+
+        <section class="pf-seccion pf-cobro" aria-label="Cobro">
+          <span class="pf-dato">
+            <span class="pf-dato__etiqueta">Subtotal</span>
+            <strong>{{ subtotal() | moneda }}</strong>
+          </span>
+          @if (editando(); as p) {
+            <span class="pf-dato">
+              <span class="pf-dato__etiqueta">Ya abonado</span>
+              <strong>{{ p.abonado | moneda }}</strong>
+            </span>
+          } @else if (puedeCobrar()) {
+            <!-- Abono y método: campos con su etiqueta encima, como Teléfono, Nombre y Apellido. -->
+            <div class="pf-fila pf-resumen__par">
+              <div class="pf-campo">
+                <div class="pf-campo__head">
+                  <label class="pf-campo__label" for="abonoMonto">Abono</label>
+                  @if (abonoInvalido()) {
+                    <span class="pf-campo__error">Supera el total</span>
+                  } @else if (form.controls.abonoMonto.invalid) {
+                    <span class="pf-campo__error">Solo números</span>
                   }
                 </div>
                 <input
-                  class="pedidoform-field__input"
+                  class="pf-campo__input"
+                  [class.pf-campo__input--error]="
+                    abonoInvalido() || form.controls.abonoMonto.invalid
+                  "
                   id="abonoMonto"
                   type="text"
                   inputmode="decimal"
@@ -155,13 +361,11 @@
                   placeholder="0"
                 />
               </div>
-              <div class="pedidoform-field">
-                <label class="pedidoform-field__label" for="abonoMetodo">Método de pago</label>
-                <select
-                  class="pedidoform-field__input"
-                  id="abonoMetodo"
-                  formControlName="abonoMetodo"
-                >
+              <div class="pf-campo">
+                <div class="pf-campo__head">
+                  <label class="pf-campo__label" for="abonoMetodo">Método de pago</label>
+                </div>
+                <select class="pf-campo__input" id="abonoMetodo" formControlName="abonoMetodo">
                   @for (m of metodos; track m.valor) {
                     <option [value]="m.valor">{{ m.etiqueta }}</option>
                   }
@@ -169,198 +373,64 @@
               </div>
             </div>
           }
-
-          <dl class="pedidoform-totales">
-            <div class="pedidoform-totales__fila">
-              <dt>Subtotal</dt>
-              <dd>{{ subtotal() | moneda }}</dd>
-            </div>
-            @if (descuento() > 0) {
-              <div class="pedidoform-totales__fila">
-                <dt>Descuento</dt>
-                <dd>− {{ descuento() | moneda }}</dd>
-              </div>
-            }
-            <div class="pedidoform-totales__fila pedidoform-totales__fila--total">
-              <dt>Total</dt>
-              <dd>{{ total() | moneda }}</dd>
-            </div>
-            @if (editando(); as p) {
-              <div class="pedidoform-totales__fila">
-                <dt>Ya abonado</dt>
-                <dd>{{ p.abonado | moneda }}</dd>
-              </div>
-            } @else if (abono() > 0) {
-              <div class="pedidoform-totales__fila">
-                <dt>Abono inicial</dt>
-                <dd>{{ abono() | moneda }}</dd>
-              </div>
-            }
-            <div class="pedidoform-totales__fila">
-              <dt>Saldo</dt>
-              <dd>{{ saldo() | moneda }}</dd>
-            </div>
-          </dl>
-          @if (totalBajoAbonado()) {
-            <p class="pedidoform-aviso pedidoform-aviso--error" role="alert">
-              El total queda por debajo de lo ya abonado. Primero registra la devolución anulando
-              abonos en el detalle del pedido.
-            </p>
-          }
+          <span class="pf-dato pf-dato--total">
+            <span class="pf-dato__etiqueta">Saldo</span>
+            <strong>{{ saldo() | moneda }}</strong>
+          </span>
         </section>
 
-        <!-- ── Prendas ───────────────────────────────────────────── -->
-        <section class="pedidoform-bloque pedidoform-bloque--prendas" aria-labelledby="t-prendas">
-          <div class="pedidoform-bloque__cabecera">
-            <h2 class="pedidoform-bloque__titulo" id="t-prendas">Prendas</h2>
+        <div class="pf-acciones-fila">
+          @if (editando()) {
             <button
-              class="pedidoform-boton pedidoform-boton--secundario"
+              class="pf-boton pf-boton--grande pf-boton--borde"
               type="button"
-              (click)="agregarPrenda()"
-            >
-              + Agregar prenda
-            </button>
-          </div>
-
-          <ol class="pedidoform-prendas" formArrayName="prendas">
-            @for (fila of filas.controls; track fila; let i = $index) {
-              <li
-                class="pedidoform-prenda"
-                [class.pedidoform-prenda--entregada]="esEntregada(i)"
-                [formGroupName]="i"
-              >
-                <div class="pedidoform-prenda__cabecera">
-                  <span class="pedidoform-prenda__numero">Prenda {{ i + 1 }}</span>
-                  @if (esEntregada(i)) {
-                    <span class="pedidoform-chip">Entregada: no se modifica</span>
-                  } @else if (filas.length > 1) {
-                    <button
-                      class="pedidoform-boton pedidoform-boton--peligro"
-                      type="button"
-                      (click)="quitarPrenda(i)"
-                    >
-                      Quitar
-                    </button>
-                  }
-                </div>
-
-                <div class="pedidoform-prenda__campos">
-                  <div class="pedidoform-field pedidoform-field--tipo">
-                    <div class="pedidoform-field__head">
-                      <label class="pedidoform-field__label" [for]="'tipo' + i">Tipo</label>
-                      @if (
-                        fila.controls.tipoPrendaId.touched && fila.controls.tipoPrendaId.invalid
-                      ) {
-                        <span class="pedidoform-field__error">Elige uno</span>
-                      }
-                    </div>
-                    <select
-                      class="pedidoform-field__input"
-                      [id]="'tipo' + i"
-                      formControlName="tipoPrendaId"
-                      (change)="alCambiarTipo(fila)"
-                    >
-                      <option value="" disabled>Elige…</option>
-                      @for (t of tipos(); track t.id) {
-                        <option [value]="t.id">{{ t.nombre }}</option>
-                      }
-                    </select>
-                  </div>
-
-                  <div class="pedidoform-field pedidoform-field--cantidad">
-                    <div class="pedidoform-field__head">
-                      <label class="pedidoform-field__label" [for]="'cantidad' + i">Cant.</label>
-                      @if (fila.controls.cantidad.touched && fila.controls.cantidad.invalid) {
-                        <span class="pedidoform-field__error">1–999</span>
-                      }
-                    </div>
-                    <input
-                      class="pedidoform-field__input"
-                      [id]="'cantidad' + i"
-                      type="number"
-                      min="1"
-                      max="999"
-                      formControlName="cantidad"
-                    />
-                  </div>
-
-                  <div class="pedidoform-field pedidoform-field--precio">
-                    <div class="pedidoform-field__head">
-                      <label class="pedidoform-field__label" [for]="'precio' + i">
-                        Precio unitario
-                      </label>
-                      @if (fila.controls.precio.touched && fila.controls.precio.invalid) {
-                        <span class="pedidoform-field__error">Mayor que 0</span>
-                      }
-                    </div>
-                    <input
-                      class="pedidoform-field__input"
-                      [id]="'precio' + i"
-                      type="text"
-                      inputmode="decimal"
-                      formControlName="precio"
-                      placeholder="25000"
-                    />
-                  </div>
-
-                  @if (puedeAsignar()) {
-                    <div class="pedidoform-field pedidoform-field--sastre">
-                      <label class="pedidoform-field__label" [for]="'sastre' + i">
-                        Sastre (opcional)
-                      </label>
-                      <select
-                        class="pedidoform-field__input"
-                        [id]="'sastre' + i"
-                        formControlName="sastreId"
-                      >
-                        <option value="">Sin asignar</option>
-                        @for (s of sastres(); track s.accesoId) {
-                          <option [value]="s.accesoId">{{ s.nombre }}</option>
-                        }
-                      </select>
-                    </div>
-                  }
-
-                  <div class="pedidoform-field pedidoform-field--descripcion">
-                    <div class="pedidoform-field__head">
-                      <label class="pedidoform-field__label" [for]="'desc' + i">
-                        Descripción del trabajo
-                      </label>
-                      @if (fila.controls.descripcion.touched && fila.controls.descripcion.invalid) {
-                        <span class="pedidoform-field__error">Mínimo 3 letras</span>
-                      }
-                    </div>
-                    <input
-                      class="pedidoform-field__input"
-                      [id]="'desc' + i"
-                      type="text"
-                      formControlName="descripcion"
-                      placeholder="Ajuste de mangas, bota recta…"
-                    />
-                  </div>
-                </div>
-              </li>
-            }
-          </ol>
-        </section>
-
-        <div class="pedidoform-pie">
-          @if (error()) {
-            <p class="pedidoform-aviso pedidoform-aviso--error" role="alert">{{ error() }}</p>
-          }
-          <div class="pedidoform-pie__acciones">
-            <a
-              class="pedidoform-boton pedidoform-boton--secundario"
-              [routerLink]="editando() ? ['/pedidos', editando()!.id] : ['/pedidos']"
+              (click)="cancelar()"
             >
               Cancelar
-            </a>
-            <button class="pedidoform-boton" type="submit" [disabled]="guardando()">
-              {{ guardando() ? 'Guardando...' : editando() ? 'Guardar cambios' : 'Crear pedido' }}
             </button>
-          </div>
+            <button class="pf-boton pf-boton--grande" type="submit" [disabled]="guardando()">
+              {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          } @else {
+            <button
+              class="pf-boton pf-boton--grande pf-boton--borde"
+              type="button"
+              (click)="limpiar()"
+            >
+              Limpiar
+            </button>
+            <button class="pf-boton pf-boton--grande" type="submit" [disabled]="guardando()">
+              {{ guardando() ? 'Creando...' : 'Crear pedido' }}
+            </button>
+            <button
+              class="pf-boton pf-boton--grande pf-boton--borde"
+              type="button"
+              [disabled]="guardando()"
+              (click)="enviar(true)"
+            >
+              Crear e imprimir
+            </button>
+          }
         </div>
-      </form>
-    }
-  </div>
-</main>
+
+        @if (totalBajoAbonado()) {
+          <p class="pf-nota pf-nota--error" role="alert">
+            El total queda por debajo de lo ya abonado. Primero registra la devolución anulando
+            abonos en el detalle del pedido.
+          </p>
+        }
+        @if (descuentoInvalido()) {
+          <p class="pf-nota pf-nota--error" role="alert">
+            El descuento no puede ser mayor que el valor de las prendas.
+          </p>
+        }
+        @if (abonoInvalido()) {
+          <p class="pf-nota pf-nota--error" role="alert">El abono no puede superar el total.</p>
+        }
+        @if (error()) {
+          <p class="pf-nota pf-nota--error" role="alert">{{ error() }}</p>
+        }
+      </div>
+    </form>
+  }
+</div>

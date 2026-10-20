@@ -1,0 +1,141 @@
+// Tarjeta de prenda del formulario: igual a la tarjeta de prenda del detalle
+// (app-prenda-tarjeta). Solo tokens globales.
+
+:host {
+  display: block;
+}
+
+.prl {
+  // Mismo azul que las tarjetas del listado de Pedidos (estado en proceso).
+  --tono: var(--estado-proceso);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-left: 4px solid var(--tono);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.95rem;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+  transition: background-color var(--dur-color) var(--ease-out);
+}
+
+// La que se corrige en la línea de captura se resalta.
+.prl--editando {
+  background: var(--focus-ring);
+}
+
+.prl--entregada {
+  --tono: var(--estado-entregado);
+
+  color: var(--color-text-muted);
+}
+
+.prl__titulo,
+.prl__total {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.prl__total,
+.prl__unit {
+  justify-self: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.prl__estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--tono);
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tono);
+  }
+}
+
+.prl__unit {
+  font-size: 0.9rem;
+}
+
+.prl__muted {
+  color: var(--color-text-muted);
+}
+
+.prl__descripcion {
+  grid-column: 1 / -1;
+}
+
+// Pie: una línea arriba de cada lado (como en la tarjeta del detalle).
+.prl__pie {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.prl__pie--derecha {
+  justify-content: flex-end;
+}
+
+.prl__accion {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 40px;
+  padding: 0 var(--space-2);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-navy);
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+  }
+}
+
+.prl__accion--peligro {
+  color: var(--color-danger);
+
+  &:hover {
+    background: var(--color-danger-bg);
+  }
+}
+
+.prl__icono {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+@container pfseccion (max-width: 460px) {
+  .prl {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prl {
+    transition: none;
+  }
+}

@@ -1,0 +1,362 @@
+// Listado de pedidos: tabla de anchos fijos (nunca se desplaza a lo ancho) que pasa a
+// tarjetas cuando el espacio no alcanza. Solo tokens globales.
+// El contenedor `pedidoslista` es la tarjeta de la sección que contiene este listado.
+
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+.pt {
+  width: 100%;
+  // Anchos fijos: las columnas se reparten el ancho de la caja; lo que no cabe, "…".
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0 var(--space-4);
+  font-size: 0.95rem;
+  transition: opacity var(--dur-color) var(--ease-out);
+
+  th {
+    padding: var(--space-2) var(--space-3) var(--space-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+    text-align: center;
+  }
+
+  th + th {
+    box-shadow: inset 1px 0 0 var(--color-border-soft);
+  }
+}
+
+// Anchos en proporción (suman 100 %): el espacio se reparte parejo en cualquier ancho, sin
+// que el cliente quede lejos ni las fechas y montos amontonados.
+.pt__col--numero {
+  width: 8%;
+}
+
+.pt__col--cliente {
+  width: 18%;
+}
+
+.pt__col--fecha {
+  width: 12%;
+}
+
+.pt__col--monto {
+  width: 10%;
+}
+
+.pt__col--prendas {
+  width: 21%;
+}
+
+.pt__col--estado {
+  width: 9%;
+}
+
+.pt--cargando {
+  opacity: 0.6;
+}
+
+.pt__fila {
+  // El color de la fila se define aquí; las celdas solo lo pintan (un <tr> no admite
+  // bordes redondeados, por eso el fondo va en cada celda con las esquinas en la primera
+  // y la última).
+  --fondo: var(--color-bg);
+
+  cursor: pointer;
+
+  &:hover {
+    --fondo: var(--focus-ring);
+  }
+
+  .pt__celda {
+    background: var(--fondo);
+    transition: background-color var(--dur-color) var(--ease-out);
+  }
+}
+
+.pt__fila--anulada .pt__celda {
+  color: var(--color-text-muted);
+}
+
+.pt__celda {
+  padding: var(--space-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+
+  &:first-child {
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+  }
+
+  &:last-child {
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+}
+
+.pt__celda--numero {
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+// El estado en texto solo se ve en tarjeta (en la tabla lo dice el botón de color).
+.pt__estado-texto {
+  display: none;
+}
+
+.pt__hora {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.pt__nota {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.pt__celda--vencida {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.pt__celda--debe {
+  color: var(--color-warning);
+  font-weight: 600;
+}
+
+.pt__celda--pagado {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+// Botón de estado: sin texto ni ícono, solo el degradado del estado.
+.pt__estado {
+  // Bloque (no inline): así no queda el hueco de la línea de texto y se centra en la celda.
+  display: flex;
+  width: 100%;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0;
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &[data-estado='EN_PROCESO'] {
+    background: var(--estado-proceso-grad);
+  }
+
+  &[data-estado='FINALIZADO'] {
+    background: var(--estado-finalizado-grad);
+  }
+
+  &[data-estado='ENTREGADO'] {
+    background: var(--estado-entregado-grad);
+  }
+
+  &[data-estado='ANULADO'] {
+    background: var(--estado-anulado-grad);
+  }
+
+  &:active {
+    transform: scale(var(--press-scale));
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ── Tarjetas: cuando la tabla no cabe (diseño del dueño, 2026-10-18) ─
+@container pedidoslista (max-width: 1000px) {
+  .pt {
+    display: block;
+    border-spacing: 0;
+
+    colgroup,
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+  }
+
+  // Tarjeta: borde izquierdo del color del estado; cliente | valor, número · estado | saldo,
+  // prendas y, bajo una línea, entrega | radicado.
+  .pt__fila {
+    --tono: var(--estado-proceso);
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'cliente valor'
+      'numero saldo'
+      'prendas prendas'
+      'entrega radicado';
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-left: 4px solid var(--tono);
+    border-radius: var(--radius-md);
+    // Mismo color que la fila de la tabla (definido en --fondo).
+    background: var(--fondo);
+    transition: background-color var(--dur-color) var(--ease-out);
+
+    &[data-estado='FINALIZADO'] {
+      --tono: var(--estado-finalizado);
+    }
+
+    &[data-estado='ENTREGADO'] {
+      --tono: var(--estado-entregado);
+    }
+
+    &[data-estado='ANULADO'] {
+      --tono: var(--estado-anulado);
+    }
+
+    .pt__celda {
+      padding: 0;
+      background: none;
+      border-radius: 0;
+      text-align: left;
+    }
+  }
+
+  .pt__celda--cliente {
+    grid-area: cliente;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .pt__celda--valor {
+    grid-area: valor;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: right !important;
+  }
+
+  .pt__celda--numero {
+    grid-area: numero;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .pt__estado-texto {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--tono);
+
+    &::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--tono);
+    }
+  }
+
+  .pt__celda--saldo {
+    grid-area: saldo;
+    font-size: 0.9rem;
+    text-align: right !important;
+
+    &::before {
+      content: attr(data-titulo) ': ';
+      color: var(--color-text-muted);
+      font-weight: 400;
+    }
+  }
+
+  .pt__celda--prendas {
+    grid-area: prendas;
+    white-space: normal;
+  }
+
+  .pt__celda--entrega,
+  .pt__celda--radicado {
+    padding-top: var(--space-3) !important;
+    border-top: 1px solid var(--color-border-soft);
+    font-size: 0.9rem;
+
+    &::before {
+      content: attr(data-titulo) ': ';
+      color: var(--color-text-muted);
+    }
+
+    .pt__hora,
+    .pt__nota {
+      display: inline;
+      margin-left: var(--space-1);
+    }
+  }
+
+  .pt__celda--entrega {
+    grid-area: entrega;
+  }
+
+  .pt__celda--radicado {
+    grid-area: radicado;
+    text-align: right !important;
+  }
+
+  .pt__celda--estado {
+    display: none;
+  }
+}
+
+// Teléfono: una sola columna; saldo y radicado bajan a su línea.
+@container pedidoslista (max-width: 420px) {
+  .pt__fila {
+    grid-template-areas:
+      'cliente valor'
+      'numero numero'
+      'saldo saldo'
+      'prendas prendas'
+      'entrega entrega'
+      'radicado radicado';
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .pt__celda--saldo,
+  .pt__celda--radicado {
+    text-align: left !important;
+  }
+
+  .pt__celda--radicado {
+    padding-top: 0 !important;
+    border-top: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt,
+  .pt__fila,
+  .pt__celda,
+  .pt__estado {
+    transition: none;
+  }
+
+  .pt__estado:active {
+    transform: none;
+  }
+}

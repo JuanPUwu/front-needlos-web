@@ -4,13 +4,22 @@ import {
   DestroyRef,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
+import { Notificaciones } from '../../../../core/ui/notificaciones';
+import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { PERMISOS, Permiso } from '../../../../core/auth/permisos';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Memoria } from '../../../../core/estado/memoria';
+import { recordarFormulario } from '../../../../core/estado/recordar-formulario';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { coincide } from '../../../../shared/util/texto';
 import { Empleado, Invitacion } from '../../models/empleado.model';
@@ -25,7 +34,7 @@ export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
 /** Gestión del equipo: invitar por correo, miembros e invitaciones pendientes. */
 @Component({
   selector: 'app-equipo',
-  imports: [ReactiveFormsModule],
+  imports: [Esqueleto, Encabezado, ReactiveFormsModule],
   templateUrl: './equipo.html',
   styleUrl: './equipo.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +42,11 @@ export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
 export class Equipo implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(EmpleadoService);
+  private readonly memoria = inject(Memoria);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly notificaciones = inject(Notificaciones);
+  private readonly confirmacion = inject(Confirmacion);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly empleados = signal<Empleado[]>([]);
@@ -43,7 +57,6 @@ export class Equipo implements OnInit {
   readonly editandoId = signal<string | null>(null);
   readonly guardando = signal(false);
   readonly errorForm = signal<string | null>(null);
-  readonly exito = signal<string | null>(null);
   /** id (acceso o invitación) de la fila con una acción en curso. */
   readonly accionId = signal<string | null>(null);
 
@@ -58,9 +71,11 @@ export class Equipo implements OnInit {
 
   // Filtros (el equipo llega completo: se filtra en el navegador). Texto y rol aplican
   // también a las invitaciones; el estado solo a los miembros.
-  readonly buscar = signal('');
-  readonly rol = signal<RolFiltro>('todos');
-  readonly estado = signal<EstadoFiltro>('todos');
+  // Vienen de la URL (`?buscar=&rol=&estado=`) y se escriben en ella al cambiar.
+  private readonly q = this.route.snapshot.queryParamMap;
+  readonly buscar = signal(this.q.get('buscar') ?? '');
+  readonly rol = signal<RolFiltro>((this.q.get('rol') as RolFiltro | null) ?? 'todos');
+  readonly estado = signal<EstadoFiltro>((this.q.get('estado') as EstadoFiltro | null) ?? 'todos');
   readonly hayFiltros = computed(
     () => this.buscar() !== '' || this.rol() !== 'todos' || this.estado() !== 'todos',
   );
@@ -98,10 +113,45 @@ export class Equipo implements OnInit {
     rol: ['SASTRE' as 'SASTRE' | 'SASTRE_ADMIN', [Validators.required]],
   });
 
+  /** Formulario a medio llenar (y qué se editaba): sobrevive a la recarga. */
+  private readonly borrador = recordarFormulario<{
+    editandoId: string | null;
+    permisos: Permiso[];
+  }>(this.form, this.memoria, 'equipo:form', this.destroyRef, {
+    extra: () => ({ editandoId: this.editandoId(), permisos: [...this.permisosElegidos()] }),
+  });
+
+  constructor() {
+    // Filtros en la URL: una recarga deja la lista igual.
+    effect(() => {
+      const queryParams = {
+        buscar: this.buscar() || null,
+        rol: this.rol() === 'todos' ? null : this.rol(),
+        estado: this.estado() === 'todos' ? null : this.estado(),
+      };
+      untracked(() =>
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams,
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        }),
+      );
+    });
+  }
+
   ngOnInit(): void {
     this.form.controls.rol.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((rol) => this.rolForm.set(rol));
+    // Invitación o edición a medias (con sus permisos marcados): sobrevive a la recarga.
+    const guardado = this.borrador.leer();
+    if (guardado) {
+      this.editandoId.set(guardado.editandoId);
+      this.form.patchValue(guardado.valores);
+      this.permisosElegidos.set(new Set(guardado.permisos));
+      this.form.markAsDirty();
+    }
     this.cargar();
   }
 
@@ -115,6 +165,9 @@ export class Equipo implements OnInit {
       }
       return nuevo;
     });
+    // Los permisos no están en el formulario: se marca para que el borrador se guarde.
+    this.form.markAsDirty();
+    this.form.updateValueAndValidity();
   }
 
   alBuscar(texto: string): void {
@@ -150,7 +203,6 @@ export class Equipo implements OnInit {
     }
     this.guardando.set(true);
     this.errorForm.set(null);
-    this.exito.set(null);
 
     const v = this.form.getRawValue();
     const datos = {
@@ -173,7 +225,7 @@ export class Equipo implements OnInit {
           next: (emp) => {
             this.guardando.set(false);
             this.reemplazar(emp);
-            this.exito.set('Empleado actualizado.');
+            this.notificaciones.exito('Empleado actualizado.');
             this.cancelar();
           },
           error: (err: unknown) => {
@@ -191,7 +243,7 @@ export class Equipo implements OnInit {
         next: (inv) => {
           this.guardando.set(false);
           this.invitaciones.update((lista) => [inv, ...lista]);
-          this.exito.set(`Invitación enviada a ${inv.email}.`);
+          this.notificaciones.exito(`Invitación enviada a ${inv.email}.`);
           this.cancelar();
         },
         error: (err: unknown) => {
@@ -203,7 +255,6 @@ export class Equipo implements OnInit {
 
   editar(emp: Empleado): void {
     this.editandoId.set(emp.accesoId);
-    this.exito.set(null);
     this.errorForm.set(null);
     this.form.reset({
       nombre: emp.nombre,
@@ -217,15 +268,39 @@ export class Equipo implements OnInit {
     this.permisosElegidos.set(new Set(emp.permisos ?? []));
   }
 
-  cancelar(): void {
+  /** Cancelar (o guardar con éxito) olvida el borrador. */
+  /** Cancelar: si hay cambios sin guardar, pide confirmar antes de perderlos (Reglas §12.2). */
+  async cancelar(): Promise<void> {
+    if (
+      this.form.dirty &&
+      !(await this.confirmacion.pedir({
+        titulo: '¿Descartar los cambios?',
+        mensaje: 'Lo que escribiste no se guardará.',
+        aceptar: 'Sí, descartar',
+        cancelar: 'Seguir editando',
+        peligro: true,
+      }))
+    ) {
+      return;
+    }
+    this.borrador.olvidar();
     this.editandoId.set(null);
     this.form.reset({ rol: 'SASTRE' });
     this.rolForm.set('SASTRE');
     this.permisosElegidos.set(new Set());
   }
 
-  desactivar(emp: Empleado): void {
-    this.accionConRecarga(emp.accesoId, this.service.desactivar(emp.accesoId));
+  async desactivar(emp: Empleado): Promise<void> {
+    const ok = await this.confirmacion.pedir({
+      titulo: `¿Desactivar a ${emp.nombre} ${emp.apellido}?`,
+      mensaje:
+        'Perderá el acceso a la sastrería de inmediato. Su historial se conserva y puedes reactivarlo.',
+      aceptar: 'Sí, desactivar',
+      peligro: true,
+    });
+    if (ok) {
+      this.accionConRecarga(emp.accesoId, this.service.desactivar(emp.accesoId));
+    }
   }
 
   reactivar(emp: Empleado): void {
@@ -238,14 +313,13 @@ export class Equipo implements OnInit {
     }
     this.accionId.set(inv.id);
     this.error.set(null);
-    this.exito.set(null);
     this.service
       .reenviarInvitacion(inv.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.accionId.set(null);
-          this.exito.set(`Invitación reenviada a ${inv.email}.`);
+          this.notificaciones.exito(`Invitación reenviada a ${inv.email}.`);
         },
         error: (err: unknown) => {
           this.accionId.set(null);
@@ -254,13 +328,22 @@ export class Equipo implements OnInit {
       });
   }
 
-  cancelarInvitacion(inv: Invitacion): void {
+  async cancelarInvitacion(inv: Invitacion): Promise<void> {
     if (this.accionId()) {
+      return;
+    }
+    const ok = await this.confirmacion.pedir({
+      titulo: '¿Cancelar la invitación?',
+      mensaje: `El enlace enviado a ${inv.email} dejará de funcionar.`,
+      aceptar: 'Sí, cancelar invitación',
+      cancelar: 'No',
+      peligro: true,
+    });
+    if (!ok) {
       return;
     }
     this.accionId.set(inv.id);
     this.error.set(null);
-    this.exito.set(null);
     this.service
       .cancelarInvitacion(inv.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -286,7 +369,6 @@ export class Equipo implements OnInit {
     }
     this.accionId.set(id);
     this.error.set(null);
-    this.exito.set(null);
     peticion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.accionId.set(null);

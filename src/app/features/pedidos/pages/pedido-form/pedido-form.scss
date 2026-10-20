@@ -1,144 +1,224 @@
-// Estilos propios del formulario de pedido. Solo tokens globales; espaciado con gap.
+// Formulario de pedido (crear / editar) dentro del popup. Solo tokens globales; gap.
 
 :host {
+  display: block;
+}
+
+.pf {
   display: flex;
   flex-direction: column;
-  flex: 1;
-}
-
-.pedidoform-page {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-7) var(--space-4);
-}
-
-.pedidoform-contenedor {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-
-.pedidoform-volver {
-  align-self: flex-start;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--color-accent);
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.pedidoform-titulo {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--color-navy);
-}
-
-.pedidoform-ayuda {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-}
-
-// ── Bento: cliente | cobro arriba, prendas abajo ────────────
-.pedidoform-bento {
-  flex: 1;
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: auto 1fr auto;
-  grid-template-areas:
-    'cliente cobro'
-    'prendas prendas'
-    'pie pie';
-
-  @container panel (max-width: 880px) {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto;
-    grid-template-areas:
-      'cliente'
-      'prendas'
-      'cobro'
-      'pie';
-  }
-}
-
-.pedidoform-bloque {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  min-width: 0;
-  padding: var(--space-6);
-
-  @container panel (max-width: 480px) {
-    padding: var(--space-5) var(--space-4);
-  }
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  container-type: inline-size;
-}
-
-.pedidoform-bloque--cliente {
-  grid-area: cliente;
-  container-name: pfcliente;
-}
-
-.pedidoform-bloque--cobro {
-  grid-area: cobro;
-  container-name: pfcobro;
-}
-
-.pedidoform-bloque--prendas {
-  grid-area: prendas;
-  container-name: pfprendas;
-}
-
-.pedidoform-bloque__cabecera {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: var(--space-4);
 }
 
-.pedidoform-bloque__titulo {
+// Dos columnas: datos a la izquierda, prendas y acciones a la derecha. Así el pedido
+// cabe sin desplazarse en pantallas de computador; en angostas se apila.
+.pf-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: stretch;
+
+  @container panel (max-width: 960px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pf-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+}
+
+// En dos columnas, la de prendas no impone alto: lo marca la columna de datos y la
+// lista se desplaza por dentro (así agregar prendas no estira el calendario).
+@container panel (min-width: 961px) {
+  .pf-col--prendas {
+    contain: size;
+  }
+}
+
+.pf-seccion__titulo {
   font-size: 1.2rem;
   font-weight: 600;
   color: var(--color-text);
 }
 
-// ── Campos ──────────────────────────────────────────────────
-.pedidoform-fila {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--space-5);
+// La lista ocupa el alto libre de la columna; si hay muchas prendas, se desplaza ella sola.
+.pf-lista {
+  flex: 1;
+  min-height: 200px;
 
-  @container (max-width: 420px) {
+  .pf-items {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden auto;
+  }
+}
+
+.pf-acciones-fila {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container panel (max-width: 560px) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.pedidoform-field {
+// ✕ del encabezado (cierra el popup).
+.pf-cerrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// Avisos fijos del cliente en el encabezado (junto a la ✕): cápsulas del mismo alto.
+.pf-avisos {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.pf-aviso {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pf-aviso--info {
+  background: var(--estado-proceso-bg);
+  color: var(--estado-proceso);
+}
+
+.pf-aviso--ok {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.pf-aviso--alerta {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+// En teléfono los avisos van en su propia fila bajo el encabezado.
+.pf-avisos-movil {
+  display: none;
+}
+
+@container panel (max-width: 560px) {
+  app-encabezado .pf-avisos {
+    display: none;
+  }
+
+  .pf-avisos-movil {
+    display: block;
+
+    .pf-avisos {
+      justify-content: flex-start;
+    }
+  }
+}
+
+.pf-cerrar__icono {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+// Cada bloque es una tarjeta como las del resto de la app.
+.pf-seccion {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container-type: inline-size;
+  container-name: pfseccion;
+}
+
+// ── Filas y campos ──────────────────────────────────────────
+.pf-fila {
+  display: grid;
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.pf-fila--cliente {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  @container pfseccion (max-width: 480px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+    .pf-campo:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.pf-fila--linea {
+  grid-template-columns: minmax(0, 0.6fr) minmax(0, 2fr) minmax(0, 1.4fr);
+
+  @container pfseccion (max-width: 480px) {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
+
+    .pf-campo:nth-child(2) {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+  }
+}
+
+.pf-fila--detalle {
+  grid-template-columns: minmax(0, 1fr) auto;
+
+  @container pfseccion (max-width: 480px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pf-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   min-width: 0;
 }
 
-.pedidoform-field__head {
+.pf-campo__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
 }
 
-.pedidoform-field__label {
+.pf-campo__label {
   flex-shrink: 0;
   margin-left: var(--space-2);
   font-size: 0.85rem;
@@ -146,18 +226,21 @@
   color: var(--color-text);
 }
 
-.pedidoform-field__error {
+.pf-req {
+  color: var(--color-danger);
+}
+
+.pf-campo__error {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   margin-right: var(--space-2);
-  text-align: right;
   font-size: 0.8rem;
   color: var(--color-danger);
 }
 
-.pedidoform-field__input {
+.pf-campo__input {
   width: 100%;
   min-width: 0;
   height: 46px;
@@ -169,9 +252,6 @@
   font-size: 1rem;
   color: var(--color-text);
   outline: none;
-  transition:
-    border-color 0.15s var(--ease-out),
-    box-shadow 0.15s var(--ease-out);
 
   &:focus {
     border-color: var(--color-border);
@@ -182,164 +262,207 @@
     background: var(--color-bg);
     color: var(--color-text-muted);
   }
+
+  &.ng-touched.ng-invalid {
+    border-color: var(--color-danger);
+  }
+
+  // Error de negocio (p. ej. abono mayor que el total), aunque el control sea válido.
+  &.pf-campo__input--error {
+    border-color: var(--color-danger);
+  }
 }
 
-.pedidoform-nota {
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  background: var(--focus-ring);
-  font-size: 0.9rem;
-  color: var(--color-navy);
+.pf-captura__acciones {
+  display: flex;
+  gap: var(--space-3);
 }
 
-.pedidoform-nota--alerta {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
-}
-
-.pedidoform-nota--ok {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-}
-
-// ── Prendas ─────────────────────────────────────────────────
-.pedidoform-prendas {
-  list-style: none;
-  margin: 0;
+// ── Lista de prendas: tarjetas (app-prenda-linea), solo desplazamiento vertical ──
+.pf-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   padding: 0;
+  list-style: none;
+}
+
+// ── Cobro (columna derecha) ─────────────────────────────────
+.pf-cobro {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-.pedidoform-prenda {
+// ── Entrega: calendario | resumen ───────────────────────────
+.pf-entrega {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: stretch;
+
+  @container pfseccion (max-width: 520px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// El calendario (celdas cuadradas) define el alto del bloque de entrega; si sobra
+// espacio bajo Días, Pzs, Descuento y Designado, queda libre.
+.pf-calendario {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-4);
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-md);
 }
 
-.pedidoform-prenda--entregada {
-  background: var(--color-bg);
-}
-
-.pedidoform-prenda__cabecera {
+.pf-resumen {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 0;
 }
 
-.pedidoform-prenda__numero {
-  font-size: 0.85rem;
+// Designado: tarjeta que se estira hasta el final del bloque de entrega; arriba el
+// avatar (iniciales o silueta) de quien hará el pedido, abajo el selector.
+.pf-designado {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  container: pfdesignado / size;
+}
+
+.pf-designado__persona {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 0;
+}
+
+// El avatar crece con el alto libre (tarjeta − selector − gap), entre 36 y 88px.
+.pf-designado__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: clamp(36px, calc(100cqh - 62px), 88px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-navy);
+  color: var(--color-surface);
+  font-size: clamp(0.9rem, calc((100cqh - 62px) * 0.36), 1.8rem);
   font-weight: 700;
+  transition: background-color var(--dur-color) var(--ease-out);
+}
+
+.pf-designado__avatar--vacio {
+  background: var(--focus-ring);
   color: var(--color-navy);
 }
 
-.pedidoform-prenda__campos {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 0.8fr) minmax(0, 1.4fr) minmax(0, 1.6fr);
-  grid-template-areas: 'tipo cantidad precio sastre' 'descripcion descripcion descripcion descripcion';
-  gap: var(--space-4);
-
-  @container pfprendas (max-width: 640px) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas: 'tipo tipo' 'cantidad precio' 'sastre sastre' 'descripcion descripcion';
-  }
+.pf-designado__icono {
+  width: 50%;
+  height: 50%;
 }
 
-.pedidoform-field--tipo {
-  grid-area: tipo;
-}
-.pedidoform-field--cantidad {
-  grid-area: cantidad;
-}
-.pedidoform-field--precio {
-  grid-area: precio;
-}
-.pedidoform-field--sastre {
-  grid-area: sastre;
-}
-.pedidoform-field--descripcion {
-  grid-area: descripcion;
-}
-
-.pedidoform-chip {
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: var(--color-success-bg);
-  color: var(--color-success);
-}
-
-// ── Totales ─────────────────────────────────────────────────
-.pedidoform-totales {
+.pf-designado__textos {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  margin: 0;
-  padding: var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--color-bg);
+  gap: var(--space-1);
+  min-width: 0;
+  max-width: 100%;
 }
 
-.pedidoform-totales__fila {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-4);
-  font-size: 0.95rem;
+.pf-designado__titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-navy);
+}
+
+.pf-designado__ayuda,
+.pf-designado__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
   color: var(--color-text-muted);
+}
 
-  dt,
-  dd {
-    margin: 0;
-  }
+.pf-designado__nombre {
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
 
-  dd {
-    font-variant-numeric: tabular-nums;
-    color: var(--color-text);
+// Bloque de entrega apilado (angosto): la tarjeta no tiene alto que llenar.
+@container pfseccion (max-width: 520px) {
+  .pf-designado {
+    min-height: 130px;
   }
 }
 
-.pedidoform-totales__fila--total {
-  font-size: 1.1rem;
-  font-weight: 700;
-
-  dt,
-  dd {
-    color: var(--color-navy);
-  }
-}
-
-// ── Pie, avisos y botones ───────────────────────────────────
-.pedidoform-pie {
-  grid-area: pie;
-  display: flex;
-  flex-direction: column;
+.pf-resumen__par {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-4);
 }
 
-.pedidoform-pie__acciones {
+// Cápsula de dato: etiqueta a la izquierda, valor a la derecha.
+.pf-dato {
   display: flex;
-  justify-content: flex-end;
-  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 1rem;
+  color: var(--color-text);
+
+  strong {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
-.pedidoform-aviso {
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
+.pf-dato__etiqueta {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.pf-dato__select {
+  width: 100%;
+  font: inherit;
   font-size: 0.9rem;
+  cursor: pointer;
 }
 
-.pedidoform-aviso--error {
-  color: var(--color-danger);
-  background: var(--color-danger-bg);
+.pf-dato--total {
+  border-color: var(--color-border);
+  background: var(--focus-ring);
+  font-size: 1rem;
+
+  .pf-dato__etiqueta,
+  strong {
+    color: var(--color-navy);
+    font-weight: 700;
+  }
 }
 
-.pedidoform-boton {
+// ── Botones, notas y ayuda ──────────────────────────────────
+.pf-boton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -352,11 +475,9 @@
   font: inherit;
   font-size: 0.95rem;
   font-weight: 600;
-  text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
-  transition:
-    background-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+  transition: transform var(--dur-presion) var(--ease-out);
 
   &:hover:not(:disabled) {
     background: var(--color-accent-hover);
@@ -377,37 +498,63 @@
   }
 }
 
-.pedidoform-boton--secundario {
-  height: 38px;
-  padding: 0 var(--space-4);
-  background: transparent;
+.pf-boton--borde {
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-surface);
   color: var(--color-accent);
-  border: 1px solid var(--color-border-soft);
 
   &:hover:not(:disabled) {
     background: var(--focus-ring);
   }
 }
 
-.pedidoform-boton--peligro {
-  height: 32px;
-  padding: 0 var(--space-3);
+.pf-boton--texto {
   background: transparent;
-  color: var(--color-danger);
-  border: 1px solid var(--color-border-soft);
+  color: var(--color-text-muted);
 
   &:hover:not(:disabled) {
-    background: var(--color-danger-bg);
+    background: var(--color-bg);
   }
 }
 
+.pf-boton--grande {
+  flex: 1;
+  min-height: 44px;
+}
+
+.pf-nota {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.pf-nota--error {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.pf-ayuda {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.pf-ayuda--error {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .pedidoform-field__input,
-  .pedidoform-boton {
+  .pf-boton {
     transition: none;
   }
 
-  .pedidoform-boton:active:not(:disabled) {
+  .pf-boton:active:not(:disabled) {
     transform: none;
   }
 }

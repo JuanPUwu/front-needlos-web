@@ -1,0 +1,128 @@
+// Skeleton loader genérico. Solo tokens globales.
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.esk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// La lista no lleva separación: las filas se dividen con una línea, como las reales.
+.esk[data-forma='lista'] {
+  gap: 0;
+}
+
+// ── Huesos: bloques grises con un brillo que los recorre ────
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): es un indicador continuo de carga.
+.esk__hueso {
+  display: block;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+    color-mix(in srgb, var(--color-bg), var(--color-navy) 6%);
+  background-size: 200% 100%;
+  animation: esk-brillo 1.4s linear infinite;
+}
+
+.esk__cabecera {
+  height: 36px;
+  border-radius: var(--radius-sm);
+}
+
+.esk__fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.esk__textos {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.esk__linea {
+  height: 14px;
+  border-radius: var(--radius-sm);
+}
+
+.esk__linea--titulo {
+  width: 40%;
+}
+
+.esk__linea--detalle {
+  width: 60%;
+  height: 12px;
+}
+
+.esk__boton {
+  flex-shrink: 0;
+  width: 96px;
+  height: 38px;
+}
+
+.esk__boton--accion {
+  align-self: flex-end;
+  width: 160px;
+  height: 44px;
+}
+
+.esk__campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// Etiqueta: texto invisible con la letra de una etiqueta real (mide lo mismo).
+.esk__etiqueta {
+  width: 30%;
+  margin-left: var(--space-2);
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: transparent;
+  white-space: nowrap;
+}
+
+.esk__numero {
+  display: inline-block;
+  min-width: 2.2ch;
+  color: transparent;
+  border-radius: var(--radius-sm);
+}
+
+.esk__control {
+  height: 46px;
+}
+
+.esk__oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@keyframes esk-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esk__hueso {
+    animation: none;
+  }
+}

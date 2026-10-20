@@ -1,6 +1,8 @@
 <main class="ticketpag-page">
   <div class="ticketpag-barra">
-    <a class="ticketpag-volver" [routerLink]="['/pedidos', id]">← Volver al pedido</a>
+    <a class="ticketpag-volver" routerLink="/pedidos" [queryParams]="{ pedido: id }"
+      >← Volver al pedido</a
+    >
     @if (ticket()) {
       <button class="ticketpag-boton" type="button" (click)="imprimir()">Imprimir</button>
     }
@@ -13,6 +15,6 @@
       <app-ticket [datos]="t" />
     </div>
   } @else {
-    <p class="ticketpag-ayuda" role="status">Cargando ticket...</p>
+    <app-esqueleto forma="bloque" [alto]="640" texto="Cargando ticket..." />
   }
 </main>

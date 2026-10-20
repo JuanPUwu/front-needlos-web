@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { PermisosService } from '../../../../core/auth/permisos';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { EmpleadoService } from '../../../equipo/services/empleado.service';
 import { Pedido, Prenda } from '../../models/pedido.model';
 import { PedidoService } from '../../services/pedido.service';
@@ -64,32 +65,37 @@ describe('PedidoDetalle', () => {
       imports: [PedidoDetalle],
       providers: [
         provideRouter([]),
-        {
-          provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ id: 'p1' }) } },
-        },
         { provide: PedidoService, useValue: service },
         { provide: EmpleadoService, useValue: { asignables: () => of([]) } },
         { provide: PermisosService, useValue: { puede: () => true, admin: () => true } },
       ],
     });
-    componente = TestBed.createComponent(PedidoDetalle).componentInstance;
+    const fixture = TestBed.createComponent(PedidoDetalle);
+    fixture.componentRef.setInput('pedidoId', 'p1');
+    componente = fixture.componentInstance;
     componente.ngOnInit();
   });
 
-  it('si queda saldo, pide confirmar antes de entregar', () => {
-    componente.entregar(['pr1']);
+  it('entregar siempre pide confirmar; si queda saldo lo avisa', async () => {
+    const confirmacion = TestBed.inject(Confirmacion);
+    const pedir = vi.spyOn(confirmacion, 'pedir').mockResolvedValueOnce(false);
+    await componente.entregar(['pr1']);
+    expect(pedir).toHaveBeenCalledWith(
+      expect.objectContaining({ mensaje: expect.stringContaining('saldo pendiente') }),
+    );
     expect(service['entregar']).not.toHaveBeenCalled();
-    expect(componente.confirmarEntrega()).toEqual(['pr1']);
 
-    componente.entregar(['pr1']);
+    pedir.mockResolvedValueOnce(true);
+    await componente.entregar(['pr1']);
     expect(service['entregar']).toHaveBeenCalledWith('p1', ['pr1']);
     expect(componente.pedido()?.estado).toBe('ENTREGADO');
   });
 
-  it('sin saldo entrega directo', () => {
+  it('sin saldo también confirma, pero sin aviso de saldo', async () => {
     componente.pedido.set(pedido({ saldo: 0 }));
-    componente.entregar(['pr1']);
+    const pedir = vi.spyOn(TestBed.inject(Confirmacion), 'pedir').mockResolvedValue(true);
+    await componente.entregar(['pr1']);
+    expect(pedir.mock.calls[0][0].mensaje).not.toContain('saldo');
     expect(service['entregar']).toHaveBeenCalled();
   });
 

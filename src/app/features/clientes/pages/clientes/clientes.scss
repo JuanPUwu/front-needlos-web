@@ -10,7 +10,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: var(--space-7) var(--space-4);
+  padding: var(--space-4);
 }
 
 .clientes-contenedor {
@@ -18,24 +18,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
-}
-
-.clientes-cabecera {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.clientes-titulo {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--color-navy);
-}
-
-.clientes-subtitulo {
-  color: var(--color-text-muted);
+  gap: var(--space-4);
 }
 
 // ── Bento: resumen (arriba-izq), formulario (abajo-izq), lista (derecha) ──
@@ -43,7 +26,7 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-4);
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
   grid-template-rows: auto 1fr;
   grid-template-areas:
@@ -104,13 +87,10 @@
 .clientes-bloque {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
   min-width: 0;
-  padding: var(--space-6);
+  padding: var(--space-4);
 
-  @container panel (max-width: 480px) {
-    padding: var(--space-5) var(--space-4);
-  }
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
@@ -147,13 +127,13 @@
 .clientes-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
 }
 
 .clientes-fila {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--space-5);
+  gap: var(--space-4);
 
   @container clientesform (max-width: 420px) {
     grid-template-columns: 1fr;
@@ -163,7 +143,7 @@
 .clientes-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
   min-width: 0;
 }
 
@@ -182,6 +162,11 @@
   color: var(--color-text);
 }
 
+// Asterisco rojo de campo obligatorio.
+.clientes-field__req {
+  color: var(--color-danger);
+}
+
 .clientes-field__input {
   width: 100%;
   min-width: 0;
@@ -194,8 +179,8 @@
   color: var(--color-text);
   outline: none;
   transition:
-    border-color 0.15s var(--ease-out),
-    box-shadow 0.15s var(--ease-out);
+    border-color var(--dur-color) var(--ease-out),
+    box-shadow var(--dur-color) var(--ease-out);
 
   &:focus {
     border-color: var(--color-border);
@@ -217,7 +202,7 @@
 .clientes-form__acciones {
   display: flex;
   justify-content: flex-end;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 // ── Avisos ──────────────────────────────────────────────────
@@ -236,11 +221,6 @@
   background: rgba(198, 40, 40, 0.08);
 }
 
-.clientes-aviso--exito {
-  color: #1b7a34;
-  background: rgba(52, 200, 74, 0.12);
-}
-
 // ── Botones ─────────────────────────────────────────────────
 .clientes-boton {
   display: inline-flex;
@@ -257,8 +237,8 @@
   font-weight: 600;
   cursor: pointer;
   transition:
-    background-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
 
   &:hover:not(:disabled) {
     background: var(--color-accent-hover);
@@ -397,7 +377,6 @@
 
 .clientes-lista {
   list-style: none;
-  margin: 0;
   padding: 0;
   flex: 1;
   min-height: 0;
@@ -461,12 +440,6 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
-}
-
-.clientes-item__pregunta {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-danger);
 }
 
 .clientes-paginacion {

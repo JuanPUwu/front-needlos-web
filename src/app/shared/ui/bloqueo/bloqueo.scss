@@ -1,0 +1,66 @@
+// Bloqueo de pantalla mientras se procesa una acción. Solo tokens globales.
+
+.bloqueo {
+  position: fixed;
+  inset: 0;
+  // Por encima de todo (popups, confirmaciones y notificaciones).
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: progress;
+  // El clic queda bloqueado al instante; lo visual aparece con retraso.
+  background: var(--color-velo-claro-0);
+  animation: bloqueo-velo var(--dur-entrar) var(--ease-out) 300ms forwards;
+}
+
+.bloqueo__caja {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  animation: bloqueo-caja var(--dur-entrar) var(--ease-out) 300ms forwards;
+}
+
+.bloqueo__circulo {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--focus-ring);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: bloqueo-girar 0.8s linear infinite;
+}
+
+.bloqueo__texto {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-navy);
+}
+
+@keyframes bloqueo-velo {
+  to {
+    background: var(--color-velo-claro);
+  }
+}
+
+@keyframes bloqueo-caja {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bloqueo-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bloqueo__circulo {
+    animation-duration: 2s;
+  }
+}

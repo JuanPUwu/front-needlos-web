@@ -1,0 +1,197 @@
+// Esqueleto de carga del detalle del pedido. Misma cuadrícula y medidas que el detalle y
+// el formulario (Reglas §12.3); solo tokens globales.
+
+:host {
+  display: block;
+}
+
+.esq {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: stretch;
+
+  @container panel (max-width: 960px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.esq__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+}
+
+// Como en el detalle: la columna derecha no impone alto.
+@container panel (min-width: 961px) {
+  .esq__col--prendas {
+    contain: size;
+  }
+}
+
+.esq__tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.esq__fila {
+  display: grid;
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.esq__fila--tres {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.esq__fila--linea {
+  grid-template-columns: minmax(0, 0.6fr) minmax(0, 2fr) minmax(0, 1.4fr);
+}
+
+.esq__fila--detalle {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.esq__fila--dos {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.esq__campo {
+  display: flex;
+  flex-direction: column;
+  // Igual que .pd-campo / .pf-campo (etiqueta ↔ campo).
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.esq__entrega {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.esq__resumen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.esq__lista {
+  flex: 1;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+.esq__pestanas {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.esq__acciones {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+// ── Huesos: bloques grises con un brillo que los recorre ────
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2), como los giradores: es un
+// indicador continuo de carga.
+.esq__hueso {
+  display: block;
+  border-radius: var(--radius-md);
+  // Gris algo más oscuro que el fondo (se distingue sobre tarjeta blanca y sobre el popup).
+  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+    color-mix(in srgb, var(--color-bg), var(--color-text) 7%);
+  background-size: 200% 100%;
+  animation: esq-brillo 1.4s linear infinite;
+}
+
+// Etiqueta: lleva texto invisible con la misma letra que una etiqueta real, así mide
+// exactamente lo mismo en cualquier pantalla.
+.esq__hueso--etiqueta {
+  width: 45%;
+  margin-left: var(--space-2);
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: transparent;
+  white-space: nowrap;
+}
+
+.esq__hueso--campo {
+  height: 46px;
+}
+
+.esq__hueso--boton {
+  width: 172px;
+  height: 44px;
+}
+
+.esq__hueso--accion {
+  height: 44px;
+}
+
+// Calendario: el real, invisible, dentro de un bloque con el mismo relleno que su cápsula;
+// así el alto coincide con el del detalle en cualquier ancho.
+.esq__calendario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid transparent;
+}
+
+.esq__invisible {
+  visibility: hidden;
+}
+
+.esq__hueso--designado {
+  flex: 1;
+  min-height: 130px;
+}
+
+.esq__hueso--pestana {
+  width: 96px;
+  height: 36px;
+}
+
+.esq__hueso--item {
+  flex-shrink: 0;
+  height: 112px;
+}
+
+.esq__oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@keyframes esq-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esq__hueso {
+    animation: none;
+  }
+}

@@ -28,6 +28,27 @@
   --color-warning: #8a5a00;
   --color-warning-bg: rgba(255, 176, 32, 0.16);
 
+  // Estados del pedido (decisión del dueño 2026-10-16): siempre estos colores.
+  --estado-proceso: #1f5fbf; // azul
+  --estado-proceso-bg: rgba(31, 95, 191, 0.12);
+  --estado-finalizado: var(--color-success); // verde
+  --estado-finalizado-bg: var(--color-success-bg);
+  --estado-entregado: var(--color-warning); // amarillo
+  --estado-entregado-bg: var(--color-warning-bg);
+  --estado-anulado: var(--color-danger); // rojo
+  --estado-anulado-bg: var(--color-danger-bg);
+  // Degradados de estado (dueño 2026-10-18): de arriba-izquierda a abajo-derecha.
+  // El botón de estado del listado es solo color: cada degradado ES el estado.
+  --estado-proceso-grad: linear-gradient(135deg, #5599ff, #255aa9);
+  --estado-finalizado-grad: linear-gradient(135deg, #48ea60, #2c9b3c);
+  --estado-entregado-grad: linear-gradient(135deg, #fdbc40, #b18329);
+  --estado-anulado-grad: linear-gradient(135deg, #fc615d, #af0000);
+
+  // Velos detrás de popups y del bloqueo de "procesando"
+  --color-velo: rgba(2, 40, 89, 0.35);
+  --color-velo-claro: rgba(245, 245, 247, 0.55);
+  --color-velo-claro-0: rgba(245, 245, 247, 0);
+
   // Impresion (tickets): negro puro, las termicas no imprimen grises
   --color-tinta: #000000;
 
@@ -51,7 +72,16 @@
   --space-9: 64px;
   --space-10: 80px;
 
-  // ── Movimiento ──────────────────────────────────────────────
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  // ── Movimiento (Reglas §12.2: animaciones simples) ──────────
+  // Decisión del dueño (2026-10-18): animaciones simples (sobre todo opacidad) y
+  // NINGUNA dura más de 100 ms; se ven más fluidas que movimientos largos.
+  --ease-out: ease-out; // entrar / responder
+  --ease-in: ease-in; // salir
+  --ease-in-out: ease-in-out; // cambiar de tamaño o lugar
+  --dur-presion: 80ms; // presionar un botón
+  --dur-color: 100ms; // hover, foco, colores
+  --dur-entrar: 100ms; // aparecer un elemento (aviso, notificación, contenido)
+  --dur-salir: 100ms; // desaparecer
+  --dur-popup: 100ms; // abrir un popup o cajón
   --press-scale: 0.97;
 }

@@ -12,8 +12,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-5);
-  padding: var(--space-7) var(--space-4);
+  gap: var(--space-4);
+  padding: var(--space-4);
   background: var(--color-bg);
 }
 
@@ -62,10 +62,6 @@
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-card);
   overflow: hidden;
-}
-
-.ticketpag-ayuda {
-  color: var(--color-text-muted);
 }
 
 .ticketpag-error {

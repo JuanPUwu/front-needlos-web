@@ -25,7 +25,9 @@
       @default {
         <form class="restablecer-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
           <div class="restablecer-field">
-            <label class="restablecer-field__label" for="contrasenaNueva">Contraseña nueva</label>
+            <label class="restablecer-field__label" for="contrasenaNueva"
+              >Contraseña nueva <span class="restablecer-field__req">*</span></label
+            >
             <div class="restablecer-field__control">
               <input
                 class="restablecer-field__input"
@@ -54,7 +56,7 @@
 
           <div class="restablecer-field">
             <label class="restablecer-field__label" for="confirmacion"
-              >Confirma la contraseña</label
+              >Confirma la contraseña <span class="restablecer-field__req">*</span></label
             >
             <div class="restablecer-field__control">
               <input

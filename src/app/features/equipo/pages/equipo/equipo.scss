@@ -10,7 +10,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: var(--space-7) var(--space-4);
+  padding: var(--space-4);
 }
 
 .equipo-contenedor {
@@ -80,33 +80,13 @@
   color: var(--color-text-muted);
 }
 
-.equipo-cabecera {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.equipo-titulo {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--color-navy);
-}
-
-.equipo-subtitulo {
-  color: var(--color-text-muted);
-}
-
 // ── Bloques ─────────────────────────────────────────────────
 .equipo-bloque {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
-  padding: var(--space-6);
+  gap: var(--space-4);
+  padding: var(--space-4);
 
-  @container panel (max-width: 480px) {
-    padding: var(--space-5) var(--space-4);
-  }
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
@@ -142,6 +122,8 @@
 }
 
 .equipo-bloque__ayuda {
+  margin-left: var(--space-2);
+  margin-top: var(--space-4);
   font-size: 0.9rem;
   color: var(--color-text-muted);
 }
@@ -150,13 +132,13 @@
 .equipo-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
 }
 
 .equipo-fila {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--space-5);
+  gap: var(--space-4);
 
   // Un campo por fila cuando la tarjeta del formulario se estrecha.
   @container formcard (max-width: 420px) {
@@ -167,7 +149,7 @@
 .equipo-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
   min-width: 0;
 }
 
@@ -179,11 +161,17 @@
 }
 
 .equipo-field__label {
+  padding: 0;
   flex-shrink: 0;
   margin-left: var(--space-2);
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--color-text);
+}
+
+// Asterisco rojo de campo obligatorio.
+.equipo-field__req {
+  color: var(--color-danger);
 }
 
 .equipo-field__input {
@@ -198,8 +186,8 @@
   color: var(--color-text);
   outline: none;
   transition:
-    border-color 0.15s var(--ease-out),
-    box-shadow 0.15s var(--ease-out);
+    border-color var(--dur-color) var(--ease-out),
+    box-shadow var(--dur-color) var(--ease-out);
 
   &:focus {
     border-color: var(--color-border);
@@ -221,7 +209,7 @@
 .equipo-form__acciones {
   display: flex;
   justify-content: flex-end;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 // ── Avisos ──────────────────────────────────────────────────
@@ -236,11 +224,6 @@
   background: rgba(198, 40, 40, 0.08);
 }
 
-.equipo-aviso--exito {
-  color: #1b7a34;
-  background: rgba(52, 200, 74, 0.12);
-}
-
 // ── Botones ─────────────────────────────────────────────────
 .equipo-boton {
   height: 44px;
@@ -253,8 +236,8 @@
   font-weight: 600;
   cursor: pointer;
   transition:
-    background-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
 
   &:hover:not(:disabled) {
     background: var(--color-accent-hover);
@@ -316,7 +299,6 @@
   flex-direction: column;
   gap: var(--space-3);
   min-width: 0;
-  margin: 0;
   padding: 0;
   border: none;
 }
@@ -420,7 +402,6 @@
 
 .equipo-lista {
   list-style: none;
-  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;

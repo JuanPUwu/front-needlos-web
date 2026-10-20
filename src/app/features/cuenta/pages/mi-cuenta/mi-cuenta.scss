@@ -8,7 +8,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: var(--space-7) var(--space-4);
+  padding: var(--space-4);
 }
 
 .cuenta__contenedor {
@@ -16,35 +16,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
-}
-
-.cuenta__volver {
-  align-self: flex-start;
-  color: var(--color-accent);
-  font-weight: 600;
-  text-decoration: none;
-
-  &:hover {
-    color: var(--color-accent-hover);
-  }
-}
-
-.cuenta__encabezado {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.cuenta__titulo {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--color-navy);
-}
-
-.cuenta__subtitulo {
-  color: var(--color-text-muted);
+  gap: var(--space-4);
 }
 
 // ── Bento ───────────────────────────────────────────────────
@@ -52,7 +24,7 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-4);
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas: 'contrasena sesiones';
 
@@ -65,79 +37,81 @@
 }
 
 // ── Bloques ─────────────────────────────────────────────────
-.bloque {
+.cuenta-bloque {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding: var(--space-6);
+  padding: var(--space-4);
 
-  @container panel (max-width: 480px) {
-    padding: var(--space-5) var(--space-4);
-  }
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
 }
 
-.bloque--contrasena {
+.cuenta-bloque--contrasena {
   grid-area: contrasena;
   min-width: 0;
   overflow-y: auto;
 }
 
-.bloque--sesiones {
+.cuenta-bloque--sesiones {
   grid-area: sesiones;
   min-width: 0;
   min-height: 0;
 }
 
-.bloque__cabecera {
+.cuenta-bloque__cabecera {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
 }
 
-.bloque__titulo {
+.cuenta-bloque__titulo {
   font-size: 1.2rem;
   font-weight: 600;
 }
 
-.bloque__ayuda {
+.cuenta-bloque__ayuda {
   font-size: 0.9rem;
   color: var(--color-text-muted);
 }
 
-.bloque__form {
+.cuenta-form {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
 // ── Campos ──────────────────────────────────────────────────
-.campo {
+.cuenta-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-4);
 }
 
 // El error va en la misma fila del label (no debajo).
-.campo__head {
+.cuenta-field__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
 }
 
-.campo__label {
+.cuenta-field__label {
   flex-shrink: 0;
   margin-left: var(--space-2);
   font-size: 0.85rem;
   font-weight: 500;
 }
 
-.campo__input {
+// Asterisco rojo de campo obligatorio.
+.cuenta-field__req {
+  color: var(--color-danger);
+}
+
+.cuenta-field__input {
   height: 46px;
   padding: 0 var(--space-4);
   border: 1px solid var(--color-border-soft);
@@ -147,8 +121,8 @@
   background: var(--color-surface);
   outline: none;
   transition:
-    border-color 0.15s var(--ease-out),
-    box-shadow 0.15s var(--ease-out);
+    border-color var(--dur-color) var(--ease-out),
+    box-shadow var(--dur-color) var(--ease-out);
 
   &:focus {
     border-color: var(--color-border);
@@ -156,13 +130,13 @@
   }
 }
 
-.campo__ayuda {
+.cuenta-field__ayuda {
   margin-left: var(--space-2);
   font-size: 0.8rem;
   color: var(--color-text-muted);
 }
 
-.campo__error {
+.cuenta-field__error {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -174,25 +148,19 @@
 }
 
 // ── Avisos ──────────────────────────────────────────────────
-.aviso {
-  margin: 0;
+.cuenta-aviso {
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
 }
 
-.aviso--error {
+.cuenta-aviso--error {
   color: var(--color-danger);
   background: rgba(198, 40, 40, 0.08);
 }
 
-.aviso--exito {
-  color: #1b7a34;
-  background: rgba(52, 200, 74, 0.12);
-}
-
 // ── Botones ─────────────────────────────────────────────────
-.boton {
+.cuenta-boton {
   height: 44px;
   padding: 0 var(--space-5);
   border: none;
@@ -203,8 +171,8 @@
   font-weight: 600;
   cursor: pointer;
   transition:
-    background-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
 
   &:hover:not(:disabled) {
     background: var(--color-accent-hover);
@@ -225,7 +193,7 @@
   }
 }
 
-.boton--secundario {
+.cuenta-boton--secundario {
   height: 36px;
   padding: 0 var(--space-4);
   background: transparent;
@@ -238,16 +206,15 @@
 }
 
 // ── Lista de sesiones (scrollea dentro de su tarjeta) ────────
-.sesiones {
+.cuenta-sesiones {
   list-style: none;
-  margin: 0;
   padding: 0;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
 }
 
-.sesion {
+.cuenta-sesion {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -256,18 +223,18 @@
   border-top: 1px solid var(--color-border-soft);
 }
 
-.sesion__info {
+.cuenta-sesion__info {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
   min-width: 0;
 }
 
-.sesion__dispositivo {
+.cuenta-sesion__dispositivo {
   font-weight: 600;
 }
 
-.sesion__actual {
+.cuenta-sesion__actual {
   margin-left: var(--space-2);
   padding: 2px 8px;
   border-radius: 999px;
@@ -277,18 +244,18 @@
   font-weight: 700;
 }
 
-.sesion__detalle {
+.cuenta-sesion__detalle {
   font-size: 0.85rem;
   color: var(--color-text-muted);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .campo__input,
-  .boton {
+  .cuenta-field__input,
+  .cuenta-boton {
     transition: none;
   }
 
-  .boton:active:not(:disabled) {
+  .cuenta-boton:active:not(:disabled) {
     transform: none;
   }
 }

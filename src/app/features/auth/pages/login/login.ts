@@ -3,6 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
+import { Memoria } from '../../../../core/estado/memoria';
+import { recordarFormulario } from '../../../../core/estado/recordar-formulario';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { Icono } from '../../../../shared/ui/icono/icono';
@@ -29,6 +31,24 @@ export class Login {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
+
+  /** Lo escrito sobrevive a la recarga (nunca la contraseña). */
+  private readonly borrador = recordarFormulario(
+    this.form,
+    inject(Memoria),
+    'login',
+    this.destroyRef,
+    { omitir: ['password'] },
+  );
+  private readonly _restaurado = this.restaurarBorrador();
+
+  private restaurarBorrador(): true {
+    const guardado = this.borrador.leer();
+    if (guardado) {
+      this.form.patchValue(guardado.valores);
+    }
+    return true;
+  }
 
   enviar(): void {
     if (this.form.invalid) {

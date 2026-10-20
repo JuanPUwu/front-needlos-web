@@ -49,9 +49,13 @@ export interface PedidoResumen {
   cliente: ClienteDelPedido;
   /** yyyy-MM-dd */
   fecha: string;
+  /** Momento en que se radicó (ISO). */
+  radicado: string;
   fechaEntrega: string;
   estado: EstadoPedido;
   prendas: number;
+  /** "2 × Camisa, Pantalón" */
+  prendasResumen: string;
   total: number;
   saldo: number;
   vencido: boolean;

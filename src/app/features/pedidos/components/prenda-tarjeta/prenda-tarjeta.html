@@ -1,0 +1,91 @@
+@let pr = prenda();
+<article class="prt" [attr.data-estado]="pr.estado">
+  <strong class="prt__titulo">{{ pr.cantidad }} × {{ pr.tipoPrenda }}</strong>
+  <strong class="prt__total">{{ pr.subtotal | moneda }}</strong>
+
+  <span class="prt__estado">{{ etiqueta[pr.estado] }}</span>
+  <span class="prt__unit">
+    <span class="prt__muted">Vlr. unit.:</span> {{ pr.precioUnitario | moneda }}
+  </span>
+
+  <span class="prt__descripcion">{{ pr.descripcion }}</span>
+
+  <div class="prt__pie">
+    @if (puedeAsignar() && !anulado() && pr.estado !== 'ENTREGADO') {
+      <label class="prt__sastre">
+        <span class="prt__muted">Sastre:</span>
+        <select
+          #sastreSel
+          class="prt__select"
+          [disabled]="ocupado()"
+          (change)="asignar.emit(sastreSel.value)"
+        >
+          <option value="" [selected]="!pr.sastreId">Sin asignar</option>
+          @for (s of sastres(); track s.accesoId) {
+            <option [value]="s.accesoId" [selected]="s.accesoId === pr.sastreId">
+              {{ s.nombre }}
+            </option>
+          }
+        </select>
+      </label>
+    } @else {
+      <span class="prt__sastre">
+        <span class="prt__muted">Sastre:</span> {{ pr.sastre ?? 'Sin asignar' }}
+      </span>
+    }
+  </div>
+
+  <div class="prt__pie prt__pie--acciones">
+    <button
+      class="prt__historial"
+      type="button"
+      [attr.aria-expanded]="historialAbierto()"
+      (click)="historialAbierto.set(!historialAbierto())"
+    >
+      <app-icono class="prt__icono" nombre="historial" />
+      {{ historialAbierto() ? 'Ocultar' : 'Historial' }}
+    </button>
+    @if (!anulado()) {
+      @if (pr.estado === 'EN_PROCESO' && puedeCambiarEstado()) {
+        <button class="prt__boton" type="button" [disabled]="ocupado()" (click)="finalizar.emit()">
+          Finalizar
+        </button>
+      }
+      @if (pr.estado === 'FINALIZADO') {
+        @if (puedeCambiarEstado()) {
+          <button
+            class="prt__boton"
+            type="button"
+            [disabled]="ocupado()"
+            (click)="volverAProceso.emit()"
+          >
+            A proceso
+          </button>
+        }
+        @if (puedeEntregar()) {
+          <button
+            class="prt__boton prt__boton--lleno"
+            type="button"
+            [disabled]="ocupado()"
+            (click)="entregar.emit()"
+          >
+            Entregar
+          </button>
+        }
+      }
+    }
+  </div>
+
+  @if (historialAbierto()) {
+    <ol class="prt__historial-lista">
+      @for (h of pr.historial; track $index) {
+        <li class="prt__historial-item">
+          <strong>{{ etiqueta[h.estado] }}</strong>
+          <span class="prt__muted">
+            {{ h.fecha | fechaHora }}{{ h.usuario ? ' · ' + h.usuario : '' }}
+          </span>
+        </li>
+      }
+    </ol>
+  }
+</article>

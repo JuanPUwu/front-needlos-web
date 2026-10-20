@@ -4,13 +4,21 @@ import {
   DestroyRef,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
+import { Notificaciones } from '../../../../core/ui/notificaciones';
+import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
+import { Memoria } from '../../../../core/estado/memoria';
+import { recordarFormulario } from '../../../../core/estado/recordar-formulario';
 import { codigoDeError, mensajeDeError } from '../../../../core/http/api-error';
 import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
 import { coincide } from '../../../../shared/util/texto';
@@ -30,7 +38,7 @@ export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
  */
 @Component({
   selector: 'app-catalogo',
-  imports: [ReactiveFormsModule, RouterLink, MonedaPipe],
+  imports: [Esqueleto, Encabezado, ReactiveFormsModule, MonedaPipe],
   templateUrl: './catalogo.html',
   styleUrl: './catalogo.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,6 +46,11 @@ export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
 export class Catalogo implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(TipoPrendaService);
+  private readonly memoria = inject(Memoria);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly notificaciones = inject(Notificaciones);
+  private readonly confirmacion = inject(Confirmacion);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly tipos = signal<TipoPrenda[]>([]);
@@ -47,15 +60,17 @@ export class Catalogo implements OnInit {
   readonly editando = signal<TipoPrenda | null>(null);
   readonly guardando = signal(false);
   readonly errorForm = signal<string | null>(null);
-  readonly exito = signal<string | null>(null);
   readonly accionId = signal<string | null>(null);
 
   readonly activos = computed(() => this.tipos().filter((t) => t.activo).length);
   readonly inactivos = computed(() => this.tipos().filter((t) => !t.activo).length);
 
   // Filtros (la lista es corta y llega completa: se filtra en el navegador).
-  readonly buscar = signal('');
-  readonly estado = signal<EstadoFiltro>('todos');
+  // Vienen de la URL (`?buscar=&estado=`) y se escriben en ella al cambiar.
+  readonly buscar = signal(this.route.snapshot.queryParamMap.get('buscar') ?? '');
+  readonly estado = signal<EstadoFiltro>(
+    (this.route.snapshot.queryParamMap.get('estado') as EstadoFiltro | null) ?? 'todos',
+  );
   readonly hayFiltros = computed(() => this.buscar() !== '' || this.estado() !== 'todos');
   readonly visibles = computed(() => {
     const estado = this.estado();
@@ -71,7 +86,42 @@ export class Catalogo implements OnInit {
     precioBase: ['', [Validators.pattern(PRECIO)]],
   });
 
+  /** Formulario a medio llenar (y qué se editaba): sobrevive a la recarga. */
+  private readonly borrador = recordarFormulario<{ editando: TipoPrenda | null }>(
+    this.form,
+    this.memoria,
+    'catalogo:form',
+    this.destroyRef,
+    {
+      extra: () => ({ editando: this.editando() }),
+    },
+  );
+
+  constructor() {
+    // Filtros en la URL: una recarga deja la lista igual.
+    effect(() => {
+      const queryParams = {
+        buscar: this.buscar() || null,
+        estado: this.estado() === 'todos' ? null : this.estado(),
+      };
+      untracked(() =>
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams,
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        }),
+      );
+    });
+  }
+
   ngOnInit(): void {
+    const guardado = this.borrador.leer();
+    if (guardado) {
+      this.editando.set(guardado.editando);
+      this.form.patchValue(guardado.valores);
+      this.form.markAsDirty();
+    }
     this.cargar();
   }
 
@@ -108,7 +158,7 @@ export class Catalogo implements OnInit {
     peticion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (tipo) => {
         this.guardando.set(false);
-        this.exito.set(
+        this.notificaciones.exito(
           actual ? 'Tipo de prenda actualizado.' : `"${tipo.nombre}" agregado al catálogo.`,
         );
         this.cancelar();
@@ -134,13 +184,37 @@ export class Catalogo implements OnInit {
     });
   }
 
-  cancelar(): void {
+  /** Cancelar (o guardar con éxito) olvida el borrador. */
+  /** Cancelar: si hay cambios sin guardar, pide confirmar antes de perderlos (Reglas §12.2). */
+  async cancelar(): Promise<void> {
+    if (
+      this.form.dirty &&
+      !(await this.confirmacion.pedir({
+        titulo: '¿Descartar los cambios?',
+        mensaje: 'Lo que escribiste no se guardará.',
+        aceptar: 'Sí, descartar',
+        cancelar: 'Seguir editando',
+        peligro: true,
+      }))
+    ) {
+      return;
+    }
+    this.borrador.olvidar();
     this.editando.set(null);
     this.form.reset();
   }
 
-  desactivar(tipo: TipoPrenda): void {
-    this.cambiarEstado(tipo, this.service.desactivar(tipo.id));
+  async desactivar(tipo: TipoPrenda): Promise<void> {
+    const ok = await this.confirmacion.pedir({
+      titulo: `¿Desactivar "${tipo.nombre}"?`,
+      mensaje:
+        'Dejará de ofrecerse en pedidos nuevos. Los pedidos que ya lo tienen no cambian y puedes reactivarlo cuando quieras.',
+      aceptar: 'Sí, desactivar',
+      peligro: true,
+    });
+    if (ok) {
+      this.cambiarEstado(tipo, this.service.desactivar(tipo.id));
+    }
   }
 
   reactivar(tipo: TipoPrenda): void {
@@ -176,7 +250,6 @@ export class Catalogo implements OnInit {
 
   private limpiarAvisos(): void {
     this.errorForm.set(null);
-    this.exito.set(null);
     this.error.set(null);
   }
 

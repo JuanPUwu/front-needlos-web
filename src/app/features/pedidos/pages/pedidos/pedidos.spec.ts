@@ -17,7 +17,10 @@ describe('Pedidos', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { queryParamMap: convertToParamMap(query) } },
+          useValue: {
+            snapshot: { queryParamMap: convertToParamMap(query) },
+            queryParamMap: of(convertToParamMap(query)),
+          },
         },
         { provide: PedidoService, useValue: service },
         { provide: EmpleadoService, useValue: { asignables: () => of([]) } },
@@ -52,32 +55,78 @@ describe('Pedidos', () => {
     expect(c.clienteFiltrado()).toBe('Laura Gómez');
     expect(c.saldoCliente()).toBe(27000);
     expect(service.listar).toHaveBeenCalledWith(
-      expect.objectContaining({ clienteId: 'c1' }),
+      expect.objectContaining({ clienteId: 'c1', estado: '' }),
       0,
       20,
     );
   });
 
-  it('los tiles aplican filtros rápidos y "Mis prendas" usa mi acceso', () => {
+  it('arranca en "En proceso"; las pestañas cambian el estado y los avisos muestran todos', () => {
     const c = crear();
+    expect(service.listar).toHaveBeenCalledWith(
+      expect.objectContaining({ estado: 'EN_PROCESO' }),
+      0,
+      20,
+    );
+
+    c.elegirEstado('FINALIZADO');
+    expect(c.filtros().estado).toBe('FINALIZADO');
+
     c.atajo('vencidos');
     expect(service.listar).toHaveBeenLastCalledWith(
       expect.objectContaining({ vencidos: true, estado: '' }),
       0,
       20,
     );
-    c.atajo('listos');
-    expect(c.filtros().estado).toBe('FINALIZADO');
-    expect(c.filtros().vencidos).toBe(false);
 
-    c.atajo('hoy');
-    expect(c.filtros().sinEntregar).toBe(true);
+    // "Para hoy" es un filtro: entrega desde y hasta hoy; se quita al desmarcarlo.
+    c.alCambiarParaHoy(true);
+    expect(c.esParaHoy()).toBe(true);
     expect(c.filtros().entregaDesde).toBe(c.filtros().entregaHasta);
+    c.alCambiarParaHoy(false);
+    expect(c.filtros().entregaDesde).toBe('');
 
+    c.elegirEstado('ENTREGADO');
     c.alCambiarSastre('mias');
-    expect(c.filtros().sastreId).toBe('yo');
+    // "Mis prendas" se recuerda como 'mias' y se consulta con mi acceso.
+    expect(c.filtros().sastreId).toBe('mias');
+    expect(service.listar).toHaveBeenLastCalledWith(
+      expect.objectContaining({ sastreId: 'yo' }),
+      0,
+      20,
+    );
+    expect(c.cantidadFiltros()).toBeGreaterThan(0);
 
+    // Limpiar conserva la pestaña elegida.
     c.limpiarFiltros();
     expect(c.hayFiltros()).toBe(false);
+    expect(c.filtros().estado).toBe('ENTREGADO');
+  });
+
+  it('abre el popup del pedido que llega en ?pedido=', () => {
+    const c = crear({ pedido: 'p9', modo: 'editar' });
+    expect(c.pedidoAbierto()).toBe('p9');
+    expect(c.pedidoEditando()).toBe(true);
+  });
+
+  it('recupera pestaña, filtros y página desde la URL (recarga)', () => {
+    crear({ estado: 'ENTREGADO', conSaldo: 'true', buscar: 'ana', pagina: '3' });
+    expect(service.listar).toHaveBeenCalledWith(
+      expect.objectContaining({ estado: 'ENTREGADO', conSaldo: true, buscar: 'ana' }),
+      2,
+      20,
+    );
+  });
+
+  it('abre "Nuevo pedido" en popup con ?nuevo=1 y el botón Buscar busca sin esperar', () => {
+    const c = crear({ nuevo: '1' });
+    expect(c.creando()).toBe(true);
+
+    c.buscarAhora('  ana ');
+    expect(service.listar).toHaveBeenLastCalledWith(
+      expect.objectContaining({ buscar: 'ana' }),
+      0,
+      20,
+    );
   });
 });

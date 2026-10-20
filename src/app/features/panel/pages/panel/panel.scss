@@ -100,10 +100,10 @@
   text-decoration: none;
   cursor: pointer;
   transition:
-    border-color 0.15s var(--ease-out),
-    color 0.15s var(--ease-out),
-    background-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+    border-color var(--dur-color) var(--ease-out),
+    color var(--dur-color) var(--ease-out),
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
 
   &:hover {
     border-color: var(--color-border);
@@ -136,6 +136,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+// "Ajustes / Mi sastrería": la sub-pantalla, un poco más suave que el nombre.
+.panel__item-sub {
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 // ── Divisor y contenido ─────────────────────────────────────
@@ -184,13 +190,14 @@
     position: fixed;
     top: 0;
     right: 0;
-    z-index: 1000;
+    // Capas (Reglas §12.2): cajón 40 < popups 50 < confirmación 80 < notificaciones 90 < bloqueo 100.
+    z-index: 40;
     width: min(280px, 82vw);
     height: 100%;
     background: var(--color-bg);
     box-shadow: var(--shadow-card);
     transform: translateX(100%);
-    transition: transform 0.2s var(--ease-out);
+    transition: transform var(--dur-popup) var(--ease-out);
   }
 
   .panel__nav--abierto {
@@ -201,8 +208,15 @@
     display: block;
     position: fixed;
     inset: 0;
-    z-index: 999;
-    background: rgba(0, 0, 0, 0.4);
+    z-index: 39;
+    background: var(--color-velo);
+    animation: panel-velo var(--dur-popup) var(--ease-out);
+  }
+
+  @keyframes panel-velo {
+    from {
+      opacity: 0;
+    }
   }
 
   // En móvil no hay divisor vertical; el cajón tiene su propia sombra.
@@ -226,5 +240,9 @@
 
   .panel__nav {
     transition: none;
+  }
+
+  .panel__backdrop {
+    animation: none;
   }
 }

@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter, map } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { Icono, NombreIcono } from '../../../../shared/ui/icono/icono';
 import { Logo } from '../../../../shared/ui/logo/logo';
@@ -27,7 +29,29 @@ interface SeccionNav {
 export class Panel {
   private readonly auth = inject(AuthService);
 
+  private readonly router = inject(Router);
+
   readonly esAdmin = computed(() => this.auth.roles().includes('SASTRE_ADMIN'));
+
+  /** Sub-pantallas a las que se entra desde Ajustes (el ítem Ajustes queda activo en ellas). */
+  private readonly subAjustes: Record<string, string> = {
+    '/sastreria': 'Mi sastrería',
+    '/mi-cuenta': 'Mi cuenta',
+    '/catalogo': 'Catálogo',
+  };
+
+  private readonly ruta = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map((e) => e.urlAfterRedirects.split('?')[0]),
+    ),
+    { initialValue: this.router.url.split('?')[0] },
+  );
+
+  /** Dentro de una sub-pantalla de Ajustes: su nombre (para "Ajustes / Mi sastrería"). */
+  readonly subAjuste = computed(() => this.subAjustes[this.ruta()] ?? null);
+  /** Ajustes queda activo en su pantalla y en sus sub-pantallas. */
+  readonly enAjustes = computed(() => this.ruta() === '/ajustes' || this.subAjuste() !== null);
 
   /** Secciones del negocio (términos del glosario: Pedidos, Equipo…). */
   readonly secciones: SeccionNav[] = [

@@ -104,6 +104,23 @@
   color: var(--color-text-muted);
 }
 
+// Vista previa (Mi sastrería): llena todo su contenedor, a lo ancho y a lo alto.
+:host(.ticket-host--llenar) {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+// Tamaño real (72 mm); la ampliación la pone el componente con transform (como un zoom).
+.ticket--llenar {
+  flex-shrink: 0;
+  height: max-content;
+  transform-origin: top center;
+}
+
 @media print {
   .ticket {
     padding: 0;

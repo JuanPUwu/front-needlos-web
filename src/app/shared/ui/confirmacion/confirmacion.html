@@ -1,0 +1,33 @@
+@if (servicio.actual(); as c) {
+  <div class="conf" animate.enter="conf--entrar" animate.leave="conf--salir">
+    <div class="conf__fondo" aria-hidden="true" (click)="servicio.responder(false)"></div>
+    <div
+      class="conf__caja"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="conf-titulo"
+      aria-describedby="conf-mensaje"
+    >
+      <h2 class="conf__titulo" id="conf-titulo">{{ c.titulo }}</h2>
+      <p class="conf__mensaje" id="conf-mensaje">{{ c.mensaje }}</p>
+      <div class="conf__acciones">
+        <button
+          #cancelar
+          class="conf__boton conf__boton--secundario"
+          type="button"
+          (click)="servicio.responder(false)"
+        >
+          {{ c.cancelar ?? 'Cancelar' }}
+        </button>
+        <button
+          class="conf__boton"
+          type="button"
+          [class.conf__boton--peligro]="c.peligro"
+          (click)="servicio.responder(true)"
+        >
+          {{ c.aceptar }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

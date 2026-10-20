@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { TipoPrenda } from '../../models/tipo-prenda.model';
@@ -61,9 +62,14 @@ describe('Catalogo', () => {
     });
   });
 
-  it('desactivar actualiza el estado en la lista', () => {
+  it('desactivar pide confirmar y luego actualiza el estado en la lista', async () => {
     componente.ngOnInit();
-    componente.desactivar(tipo());
+    const pedir = vi.spyOn(TestBed.inject(Confirmacion), 'pedir').mockResolvedValueOnce(false);
+    await componente.desactivar(tipo());
+    expect(service.desactivar).not.toHaveBeenCalled();
+
+    pedir.mockResolvedValueOnce(true);
+    await componente.desactivar(tipo());
     expect(service.desactivar).toHaveBeenCalledWith('t1');
     expect(componente.inactivos()).toBe(1);
   });

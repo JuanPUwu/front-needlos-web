@@ -10,6 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { codigoDeError, mensajeDeError } from '../../../../core/http/api-error';
 import { Icono } from '../../../../shared/ui/icono/icono';
 import { Logo } from '../../../../shared/ui/logo/logo';
@@ -28,7 +29,7 @@ type Estado = 'cargando' | 'formulario' | 'aceptada' | 'invalida';
  */
 @Component({
   selector: 'app-aceptar-invitacion',
-  imports: [ReactiveFormsModule, RouterLink, Logo, Icono],
+  imports: [Esqueleto, ReactiveFormsModule, RouterLink, Logo, Icono],
   templateUrl: './aceptar-invitacion.html',
   styleUrl: './aceptar-invitacion.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

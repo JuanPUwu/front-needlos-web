@@ -4,19 +4,30 @@ import {
   DestroyRef,
   OnInit,
   computed,
+  effect,
   inject,
+  input,
+  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { NgTemplateOutlet } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { PermisosService } from '../../../../core/auth/permisos';
 import { mensajeDeError } from '../../../../core/http/api-error';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
+import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { FechaHoraPipe } from '../../../../shared/pipes/fecha-hora.pipe';
 import { FechaPipe } from '../../../../shared/pipes/fecha.pipe';
 import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
-import { nuevaClave } from '../../../../shared/util/fechas';
+import { Calendario } from '../../../../shared/ui/calendario/calendario';
+import { PedidoEsqueleto } from '../../components/pedido-esqueleto/pedido-esqueleto';
+import { PrendaTarjeta } from '../../components/prenda-tarjeta/prenda-tarjeta';
+import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
+import { Icono } from '../../../../shared/ui/icono/icono';
+import { hoyIso, nuevaClave } from '../../../../shared/util/fechas';
 import { PATRON_MONTO, aNumero, aTexto } from '../../../../shared/util/montos';
 import { MiembroAsignable } from '../../../equipo/models/empleado.model';
 import { EmpleadoService } from '../../../equipo/services/empleado.service';
@@ -34,15 +45,31 @@ import {
 import { PedidoService } from '../../services/pedido.service';
 
 const CON_TEXTO = /\S/;
+const UN_DIA = 24 * 60 * 60 * 1000;
 
 /**
- * Detalle de un pedido: prendas con su estado e historial, cambio de estado y de sastre
- * (según permisos), entrega (avisa si queda saldo), abonos (registrar y, el admin, anular
- * con motivo), editar y anular el pedido (solo admin) y el ticket.
+ * Detalle de un pedido (se muestra dentro del popup de Pedidos): prendas con su estado e
+ * historial, cambio de estado y de sastre (según permisos), entrega (avisa si queda saldo),
+ * abonos (registrar y, el admin, anular con motivo), editar y anular (solo admin) y ticket.
+ * Avisa cada cambio con `cambio` para que el listado se actualice. Misma distribución que el
+ * formulario de crear/editar (Reglas §12.3): cliente, abonos y entrega a la izquierda;
+ * prendas, cobro y acciones a la derecha, para que todo esté en el mismo lugar.
  */
 @Component({
   selector: 'app-pedido-detalle',
-  imports: [ReactiveFormsModule, RouterLink, FechaPipe, FechaHoraPipe, MonedaPipe],
+  imports: [
+    ReactiveFormsModule,
+    NgTemplateOutlet,
+    RouterLink,
+    FechaPipe,
+    FechaHoraPipe,
+    MonedaPipe,
+    PedidoEsqueleto,
+    PrendaTarjeta,
+    Calendario,
+    Encabezado,
+    Icono,
+  ],
   templateUrl: './pedido-detalle.html',
   styleUrl: './pedido-detalle.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,8 +79,19 @@ export class PedidoDetalle implements OnInit {
   private readonly service = inject(PedidoService);
   private readonly empleados = inject(EmpleadoService);
   private readonly permisos = inject(PermisosService);
-  private readonly route = inject(ActivatedRoute);
+  private readonly confirmacion = inject(Confirmacion);
+  private readonly notificaciones = inject(Notificaciones);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly pedidoId = input.required<string>();
+  /** El pedido cambió (estado, abono, anulación): el listado debe recargarse. */
+  readonly cambio = output<Pedido>();
+  /** Pide pasar a la edición (la hace el popup). */
+  readonly editar = output<void>();
+  /** Ver todos los pedidos de este cliente. */
+  readonly verCliente = output<{ id: string; nombre: string }>();
+  /** ✕ del encabezado: cierra el popup. */
+  readonly cerrar = output<void>();
 
   readonly etiquetaEstado = ETIQUETA_ESTADO;
   readonly etiquetaPrenda = ETIQUETA_ESTADO_PRENDA;
@@ -63,16 +101,14 @@ export class PedidoDetalle implements OnInit {
   readonly pedido = signal<Pedido | null>(null);
   readonly cargando = signal(true);
   readonly error = signal<string | null>(null);
-  readonly exito = signal<string | null>(null);
   /** Acción en curso (id de prenda/abono o nombre de la acción). */
   readonly ocupado = signal<string | null>(null);
   readonly sastres = signal<MiembroAsignable[]>([]);
 
-  /** Prendas a entregar pendientes de confirmar porque queda saldo. */
-  readonly confirmarEntrega = signal<string[] | null>(null);
   readonly anulando = signal(false);
   readonly anulandoAbono = signal<string | null>(null);
-  readonly historialAbierto = signal<Set<string>>(new Set());
+  /** Qué muestra la lista de la derecha (donde el formulario tiene las prendas). */
+  readonly vista = signal<'prendas' | 'abonos'>('prendas');
 
   private claveAbono = nuevaClave();
 
@@ -83,6 +119,55 @@ export class PedidoDetalle implements OnInit {
   readonly puedeCobrar = computed(() => this.permisos.puede('REGISTRAR_ABONOS'));
 
   readonly anulado = computed(() => this.pedido()?.estado === 'ANULADO');
+  /** Abonos vigentes (no anulados) y el último registrado, para la tarjeta de abonos. */
+  readonly cantidadAbonos = computed(
+    () => this.pedido()?.abonos.filter((a) => !a.anulado).length ?? 0,
+  );
+  readonly ultimoAbono = computed(() =>
+    (this.pedido()?.abonos ?? [])
+      .filter((a) => !a.anulado)
+      .reduce<Abono | null>((ultimo, a) => (!ultimo || a.fecha > ultimo.fecha ? a : ultimo), null),
+  );
+  /** Se puede registrar un abono (permiso, pedido vigente y con saldo). */
+  readonly puedeAbonar = computed(() => {
+    const p = this.pedido();
+    return this.puedeCobrar() && !!p && p.estado !== 'ANULADO' && p.saldo > 0;
+  });
+
+  /** Tarjeta "Designado" (como en el formulario): avatar de quien hace el pedido. */
+  readonly designado = computed(() => {
+    const prendas = this.pedido()?.prendas ?? [];
+    const ids = new Set(prendas.map((p) => p.sastreId ?? ''));
+    if (ids.size > 1) {
+      return { nombre: 'Cada prenda el suyo', iniciales: null, varios: true };
+    }
+    const nombre = prendas[0]?.sastre;
+    if (!nombre) {
+      return { nombre: 'Sin asignar', iniciales: null, varios: false };
+    }
+    const iniciales = nombre
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((palabra) => palabra.charAt(0).toUpperCase())
+      .join('');
+    return { nombre, iniciales, varios: false };
+  });
+
+  /** Piezas del pedido (suma de cantidades), como en el formulario. */
+  readonly piezas = computed(
+    () => this.pedido()?.prendas.reduce((suma, p) => suma + p.cantidad, 0) ?? 0,
+  );
+  /** Días que faltan para la entrega (negativo si ya pasó). */
+  readonly dias = computed(() => {
+    const fecha = this.pedido()?.fechaEntrega;
+    if (!fecha) {
+      return null;
+    }
+    const [a, m, d] = fecha.split('-').map(Number);
+    const [ha, hm, hd] = hoyIso().split('-').map(Number);
+    return Math.round((Date.UTC(a, m - 1, d) - Date.UTC(ha, hm - 1, hd)) / UN_DIA);
+  });
   readonly finalizadas = computed(
     () => this.pedido()?.prendas.filter((p) => p.estado === 'FINALIZADO') ?? [],
   );
@@ -120,8 +205,19 @@ export class PedidoDetalle implements OnInit {
     ],
   });
 
+  constructor() {
+    // Sin permiso, anulado o sin saldo, la tarjeta de abonos se ve igual pero deshabilitada.
+    effect(() => {
+      if (this.puedeAbonar()) {
+        this.formAbono.enable({ emitEvent: false });
+      } else {
+        this.formAbono.disable({ emitEvent: false });
+      }
+    });
+  }
+
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id') ?? '';
+    const id = this.pedidoId();
     this.empleados
       .asignables()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -151,21 +247,30 @@ export class PedidoDetalle implements OnInit {
     this.ejecutar(prenda.id, (p) => this.service.cambiarEstado(p.id, prenda.id, 'EN_PROCESO'));
   }
 
-  /** Entrega; si queda saldo, primero pide confirmar (cada sastrería decide). */
-  entregar(prendaIds: string[]): void {
+  /**
+   * Entregar no tiene vuelta atrás: siempre se confirma, y si queda saldo se avisa en la
+   * misma confirmación (cada sastrería decide si entrega sin pago completo).
+   */
+  async entregar(prendaIds: string[]): Promise<void> {
     const p = this.pedido();
     if (!p || prendaIds.length === 0) {
       return;
     }
-    if (p.saldo > 0 && this.confirmarEntrega() === null) {
-      this.confirmarEntrega.set(prendaIds);
+    const varias = prendaIds.length > 1;
+    const saldo = p.saldo > 0 ? ` Queda un saldo pendiente de ${formatoPesos(p.saldo)}.` : '';
+    const ok = await this.confirmacion.pedir({
+      titulo: varias ? `¿Entregar ${prendaIds.length} prendas?` : '¿Entregar la prenda?',
+      mensaje: `Una prenda entregada ya no se puede volver a cambiar.${saldo}`,
+      aceptar: p.saldo > 0 ? 'Entregar de todos modos' : 'Sí, entregar',
+      peligro: p.saldo > 0,
+    });
+    if (!ok) {
       return;
     }
-    this.confirmarEntrega.set(null);
     this.ejecutar(
       'entregar',
       (actual) => this.service.entregar(actual.id, prendaIds),
-      () => this.exito.set(prendaIds.length === 1 ? 'Prenda entregada.' : 'Prendas entregadas.'),
+      () => this.notificaciones.exito(varias ? 'Prendas entregadas.' : 'Prenda entregada.'),
     );
   }
 
@@ -173,24 +278,8 @@ export class PedidoDetalle implements OnInit {
     this.entregar(this.finalizadas().map((p) => p.id));
   }
 
-  cancelarEntrega(): void {
-    this.confirmarEntrega.set(null);
-  }
-
   asignarSastre(prenda: Prenda, sastreId: string): void {
     this.ejecutar(prenda.id, (p) => this.service.asignarSastre(p.id, prenda.id, sastreId || null));
-  }
-
-  alternarHistorial(prendaId: string): void {
-    this.historialAbierto.update((actual) => {
-      const nuevo = new Set(actual);
-      if (nuevo.has(prendaId)) {
-        nuevo.delete(prendaId);
-      } else {
-        nuevo.add(prendaId);
-      }
-      return nuevo;
-    });
   }
 
   // ── Abonos ──────────────────────────────────────────────────
@@ -217,7 +306,7 @@ export class PedidoDetalle implements OnInit {
       () => {
         this.claveAbono = nuevaClave();
         this.formAbono.reset({ monto: '', metodo });
-        this.exito.set('Abono registrado.');
+        this.notificaciones.exito('Abono registrado.');
       },
     );
   }
@@ -242,7 +331,9 @@ export class PedidoDetalle implements OnInit {
       () => this.service.anularAbono(abono.id, motivo, razon.trim()),
       () => {
         this.anulandoAbono.set(null);
-        this.exito.set(motivo === 'DEVOLUCION' ? 'Devolución registrada.' : 'Abono anulado.');
+        this.notificaciones.exito(
+          motivo === 'DEVOLUCION' ? 'Devolución registrada.' : 'Abono anulado.',
+        );
       },
     );
   }
@@ -269,7 +360,7 @@ export class PedidoDetalle implements OnInit {
       (p) => this.service.anular(p.id, razon),
       () => {
         this.anulando.set(false);
-        this.exito.set('Pedido anulado.');
+        this.notificaciones.exito('Pedido anulado.');
       },
     );
   }
@@ -285,13 +376,13 @@ export class PedidoDetalle implements OnInit {
     }
     this.ocupado.set(clave);
     this.error.set(null);
-    this.exito.set(null);
     accion(p)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (actualizado) => {
           this.ocupado.set(null);
           this.pedido.set(actualizado);
+          this.cambio.emit(actualizado);
           alTerminar?.();
         },
         error: (err: unknown) => {
@@ -300,4 +391,13 @@ export class PedidoDetalle implements OnInit {
         },
       });
   }
+}
+
+/** "$ 27.000" para el texto de la confirmación. */
+function formatoPesos(valor: number): string {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: Number.isInteger(valor) ? 0 : 2,
+  }).format(valor);
 }

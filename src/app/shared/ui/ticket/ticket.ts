@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterNextRender,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FechaHoraPipe } from '../../pipes/fecha-hora.pipe';
 import { FechaPipe } from '../../pipes/fecha.pipe';
 import { MonedaPipe } from '../../pipes/moneda.pipe';
@@ -51,9 +61,48 @@ const METODOS: Record<string, string> = {
   templateUrl: './ticket.html',
   styleUrl: './ticket.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[class.ticket-host--llenar]': 'llenar()' },
 })
 export class TicketComponent {
   readonly datos = input.required<TicketDatos>();
+  /**
+   * Vista previa: el ticket conserva su forma (72 mm) y se amplía proporcionalmente, como
+   * con zoom, hasta llenar el espacio de su contenedor.
+   */
+  readonly llenar = input(false);
+
+  /** Factor de ampliación de la vista previa (1 = tamaño real). */
+  readonly escala = signal(1);
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly papel = viewChild.required<ElementRef<HTMLElement>>('papel');
+
+  constructor() {
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      if (!this.llenar() || typeof ResizeObserver === 'undefined') {
+        return;
+      }
+      // offsetWidth/offsetHeight no cambian con transform: miden el ticket a tamaño real.
+      const ajustar = () => {
+        const caja = this.host.nativeElement;
+        const papel = this.papel().nativeElement;
+        if (!papel.offsetWidth || !papel.offsetHeight) {
+          return;
+        }
+        this.escala.set(
+          Math.max(
+            1,
+            Math.min(caja.clientWidth / papel.offsetWidth, caja.clientHeight / papel.offsetHeight),
+          ),
+        );
+      };
+      const observador = new ResizeObserver(ajustar);
+      observador.observe(this.host.nativeElement);
+      observador.observe(this.papel().nativeElement);
+      destroyRef.onDestroy(() => observador.disconnect());
+    });
+  }
 
   metodo(valor: string): string {
     return METODOS[valor] ?? valor;

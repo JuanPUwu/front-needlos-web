@@ -1,0 +1,25 @@
+<div class="notif-pila" aria-live="polite" aria-relevant="additions">
+  @for (n of servicio.lista(); track n.id) {
+    <div
+      class="notif"
+      [attr.data-tipo]="n.tipo"
+      [attr.role]="n.tipo === 'error' ? 'alert' : 'status'"
+      animate.enter="notif--entrar"
+      animate.leave="notif--salir"
+    >
+      <app-icono
+        class="notif__icono"
+        [nombre]="n.tipo === 'exito' ? 'finalizado' : n.tipo === 'error' ? 'anulado' : 'todo'"
+      />
+      <span class="notif__mensaje">{{ n.mensaje }}</span>
+      <button
+        class="notif__cerrar"
+        type="button"
+        aria-label="Cerrar notificación"
+        (click)="servicio.cerrar(n.id)"
+      >
+        <app-icono class="notif__cerrar-icono" nombre="cerrar" />
+      </button>
+    </div>
+  }
+</div>

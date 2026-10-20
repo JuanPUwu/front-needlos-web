@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-5);
+  padding: var(--space-4);
 
   @media (max-width: 480px) {
     padding: var(--space-3);
@@ -18,10 +18,11 @@
 .registro-card {
   width: 100%;
   max-width: 700px;
-  padding: var(--space-10) var(--space-6) var(--space-6);
+  // Compacta: cabe en 1366 × 768 sin desplazarse.
+  padding: var(--space-7) var(--space-6) var(--space-6);
 
   @media (max-width: 480px) {
-    padding: var(--space-7) var(--space-4) var(--space-5);
+    padding: var(--space-6) var(--space-4) var(--space-5);
   }
   display: flex;
   flex-direction: column;
@@ -43,7 +44,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  height: 5rem;
+  height: 4.5rem;
 }
 
 .registro-card__subtitle {
@@ -51,23 +52,43 @@
   color: var(--color-text-muted);
 }
 
-.registro-seccion {
-  text-align: center;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
 .registro-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 // Dos campos por fila en pantallas anchas; uno por fila en el movil.
 .registro-fila {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-4);
+  gap: var(--space-5);
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Nombre · Apellido · Documento. En anchos medios el documento baja a su propia fila.
+.registro-fila--tres {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    .registro-field:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Correo (más ancho) · Teléfono.
+.registro-fila--correo {
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
 
   @media (max-width: 520px) {
     grid-template-columns: 1fr;
@@ -101,6 +122,11 @@
   color: var(--color-text);
 }
 
+// Asterisco rojo de campo obligatorio.
+.registro-field__req {
+  color: var(--color-danger);
+}
+
 .registro-field__control {
   display: flex;
   align-items: center;
@@ -111,8 +137,8 @@
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-md);
   transition:
-    border-color 0.15s var(--ease-out),
-    box-shadow 0.15s var(--ease-out);
+    border-color var(--dur-color) var(--ease-out),
+    box-shadow var(--dur-color) var(--ease-out);
 
   &:focus-within {
     border-color: var(--color-border);
@@ -151,9 +177,50 @@
   }
 }
 
-.registro-field__ayuda {
+// Fila de contraseñas: referencia del globo con la política.
+.registro-fila--clave {
+  position: relative;
+}
+
+// Globo flotante bajo la contraseña: no empuja el formulario (así cabe sin desplazarse).
+.registro-politica {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
   font-size: 0.8rem;
   color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+// La política aparece al escribir la contraseña y se va al salir (si se cumple).
+.registro-aparecer {
+  animation: registro-aparecer var(--dur-entrar) var(--ease-out);
+}
+
+.registro-desaparecer {
+  animation: registro-aparecer var(--dur-salir) var(--ease-in) reverse forwards;
+}
+
+@keyframes registro-aparecer {
+  from {
+    opacity: 0;
+  }
+}
+
+.registro-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .registro-field__error {
@@ -206,8 +273,8 @@
   font-weight: 600;
   cursor: pointer;
   transition:
-    background-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
 
   &:hover:not(:disabled) {
     background: var(--color-accent-hover);

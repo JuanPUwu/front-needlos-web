@@ -1,374 +1,288 @@
-<main class="detalle-page">
-  <div class="detalle-contenedor">
-    <a class="detalle-volver" routerLink="/pedidos">← Pedidos</a>
+<!--
+  Detalle del pedido: MISMO diseño que el formulario de crear (mismas tarjetas, alturas,
+  anchos y posiciones), con los cambios mínimos para ver en vez de capturar.
+-->
+<div class="pd">
+  @if (cargando()) {
+    <!-- Esqueleto: mismas tarjetas y proporciones que el detalle (nada "salta" al llegar). -->
+    <app-encabezado titulo="Pedido" subtitulo="Cargando el pedido…" icono="pedidos">
+      <button
+        class="pd-cerrar"
+        type="button"
+        aria-label="Cerrar"
+        title="Cerrar"
+        (click)="cerrar.emit()"
+      >
+        <app-icono class="pd-cerrar__icono" nombre="cerrar" />
+      </button>
+    </app-encabezado>
+    <app-pedido-esqueleto />
+  } @else if (pedido(); as p) {
+    <app-encabezado
+      idTitulo="titulo-pedido"
+      [titulo]="'Pedido ' + p.numero"
+      [subtitulo]="'Recibido el ' + (p.fecha | fecha) + ' · Entrega ' + (p.fechaEntrega | fecha)"
+      icono="pedidos"
+    >
+      <ng-container [ngTemplateOutlet]="chips" />
+      <button
+        class="pd-cerrar"
+        type="button"
+        aria-label="Cerrar"
+        title="Cerrar"
+        (click)="cerrar.emit()"
+      >
+        <app-icono class="pd-cerrar__icono" nombre="cerrar" />
+      </button>
+    </app-encabezado>
 
-    @if (cargando()) {
-      <p class="detalle-ayuda" role="status">Cargando pedido...</p>
-    } @else if (pedido(); as p) {
-      <header class="detalle-cabecera">
-        <div class="detalle-cabecera__texto">
-          <div class="detalle-cabecera__linea">
-            <h1 class="detalle-titulo">Pedido {{ p.numero }}</h1>
-            <span class="detalle-chip" [attr.data-estado]="p.estado">
-              {{ etiquetaEstado[p.estado] }}
-            </span>
-            @if (p.vencido) {
-              <span class="detalle-chip" data-estado="VENCIDO">Vencido</span>
-            }
-            @if (p.pagado && !anulado()) {
-              <span class="detalle-chip" data-estado="ENTREGADO">Pagado</span>
-            }
-          </div>
-          <p class="detalle-subtitulo">
-            Recibido el {{ p.fecha | fecha }} · Entrega {{ p.fechaEntrega | fecha }}
-          </p>
-        </div>
-        <div class="detalle-cabecera__acciones">
-          <a class="detalle-boton detalle-boton--secundario" [routerLink]="['/ticket', p.id]">
-            Ver ticket
-          </a>
-          @if (esAdmin() && !anulado()) {
-            <a
-              class="detalle-boton detalle-boton--secundario"
-              [routerLink]="['/pedidos', p.id, 'editar']"
-            >
-              Editar
-            </a>
-            <button
-              class="detalle-boton detalle-boton--peligro"
-              type="button"
-              (click)="pedirAnular()"
-            >
-              Anular
-            </button>
-          }
-        </div>
-      </header>
+    <!-- En teléfono las etiquetas bajan bajo el encabezado (el título necesita el ancho). -->
+    <div class="pd-chips-movil">
+      <ng-container [ngTemplateOutlet]="chips" />
+    </div>
 
-      @if (exito()) {
-        <p class="detalle-aviso detalle-aviso--exito" role="status">{{ exito() }}</p>
-      }
-      @if (error()) {
-        <p class="detalle-aviso detalle-aviso--error" role="alert">{{ error() }}</p>
-      }
-      @if (anulado()) {
-        <p class="detalle-aviso detalle-aviso--error">
-          Pedido anulado. Razón: <strong>{{ p.razonAnulacion }}</strong>
-        </p>
-      }
+    <ng-template #chips>
+      <div class="pd-chips">
+        <span class="pd-chip" [attr.data-estado]="p.estado">{{ etiquetaEstado[p.estado] }}</span>
+        @if (p.vencido) {
+          <span class="pd-chip" data-estado="VENCIDO">Vencido</span>
+        }
+        @if (p.pagado && !anulado()) {
+          <span class="pd-chip" data-estado="PAGADO">Pagado</span>
+        }
+      </div>
+    </ng-template>
 
-      @if (anulando()) {
-        <form class="detalle-confirmar" [formGroup]="formAnular" (ngSubmit)="anular()" novalidate>
-          @if (abonosVigentes() > 0) {
-            <p class="detalle-confirmar__texto">
-              Este pedido tiene abonos. Antes de anularlo, registra la devolución anulando cada
-              abono (motivo "Devolución") en la sección Abonos.
-            </p>
-            <div class="detalle-confirmar__acciones">
-              <button
-                class="detalle-boton detalle-boton--secundario"
-                type="button"
-                (click)="cancelarAnular()"
-              >
-                Entendido
-              </button>
-            </div>
-          } @else {
-            <div class="detalle-field">
-              <div class="detalle-field__head">
-                <label class="detalle-field__label" for="razon">Razón de la anulación</label>
-                @if (formAnular.controls.razon.touched && formAnular.controls.razon.invalid) {
-                  <span class="detalle-field__error">Obligatoria</span>
-                }
+    <div class="pd-form">
+      <div class="pd-col pd-col--datos">
+        <!-- ── Cliente (igual que en el formulario, en solo lectura) ── -->
+        <section class="pd-seccion" aria-label="Cliente">
+          <div class="pd-fila pd-fila--cliente">
+            <div class="pd-campo">
+              <div class="pd-campo__head">
+                <span class="pd-campo__label">Teléfono</span>
               </div>
-              <input class="detalle-field__input" id="razon" type="text" formControlName="razon" />
+              <span class="pd-campo__input pd-campo__input--lectura">{{ p.cliente.telefono }}</span>
             </div>
-            <div class="detalle-confirmar__acciones">
-              <button
-                class="detalle-boton detalle-boton--secundario"
-                type="button"
-                (click)="cancelarAnular()"
-              >
-                No anular
-              </button>
-              <button
-                class="detalle-boton detalle-boton--peligro-lleno"
-                type="submit"
-                [disabled]="ocupado() === 'anular'"
-              >
-                Sí, anular pedido
-              </button>
-            </div>
-          }
-        </form>
-      }
-
-      @if (confirmarEntrega(); as ids) {
-        <div class="detalle-confirmar detalle-confirmar--alerta" role="alert">
-          <p class="detalle-confirmar__texto">
-            Queda un saldo pendiente de <strong>{{ p.saldo | moneda }}</strong
-            >. ¿Entregar de todos modos?
-          </p>
-          <div class="detalle-confirmar__acciones">
-            <button
-              class="detalle-boton detalle-boton--secundario"
-              type="button"
-              (click)="cancelarEntrega()"
-            >
-              Cancelar
-            </button>
-            <button class="detalle-boton" type="button" (click)="entregar(ids)">
-              Entregar de todos modos
-            </button>
-          </div>
-        </div>
-      }
-
-      <div class="detalle-bento">
-        <!-- ── Cliente y montos ──────────────────────────────────── -->
-        <section class="detalle-bloque detalle-bloque--resumen" aria-labelledby="t-resumen">
-          <h2 class="detalle-bloque__titulo" id="t-resumen">Cliente</h2>
-          <div class="detalle-cliente">
-            <span class="detalle-cliente__nombre">
-              {{ p.cliente.nombre }} {{ p.cliente.apellido }}
-            </span>
-            <span class="detalle-cliente__telefono">{{ p.cliente.telefono }}</span>
-            <a
-              class="detalle-enlace"
-              routerLink="/pedidos"
-              [queryParams]="{
-                clienteId: p.cliente.id,
-                cliente: p.cliente.nombre + ' ' + p.cliente.apellido,
-              }"
-            >
-              Ver sus pedidos
-            </a>
-          </div>
-
-          <dl class="detalle-totales">
-            <div class="detalle-totales__fila">
-              <dt>Subtotal</dt>
-              <dd>{{ p.subtotal | moneda }}</dd>
-            </div>
-            @if (p.descuento > 0) {
-              <div class="detalle-totales__fila">
-                <dt>Descuento</dt>
-                <dd>− {{ p.descuento | moneda }}</dd>
+            <div class="pd-campo">
+              <div class="pd-campo__head">
+                <span class="pd-campo__label">Nombre</span>
               </div>
-            }
-            <div class="detalle-totales__fila detalle-totales__fila--total">
-              <dt>Total</dt>
-              <dd>{{ p.total | moneda }}</dd>
+              <span class="pd-campo__input pd-campo__input--lectura">{{ p.cliente.nombre }}</span>
             </div>
-            <div class="detalle-totales__fila">
-              <dt>Abonado</dt>
-              <dd>{{ p.abonado | moneda }}</dd>
+            <div class="pd-campo">
+              <div class="pd-campo__head">
+                <span class="pd-campo__label">Apellido</span>
+              </div>
+              <span class="pd-campo__input pd-campo__input--lectura">{{ p.cliente.apellido }}</span>
             </div>
-            <div class="detalle-totales__fila detalle-totales__fila--saldo">
-              <dt>Saldo</dt>
-              <dd>{{ p.saldo | moneda }}</dd>
-            </div>
-          </dl>
+          </div>
         </section>
 
-        <!-- ── Prendas ───────────────────────────────────────────── -->
-        <section class="detalle-bloque detalle-bloque--prendas" aria-labelledby="t-prendas">
-          <div class="detalle-bloque__cabecera">
-            <h2 class="detalle-bloque__titulo" id="t-prendas">Prendas</h2>
-            @if (puedeEntregar() && !anulado() && finalizadas().length > 1) {
+        <!-- ── Abonos (en el lugar de la línea de captura; mismas dos filas) ── -->
+        <form
+          class="pd-seccion"
+          aria-label="Registrar abono"
+          [formGroup]="formAbono"
+          (ngSubmit)="registrarAbono()"
+          novalidate
+        >
+          <div class="pd-fila pd-fila--linea">
+            <div class="pd-campo">
+              <div class="pd-campo__head">
+                <span class="pd-campo__label">Abonos</span>
+              </div>
+              <span class="pd-campo__input pd-campo__input--lectura">{{ cantidadAbonos() }}</span>
+            </div>
+            <div class="pd-campo">
+              <div class="pd-campo__head">
+                <label class="pd-campo__label" for="metodo">
+                  Método <span class="pd-req">*</span>
+                </label>
+              </div>
+              <select class="pd-campo__input" id="metodo" formControlName="metodo">
+                @for (m of metodos; track m.valor) {
+                  <option [value]="m.valor">{{ m.etiqueta }}</option>
+                }
+              </select>
+            </div>
+            <div class="pd-campo">
+              <div class="pd-campo__head">
+                <label class="pd-campo__label" for="monto">
+                  Monto <span class="pd-req">*</span>
+                </label>
+                @if (formAbono.controls.monto.touched && formAbono.controls.monto.invalid) {
+                  <span class="pd-campo__error">{{
+                    formAbono.controls.monto.hasError('required')
+                      ? 'Escribe el monto'
+                      : 'Solo números'
+                  }}</span>
+                }
+              </div>
+              <input
+                class="pd-campo__input"
+                id="monto"
+                type="text"
+                inputmode="decimal"
+                formControlName="monto"
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          <div class="pd-fila pd-fila--detalle">
+            <div class="pd-campo">
+              <div class="pd-campo__head">
+                <span class="pd-campo__label">Último abono</span>
+              </div>
+              <span class="pd-campo__input pd-campo__input--lectura">
+                @if (ultimoAbono(); as u) {
+                  {{ u.monto | moneda }} · {{ etiquetaMetodo(u.metodo) }}
+                } @else {
+                  Sin abonos todavía
+                }
+              </span>
+            </div>
+            <div class="pd-captura__acciones">
+              @if (puedeAbonar()) {
+                <button class="pd-boton pd-boton--texto" type="button" (click)="pagarSaldo()">
+                  Todo el saldo
+                </button>
+              }
               <button
-                class="detalle-boton detalle-boton--secundario"
+                class="pd-boton pd-boton--borde"
+                type="submit"
+                [disabled]="!puedeAbonar() || ocupado() === 'abono'"
+              >
+                Registrar abono
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- ── Entrega (mismo calendario y resumen; solo lectura) ── -->
+        <section class="pd-seccion pd-entrega" aria-label="Entrega">
+          <div class="pd-campo">
+            <div class="pd-campo__head">
+              <span class="pd-campo__label">Fecha de entrega</span>
+            </div>
+            <div class="pd-calendario">
+              <app-calendario [valor]="p.fechaEntrega" [soloLectura]="true" />
+            </div>
+          </div>
+
+          <div class="pd-resumen">
+            <div class="pd-resumen__par">
+              <span class="pd-dato" [class.pd-dato--alerta]="p.vencido">
+                <span class="pd-dato__etiqueta">Días</span>
+                <strong>{{ p.vencido ? 'Vencido' : (dias() ?? '–') }}</strong>
+              </span>
+              <span class="pd-dato">
+                <span class="pd-dato__etiqueta">Pzs</span>
+                <strong>{{ piezas() }}</strong>
+              </span>
+            </div>
+            <div class="pd-campo">
+              <div class="pd-campo__head">
+                <span class="pd-campo__label">Descuento</span>
+              </div>
+              <span class="pd-campo__input pd-campo__input--lectura">{{
+                p.descuento | moneda
+              }}</span>
+            </div>
+
+            @let d = designado();
+            <div class="pd-designado">
+              <div class="pd-designado__persona">
+                <span
+                  class="pd-designado__avatar"
+                  [class.pd-designado__avatar--vacio]="!d.iniciales"
+                  aria-hidden="true"
+                >
+                  @if (d.iniciales) {
+                    {{ d.iniciales }}
+                  } @else {
+                    <app-icono
+                      class="pd-designado__icono"
+                      [nombre]="d.varios ? 'equipo' : 'usuario'"
+                    />
+                  }
+                </span>
+                <span class="pd-designado__textos">
+                  <strong class="pd-designado__titulo">Designado</strong>
+                  <span class="pd-designado__nombre">{{ d.nombre }}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="pd-col pd-col--prendas">
+        <!-- ── Lista: prendas (y, con la pestaña, los abonos) ───── -->
+        <section class="pd-seccion pd-lista" aria-label="Prendas y abonos">
+          <div class="pd-lista__cabecera">
+            <div class="pd-pestanas" role="tablist" aria-label="Ver">
+              <button
+                class="pd-pestana"
+                type="button"
+                role="tab"
+                [attr.aria-selected]="vista() === 'prendas'"
+                (click)="vista.set('prendas')"
+              >
+                Prendas
+              </button>
+              <button
+                class="pd-pestana"
+                type="button"
+                role="tab"
+                [attr.aria-selected]="vista() === 'abonos'"
+                (click)="vista.set('abonos')"
+              >
+                Abonos ({{ p.abonos.length }})
+              </button>
+            </div>
+            @if (
+              vista() === 'prendas' && puedeEntregar() && !anulado() && finalizadas().length > 1
+            ) {
+              <button
+                class="pd-boton pd-boton--borde pd-boton--chico"
                 type="button"
                 [disabled]="ocupado() !== null"
                 (click)="entregarFinalizadas()"
               >
-                Entregar las {{ finalizadas().length }} finalizadas
+                Entregar {{ finalizadas().length }}
               </button>
             }
           </div>
 
-          <ul class="detalle-prendas">
-            @for (pr of p.prendas; track pr.id) {
-              <li class="detalle-prenda">
-                <div class="detalle-prenda__fila">
-                  <div class="detalle-prenda__info">
-                    <span class="detalle-prenda__tipo">
-                      {{ pr.cantidad }} × {{ pr.tipoPrenda }}
-                      <span class="detalle-chip" [attr.data-estado]="pr.estado">
-                        {{ etiquetaPrenda[pr.estado] }}
-                      </span>
-                    </span>
-                    <span class="detalle-prenda__descripcion">{{ pr.descripcion }}</span>
-                    <span class="detalle-prenda__precio">
-                      {{ pr.precioUnitario | moneda }} c/u · {{ pr.subtotal | moneda }}
-                    </span>
-                  </div>
-
-                  @if (!anulado()) {
-                    <div class="detalle-prenda__acciones">
-                      @if (pr.estado === 'EN_PROCESO' && puedeCambiarEstado()) {
-                        <button
-                          class="detalle-boton detalle-boton--secundario"
-                          type="button"
-                          [disabled]="ocupado() !== null"
-                          (click)="finalizar(pr)"
-                        >
-                          Finalizar
-                        </button>
-                      }
-                      @if (pr.estado === 'FINALIZADO') {
-                        @if (puedeCambiarEstado()) {
-                          <button
-                            class="detalle-boton detalle-boton--secundario"
-                            type="button"
-                            [disabled]="ocupado() !== null"
-                            (click)="volverAProceso(pr)"
-                          >
-                            Volver a proceso
-                          </button>
-                        }
-                        @if (puedeEntregar()) {
-                          <button
-                            class="detalle-boton"
-                            type="button"
-                            [disabled]="ocupado() !== null"
-                            (click)="entregar([pr.id])"
-                          >
-                            Entregar
-                          </button>
-                        }
-                      }
-                    </div>
-                  }
-                </div>
-
-                <div class="detalle-prenda__fila detalle-prenda__fila--meta">
-                  @if (puedeAsignar() && !anulado() && pr.estado !== 'ENTREGADO') {
-                    <label class="detalle-sastre">
-                      <span class="detalle-sastre__label">Sastre</span>
-                      <select
-                        #sastreSel
-                        class="detalle-sastre__select"
-                        [disabled]="ocupado() !== null"
-                        (change)="asignarSastre(pr, sastreSel.value)"
-                      >
-                        <option value="" [selected]="!pr.sastreId">Sin asignar</option>
-                        @for (s of sastres(); track s.accesoId) {
-                          <option [value]="s.accesoId" [selected]="s.accesoId === pr.sastreId">
-                            {{ s.nombre }}
-                          </option>
-                        }
-                      </select>
-                    </label>
-                  } @else {
-                    <span class="detalle-prenda__sastre">
-                      Sastre: {{ pr.sastre ?? 'sin asignar' }}
-                    </span>
-                  }
-                  <button
-                    class="detalle-enlace detalle-enlace--boton"
-                    type="button"
-                    [attr.aria-expanded]="historialAbierto().has(pr.id)"
-                    (click)="alternarHistorial(pr.id)"
-                  >
-                    {{ historialAbierto().has(pr.id) ? 'Ocultar historial' : 'Ver historial' }}
-                  </button>
-                </div>
-
-                @if (historialAbierto().has(pr.id)) {
-                  <ol class="detalle-historial">
-                    @for (h of pr.historial; track $index) {
-                      <li class="detalle-historial__item">
-                        <span class="detalle-historial__estado">{{
-                          etiquetaPrenda[h.estado]
-                        }}</span>
-                        <span class="detalle-historial__meta">
-                          {{ h.fecha | fechaHora }}{{ h.usuario ? ' · ' + h.usuario : '' }}
-                        </span>
-                      </li>
-                    }
-                  </ol>
-                }
-              </li>
-            }
-          </ul>
-        </section>
-
-        <!-- ── Abonos ────────────────────────────────────────────── -->
-        <section class="detalle-bloque detalle-bloque--abonos" aria-labelledby="t-abonos">
-          <h2 class="detalle-bloque__titulo" id="t-abonos">Abonos</h2>
-
-          @if (puedeCobrar() && !anulado() && p.saldo > 0) {
-            <form
-              class="detalle-abonar"
-              [formGroup]="formAbono"
-              (ngSubmit)="registrarAbono()"
-              novalidate
-            >
-              <div class="detalle-field">
-                <div class="detalle-field__head">
-                  <label class="detalle-field__label" for="monto">Monto</label>
-                  @if (formAbono.controls.monto.touched && formAbono.controls.monto.invalid) {
-                    <span class="detalle-field__error">Solo números</span>
-                  }
-                </div>
-                <input
-                  class="detalle-field__input"
-                  id="monto"
-                  type="text"
-                  inputmode="decimal"
-                  formControlName="monto"
-                  placeholder="0"
-                />
-              </div>
-              <div class="detalle-field">
-                <label class="detalle-field__label" for="metodo">Método</label>
-                <select class="detalle-field__input" id="metodo" formControlName="metodo">
-                  @for (m of metodos; track m.valor) {
-                    <option [value]="m.valor">{{ m.etiqueta }}</option>
-                  }
-                </select>
-              </div>
-              <div class="detalle-abonar__acciones">
-                <button
-                  class="detalle-boton detalle-boton--secundario"
-                  type="button"
-                  (click)="pagarSaldo()"
-                >
-                  Todo el saldo
-                </button>
-                <button class="detalle-boton" type="submit" [disabled]="ocupado() === 'abono'">
-                  Registrar abono
-                </button>
-              </div>
-            </form>
-          }
-
-          @if (p.abonos.length === 0) {
-            <p class="detalle-ayuda">Sin abonos todavía.</p>
-          } @else {
-            <ul class="detalle-abonos">
+          <ul class="pd-items">
+            @if (vista() === 'prendas') {
+              @for (pr of p.prendas; track pr.id) {
+                <li>
+                  <app-prenda-tarjeta
+                    [prenda]="pr"
+                    [anulado]="anulado()"
+                    [ocupado]="ocupado() !== null"
+                    [puedeCambiarEstado]="puedeCambiarEstado()"
+                    [puedeEntregar]="puedeEntregar()"
+                    [puedeAsignar]="puedeAsignar()"
+                    [sastres]="sastres()"
+                    (finalizar)="finalizar(pr)"
+                    (volverAProceso)="volverAProceso(pr)"
+                    (entregar)="entregar([pr.id])"
+                    (asignar)="asignarSastre(pr, $event)"
+                  />
+                </li>
+              }
+            } @else {
               @for (a of p.abonos; track a.id) {
-                <li class="detalle-abono" [class.detalle-abono--anulado]="a.anulado">
-                  <div class="detalle-abono__fila">
-                    <div class="detalle-abono__info">
-                      <span class="detalle-abono__monto">{{ a.monto | moneda }}</span>
-                      <span class="detalle-abono__meta">
-                        {{ etiquetaMetodo(a.metodo) }} · {{ a.fecha | fechaHora }}
-                        {{ a.registradoPor ? '· ' + a.registradoPor : '' }}
-                      </span>
-                      @if (a.anulado) {
-                        <span class="detalle-abono__anulacion">
-                          {{
-                            a.motivoAnulacion === 'DEVOLUCION' ? 'Devuelto' : 'Anulado por error'
-                          }}:
-                          {{ a.razonAnulacion }}
-                        </span>
-                      }
-                    </div>
+                <li class="pd-item" [class.pd-item--apagado]="a.anulado">
+                  <div class="pd-item__fila">
+                    <span class="pd-item__titulo">{{ a.monto | moneda }}</span>
                     @if (esAdmin() && !a.anulado && anulandoAbono() !== a.id) {
                       <button
-                        class="detalle-boton detalle-boton--peligro"
+                        class="pd-boton pd-boton--peligro pd-boton--chico"
                         type="button"
                         (click)="pedirAnularAbono(a)"
                       >
@@ -376,18 +290,29 @@
                       </button>
                     }
                   </div>
-
+                  <span class="pd-item__meta">
+                    {{ etiquetaMetodo(a.metodo) }} · {{ a.fecha | fechaHora }}
+                    {{ a.registradoPor ? '· ' + a.registradoPor : '' }}
+                  </span>
+                  @if (a.anulado) {
+                    <span class="pd-item__alerta">
+                      {{ a.motivoAnulacion === 'DEVOLUCION' ? 'Devuelto' : 'Anulado por error' }}:
+                      {{ a.razonAnulacion }}
+                    </span>
+                  }
                   @if (anulandoAbono() === a.id) {
                     <form
-                      class="detalle-anular-abono"
+                      class="pd-anular-abono"
                       [formGroup]="formAnularAbono"
                       (ngSubmit)="anularAbono(a)"
                       novalidate
                     >
-                      <div class="detalle-field">
-                        <label class="detalle-field__label" [for]="'motivo' + a.id">Motivo</label>
+                      <div class="pd-campo">
+                        <label class="pd-campo__label" [for]="'motivo' + a.id">
+                          Motivo <span class="pd-req">*</span>
+                        </label>
                         <select
-                          class="detalle-field__input"
+                          class="pd-campo__input"
                           [id]="'motivo' + a.id"
                           formControlName="motivo"
                         >
@@ -395,35 +320,35 @@
                           <option value="ERROR_REGISTRO">Error al registrarlo</option>
                         </select>
                       </div>
-                      <div class="detalle-field">
-                        <div class="detalle-field__head">
-                          <label class="detalle-field__label" [for]="'razonAbono' + a.id">
-                            Razón
+                      <div class="pd-campo">
+                        <div class="pd-campo__head">
+                          <label class="pd-campo__label" [for]="'razonAbono' + a.id">
+                            Razón <span class="pd-req">*</span>
                           </label>
                           @if (
                             formAnularAbono.controls.razon.touched &&
                             formAnularAbono.controls.razon.invalid
                           ) {
-                            <span class="detalle-field__error">Obligatoria</span>
+                            <span class="pd-campo__error">Obligatoria</span>
                           }
                         </div>
                         <input
-                          class="detalle-field__input"
+                          class="pd-campo__input"
                           [id]="'razonAbono' + a.id"
                           type="text"
                           formControlName="razon"
                         />
                       </div>
-                      <div class="detalle-confirmar__acciones">
+                      <div class="pd-confirmar__acciones">
                         <button
-                          class="detalle-boton detalle-boton--secundario"
+                          class="pd-boton pd-boton--borde pd-boton--chico"
                           type="button"
                           (click)="cancelarAnularAbono()"
                         >
                           Cancelar
                         </button>
                         <button
-                          class="detalle-boton detalle-boton--peligro-lleno"
+                          class="pd-boton pd-boton--peligro-lleno pd-boton--chico"
                           type="submit"
                           [disabled]="ocupado() === a.id"
                         >
@@ -433,13 +358,117 @@
                     </form>
                   }
                 </li>
+              } @empty {
+                <li class="pd-ayuda">Sin abonos todavía.</li>
               }
-            </ul>
-          }
+            }
+          </ul>
         </section>
+
+        <!-- ── Cobro (mismas tres filas del formulario) ─────────── -->
+        <section class="pd-seccion pd-cobro" aria-label="Cobro">
+          <span class="pd-dato">
+            <span class="pd-dato__etiqueta">Total</span>
+            <strong>{{ p.total | moneda }}</strong>
+          </span>
+          <div class="pd-resumen__par">
+            <span class="pd-dato">
+              <span class="pd-dato__etiqueta">Subtotal</span>
+              <strong>{{ p.subtotal | moneda }}</strong>
+            </span>
+            <span class="pd-dato">
+              <span class="pd-dato__etiqueta">Abonado</span>
+              <strong>{{ p.abonado | moneda }}</strong>
+            </span>
+          </div>
+          <span class="pd-dato pd-dato--total">
+            <span class="pd-dato__etiqueta">Saldo</span>
+            <strong>{{ p.saldo | moneda }}</strong>
+          </span>
+        </section>
+
+        <!-- ── Acciones (en el lugar de Limpiar · Crear · Crear e imprimir) ── -->
+        <div class="pd-acciones-fila">
+          <a class="pd-boton pd-boton--grande pd-boton--borde" [routerLink]="['/ticket', p.id]">
+            Ver ticket
+          </a>
+          <button
+            class="pd-boton pd-boton--grande"
+            type="button"
+            [disabled]="!esAdmin() || anulado()"
+            (click)="editar.emit()"
+          >
+            Editar
+          </button>
+          <button
+            class="pd-boton pd-boton--grande pd-boton--peligro"
+            type="button"
+            [disabled]="!esAdmin() || anulado()"
+            (click)="pedirAnular()"
+          >
+            Anular
+          </button>
+        </div>
+
+        @if (anulando()) {
+          <form class="pd-confirmar" [formGroup]="formAnular" (ngSubmit)="anular()" novalidate>
+            @if (abonosVigentes() > 0) {
+              <p class="pd-confirmar__texto">
+                Este pedido tiene abonos. Antes de anularlo, registra la devolución anulando cada
+                abono (motivo "Devolución") en la pestaña Abonos.
+              </p>
+              <div class="pd-confirmar__acciones">
+                <button
+                  class="pd-boton pd-boton--borde pd-boton--chico"
+                  type="button"
+                  (click)="cancelarAnular()"
+                >
+                  Entendido
+                </button>
+              </div>
+            } @else {
+              <div class="pd-campo">
+                <div class="pd-campo__head">
+                  <label class="pd-campo__label" for="razon">
+                    Razón de la anulación <span class="pd-req">*</span>
+                  </label>
+                  @if (formAnular.controls.razon.touched && formAnular.controls.razon.invalid) {
+                    <span class="pd-campo__error">Obligatoria</span>
+                  }
+                </div>
+                <input class="pd-campo__input" id="razon" type="text" formControlName="razon" />
+              </div>
+              <div class="pd-confirmar__acciones">
+                <button
+                  class="pd-boton pd-boton--borde pd-boton--chico"
+                  type="button"
+                  (click)="cancelarAnular()"
+                >
+                  No anular
+                </button>
+                <button
+                  class="pd-boton pd-boton--peligro-lleno pd-boton--chico"
+                  type="submit"
+                  [disabled]="ocupado() === 'anular'"
+                >
+                  Sí, anular pedido
+                </button>
+              </div>
+            }
+          </form>
+        }
+
+        @if (anulado()) {
+          <p class="pd-nota pd-nota--error">
+            Pedido anulado. Razón: <strong>{{ p.razonAnulacion }}</strong>
+          </p>
+        }
+        @if (error()) {
+          <p class="pd-nota pd-nota--error" role="alert">{{ error() }}</p>
+        }
       </div>
-    } @else if (error()) {
-      <p class="detalle-aviso detalle-aviso--error" role="alert">{{ error() }}</p>
-    }
-  </div>
-</main>
+    </div>
+  } @else if (error()) {
+    <p class="pd-nota pd-nota--error" role="alert">{{ error() }}</p>
+  }
+</div>

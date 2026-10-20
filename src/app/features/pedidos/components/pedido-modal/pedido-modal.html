@@ -1,0 +1,29 @@
+<div class="modal-fondo" aria-hidden="true" (click)="cerrar()"></div>
+
+<div
+  #caja
+  class="modal-caja"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-pedido"
+  tabindex="-1"
+>
+  @if (!pedidoId()) {
+    <app-pedido-form (guardado)="creado.emit($event)" (cancelado)="cerrar()" (cerrar)="cerrar()" />
+  } @else if (modo() === 'ver') {
+    <app-pedido-detalle
+      [pedidoId]="pedidoId()!"
+      (editar)="editar()"
+      (cambio)="cambio.emit($event)"
+      (verCliente)="verCliente.emit($event)"
+      (cerrar)="cerrar()"
+    />
+  } @else {
+    <app-pedido-form
+      [pedidoId]="pedidoId()"
+      (guardado)="alGuardar($event)"
+      (cancelado)="ponerModo('ver')"
+      (cerrar)="cerrar()"
+    />
+  }
+</div>

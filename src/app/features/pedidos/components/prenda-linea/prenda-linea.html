@@ -1,0 +1,39 @@
+<article class="prl" [class.prl--editando]="editando()" [class.prl--entregada]="entregada()">
+  <strong class="prl__titulo">{{ cantidad() }} × {{ producto() }}</strong>
+  <strong class="prl__total">{{ precio() * cantidad() | moneda }}</strong>
+
+  <span class="prl__estado">
+    {{ entregada() ? 'Entregada' : editando() ? 'Corrigiendo' : 'Prenda ' + numero() }}
+  </span>
+  <span class="prl__unit">
+    <span class="prl__muted">Vlr. unit.:</span> {{ precio() | moneda }}
+  </span>
+
+  <span class="prl__descripcion">{{ descripcion() }}</span>
+
+  @if (!entregada()) {
+    <!-- Pie como en el detalle: una línea a cada lado; Editar a la izquierda, Eliminar a la derecha. -->
+    <div class="prl__pie">
+      <button
+        class="prl__accion"
+        type="button"
+        [attr.aria-label]="'Editar prenda ' + numero()"
+        (click)="editar.emit()"
+      >
+        <app-icono class="prl__icono" nombre="editar" />
+        Editar
+      </button>
+    </div>
+    <div class="prl__pie prl__pie--derecha">
+      <button
+        class="prl__accion prl__accion--peligro"
+        type="button"
+        [attr.aria-label]="'Eliminar prenda ' + numero()"
+        (click)="quitar.emit()"
+      >
+        <app-icono class="prl__icono" nombre="eliminar" />
+        Eliminar
+      </button>
+    </div>
+  }
+</article>

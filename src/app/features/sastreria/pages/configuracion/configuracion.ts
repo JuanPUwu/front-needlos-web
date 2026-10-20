@@ -9,8 +9,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { map, startWith } from 'rxjs';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
+import { Notificaciones } from '../../../../core/ui/notificaciones';
+import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { TicketComponent, TicketDatos } from '../../../../shared/ui/ticket/ticket';
 import { hoyIso } from '../../../../shared/util/fechas';
@@ -26,7 +28,7 @@ const CON_TEXTO = /\S/;
  */
 @Component({
   selector: 'app-configuracion-sastreria',
-  imports: [ReactiveFormsModule, RouterLink, TicketComponent],
+  imports: [Esqueleto, Encabezado, ReactiveFormsModule, TicketComponent],
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,13 +36,13 @@ const CON_TEXTO = /\S/;
 export class ConfiguracionSastreria implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(SastreriaService);
+  private readonly notificaciones = inject(Notificaciones);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly sastreria = signal<Sastreria | null>(null);
   readonly cargando = signal(true);
   readonly error = signal<string | null>(null);
   readonly guardando = signal(false);
-  readonly exito = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(120), Validators.pattern(CON_TEXTO)]],
@@ -113,7 +115,6 @@ export class ConfiguracionSastreria implements OnInit {
     }
     this.guardando.set(true);
     this.error.set(null);
-    this.exito.set(false);
 
     const v = this.form.getRawValue();
     this.service
@@ -127,7 +128,8 @@ export class ConfiguracionSastreria implements OnInit {
       .subscribe({
         next: (s) => {
           this.guardando.set(false);
-          this.exito.set(true);
+          this.form.markAsPristine();
+          this.notificaciones.exito('Datos de la sastrería guardados.');
           this.sastreria.set(s);
         },
         error: (err: unknown) => {

@@ -1,0 +1,62 @@
+// Casilla de verificación de la app. Solo tokens globales.
+
+:host {
+  display: inline-flex;
+}
+
+.casilla {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 0.9rem;
+  color: var(--color-text);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+}
+
+// Marcada: la cápsula se resalta.
+.casilla--marcada {
+  border-color: var(--color-border);
+  background: var(--focus-ring);
+  color: var(--color-navy);
+  font-weight: 600;
+}
+
+// Cuadro propio: redondeado; marcado, azul marino con ✓ blanco.
+.casilla__control {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface) center / 14px no-repeat;
+  appearance: none;
+  cursor: pointer;
+
+  &:checked {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5'/%3E%3C/svg%3E");
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .casilla {
+    transition: none;
+  }
+}

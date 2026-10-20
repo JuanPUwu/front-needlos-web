@@ -1,0 +1,86 @@
+<div class="esq" role="status" aria-busy="true" aria-label="Cargando pedido">
+  <div class="esq__col esq__col--datos">
+    <!-- Cliente: tres campos -->
+    <div class="esq__tarjeta">
+      <div class="esq__fila esq__fila--tres">
+        @for (i of tres; track i) {
+          <div class="esq__campo">
+            <span class="esq__hueso esq__hueso--etiqueta">Etiqueta</span>
+            <span class="esq__hueso esq__hueso--campo"></span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Abonos: dos filas de campos -->
+    <div class="esq__tarjeta">
+      <div class="esq__fila esq__fila--linea">
+        @for (i of tres; track i) {
+          <div class="esq__campo">
+            <span class="esq__hueso esq__hueso--etiqueta">Etiqueta</span>
+            <span class="esq__hueso esq__hueso--campo"></span>
+          </div>
+        }
+      </div>
+      <div class="esq__fila esq__fila--detalle">
+        <div class="esq__campo">
+          <span class="esq__hueso esq__hueso--etiqueta">Etiqueta</span>
+          <span class="esq__hueso esq__hueso--campo"></span>
+        </div>
+        <span class="esq__hueso esq__hueso--boton"></span>
+      </div>
+    </div>
+
+    <!-- Entrega: calendario | resumen -->
+    <div class="esq__tarjeta esq__entrega">
+      <div class="esq__campo">
+        <span class="esq__hueso esq__hueso--etiqueta">Etiqueta</span>
+        <div class="esq__hueso esq__calendario">
+          <app-calendario class="esq__invisible" />
+        </div>
+      </div>
+      <div class="esq__resumen">
+        <div class="esq__fila esq__fila--dos">
+          <span class="esq__hueso esq__hueso--campo"></span>
+          <span class="esq__hueso esq__hueso--campo"></span>
+        </div>
+        <div class="esq__campo">
+          <span class="esq__hueso esq__hueso--etiqueta">Etiqueta</span>
+          <span class="esq__hueso esq__hueso--campo"></span>
+        </div>
+        <span class="esq__hueso esq__hueso--designado"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="esq__col esq__col--prendas">
+    <!-- Lista de prendas -->
+    <div class="esq__tarjeta esq__lista">
+      <div class="esq__pestanas">
+        <span class="esq__hueso esq__hueso--pestana"></span>
+        <span class="esq__hueso esq__hueso--pestana"></span>
+      </div>
+      @for (i of tres; track i) {
+        <span class="esq__hueso esq__hueso--item"></span>
+      }
+    </div>
+
+    <!-- Cobro -->
+    <div class="esq__tarjeta">
+      <span class="esq__hueso esq__hueso--campo"></span>
+      <div class="esq__fila esq__fila--dos">
+        <span class="esq__hueso esq__hueso--campo"></span>
+        <span class="esq__hueso esq__hueso--campo"></span>
+      </div>
+      <span class="esq__hueso esq__hueso--campo"></span>
+    </div>
+
+    <!-- Acciones -->
+    <div class="esq__acciones">
+      @for (i of tres; track i) {
+        <span class="esq__hueso esq__hueso--accion"></span>
+      }
+    </div>
+  </div>
+  <span class="esq__oculto">Cargando pedido...</span>
+</div>

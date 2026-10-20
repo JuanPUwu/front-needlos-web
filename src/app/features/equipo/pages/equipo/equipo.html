@@ -1,27 +1,42 @@
 <main class="equipo-page">
   <div class="equipo-contenedor">
-    <header class="equipo-cabecera">
-      <h1 class="equipo-titulo">Equipo</h1>
-      <p class="equipo-subtitulo">Habilita a tus empleados por correo y gestiona sus roles.</p>
-    </header>
-
-    @if (exito()) {
-      <p class="equipo-aviso equipo-aviso--exito" role="status">{{ exito() }}</p>
-    }
+    <app-encabezado
+      titulo="Equipo"
+      subtitulo="Habilita a tus empleados por correo y gestiona sus roles y permisos."
+      icono="equipo"
+    />
 
     <div class="equipo-bento">
       <!-- ── Resumen ───────────────────────────────────────────── -->
       <div class="equipo-stats">
         <div class="equipo-stat">
-          <span class="equipo-stat__num">{{ total() }}</span>
+          <span class="equipo-stat__num">
+            @if (cargando()) {
+              <app-esqueleto forma="numero" texto="Cargando..." />
+            } @else {
+              {{ total() }}
+            }
+          </span>
           <span class="equipo-stat__label">Miembros</span>
         </div>
         <div class="equipo-stat">
-          <span class="equipo-stat__num">{{ admins() }}</span>
+          <span class="equipo-stat__num">
+            @if (cargando()) {
+              <app-esqueleto forma="numero" texto="Cargando..." />
+            } @else {
+              {{ admins() }}
+            }
+          </span>
           <span class="equipo-stat__label">Administradores</span>
         </div>
         <div class="equipo-stat">
-          <span class="equipo-stat__num">{{ pendientes() }}</span>
+          <span class="equipo-stat__num">
+            @if (cargando()) {
+              <app-esqueleto forma="numero" texto="Cargando..." />
+            } @else {
+              {{ pendientes() }}
+            }
+          </span>
           <span class="equipo-stat__label">Invitaciones pendientes</span>
         </div>
       </div>
@@ -36,7 +51,9 @@
           <div class="equipo-fila">
             <div class="equipo-field">
               <div class="equipo-field__head">
-                <label class="equipo-field__label" for="nombre">Nombre</label>
+                <label class="equipo-field__label" for="nombre"
+                  >Nombre <span class="equipo-field__req">*</span></label
+                >
                 @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
                   <span class="equipo-field__error">Obligatorio</span>
                 }
@@ -46,7 +63,9 @@
 
             <div class="equipo-field">
               <div class="equipo-field__head">
-                <label class="equipo-field__label" for="apellido">Apellido</label>
+                <label class="equipo-field__label" for="apellido"
+                  >Apellido <span class="equipo-field__req">*</span></label
+                >
                 @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
                   <span class="equipo-field__error">Obligatorio</span>
                 }
@@ -63,7 +82,9 @@
           @if (!editando()) {
             <div class="equipo-field">
               <div class="equipo-field__head">
-                <label class="equipo-field__label" for="email">Correo</label>
+                <label class="equipo-field__label" for="email"
+                  >Correo <span class="equipo-field__req">*</span></label
+                >
                 @if (form.controls.email.touched && form.controls.email.invalid) {
                   <span class="equipo-field__error">Correo no válido</span>
                 }
@@ -103,7 +124,9 @@
           </div>
 
           <div class="equipo-field">
-            <label class="equipo-field__label" for="rol">Rol</label>
+            <label class="equipo-field__label" for="rol"
+              >Rol <span class="equipo-field__req">*</span></label
+            >
             <select class="equipo-field__input" id="rol" formControlName="rol">
               <option value="SASTRE">Sastre (empleado)</option>
               <option value="SASTRE_ADMIN">Administrador</option>
@@ -215,7 +238,7 @@
         }
 
         @if (cargando()) {
-          <p class="equipo-bloque__ayuda" role="status">Cargando equipo...</p>
+          <app-esqueleto forma="lista" [filas]="5" [alto]="72" texto="Cargando equipo..." />
         } @else {
           <div class="equipo-lista-scroll">
             @if (empleados().length === 0) {

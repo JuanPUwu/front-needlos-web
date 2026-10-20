@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { TicketComponent } from '../../../../shared/ui/ticket/ticket';
 import { Ticket } from '../../models/pedido.model';
@@ -19,7 +20,7 @@ import { PedidoService } from '../../services/pedido.service';
  */
 @Component({
   selector: 'app-ticket-pagina',
-  imports: [RouterLink, TicketComponent],
+  imports: [Esqueleto, RouterLink, TicketComponent],
   templateUrl: './ticket-pagina.html',
   styleUrl: './ticket-pagina.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,7 +39,13 @@ export class TicketPagina implements OnInit {
       .ticket(this.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (t) => this.ticket.set(t),
+        next: (t) => {
+          this.ticket.set(t);
+          // "Crear e imprimir": abre el diálogo de impresión en cuanto el ticket se pinta.
+          if (this.route.snapshot.queryParamMap.get('imprimir') === '1') {
+            setTimeout(() => window.print(), 300);
+          }
+        },
         error: (err: unknown) =>
           this.error.set(mensajeDeError(err, 'No se pudo cargar el ticket.')),
       });

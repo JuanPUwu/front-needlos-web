@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -131,11 +132,15 @@ describe('Equipo', () => {
     );
   });
 
-  it('cancela una invitación pendiente', () => {
+  it('cancela una invitación pendiente tras confirmar', async () => {
     const inv = invitacion({ id: 'inv-9' });
     componente.invitaciones.set([inv]);
+    const pedir = vi.spyOn(TestBed.inject(Confirmacion), 'pedir').mockResolvedValueOnce(false);
+    await componente.cancelarInvitacion(inv);
+    expect(service.cancelarInvitacion).not.toHaveBeenCalled();
 
-    componente.cancelarInvitacion(inv);
+    pedir.mockResolvedValueOnce(true);
+    await componente.cancelarInvitacion(inv);
 
     expect(service.cancelarInvitacion).toHaveBeenCalledWith('inv-9');
     expect(componente.invitaciones().length).toBe(0);

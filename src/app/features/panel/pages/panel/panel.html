@@ -39,11 +39,18 @@
     <a
       class="panel__item"
       routerLink="/ajustes"
-      routerLinkActive="panel__item--activo"
+      [class.panel__item--activo]="enAjustes()"
+      [attr.aria-current]="enAjustes() ? 'page' : null"
       (click)="cerrarMenu()"
     >
       <app-icono class="panel__item-icono" nombre="ajustes" />
-      <span class="panel__item-texto">Ajustes</span>
+      <!-- En una sub-pantalla dice dónde se está: "Ajustes / Mi sastrería". -->
+      <span class="panel__item-texto">
+        Ajustes
+        @if (subAjuste(); as sub) {
+          <span class="panel__item-sub">/ {{ sub }}</span>
+        }
+      </span>
     </a>
   </nav>
 

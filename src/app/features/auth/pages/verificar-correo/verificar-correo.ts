@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { codigoDeError, mensajeDeError } from '../../../../core/http/api-error';
+import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { Logo } from '../../../../shared/ui/logo/logo';
 
 /** Segundos que el boton de reenvio queda deshabilitado tras usarlo (evita doble clic). */
@@ -26,6 +27,7 @@ export class VerificarCorreo {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly notificaciones = inject(Notificaciones);
 
   private readonly estado = history.state as { email?: string; aviso?: string | null } | null;
   protected readonly email = this.estado?.email ?? null;
@@ -92,6 +94,8 @@ export class VerificarCorreo {
         next: () => {
           this.reenviando.set(false);
           this.reenviado.set(true);
+          // Mensaje temporal: notificación, no aviso en la página (Reglas §12.2).
+          this.notificaciones.exito('Te enviamos un código nuevo.');
           this.iniciarEsperaDeReenvio();
         },
         error: (err: unknown) => {

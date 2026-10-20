@@ -9,10 +9,17 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, debounceTime } from 'rxjs';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
+import { Notificaciones } from '../../../../core/ui/notificaciones';
+import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { PermisosService } from '../../../../core/auth/permisos';
+import { filtrosAUrl, filtrosDesdeUrl } from '../../../../core/estado/filtros-url';
+import { Memoria } from '../../../../core/estado/memoria';
+import { recordarFormulario } from '../../../../core/estado/recordar-formulario';
 import { codigoDeError, mensajeDeError } from '../../../../core/http/api-error';
 import { FechaPipe } from '../../../../shared/pipes/fecha.pipe';
 import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
@@ -45,7 +52,7 @@ const ORDENES: { valor: OrdenClientes; etiqueta: string }[] = [
  */
 @Component({
   selector: 'app-clientes',
-  imports: [ReactiveFormsModule, RouterLink, FechaPipe, MonedaPipe],
+  imports: [Esqueleto, Encabezado, ReactiveFormsModule, RouterLink, FechaPipe, MonedaPipe],
   templateUrl: './clientes.html',
   styleUrl: './clientes.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,7 +62,13 @@ export class Clientes implements OnInit {
   private readonly service = inject(ClienteService);
   private readonly auth = inject(AuthService);
   private readonly permisos = inject(PermisosService);
+  private readonly memoria = inject(Memoria);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly notificaciones = inject(Notificaciones);
+  private readonly confirmacion = inject(Confirmacion);
   private readonly destroyRef = inject(DestroyRef);
+  /** Formulario a medio llenar (y qué cliente se editaba): sobrevive a la recarga. */
   private readonly busqueda$ = new Subject<string>();
 
   readonly esAdmin = computed(() => this.auth.roles().includes('SASTRE_ADMIN'));
@@ -86,11 +99,8 @@ export class Clientes implements OnInit {
   readonly editando = signal<Cliente | null>(null);
   readonly guardando = signal(false);
   readonly errorForm = signal<string | null>(null);
-  readonly exito = signal<string | null>(null);
   /** El teléfono ya es de otro cliente (se muestra junto a la etiqueta). */
   readonly errorTelefono = signal<string | null>(null);
-  /** id del cliente con la eliminación pendiente de confirmar. */
-  readonly confirmarEliminarId = signal<string | null>(null);
   readonly accionId = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
@@ -115,7 +125,28 @@ export class Clientes implements OnInit {
     telefono: ['', [Validators.required, Validators.pattern(TELEFONO)]],
   });
 
+  /** Formulario a medio llenar (y qué se editaba): sobrevive a la recarga. */
+  private readonly borrador = recordarFormulario<{ editando: Cliente | null }>(
+    this.form,
+    this.memoria,
+    'clientes:form',
+    this.destroyRef,
+    {
+      extra: () => ({ editando: this.editando() }),
+    },
+  );
+
   ngOnInit(): void {
+    // Filtros y página vienen de la URL: una recarga deja la lista igual.
+    const params = this.route.snapshot.queryParamMap;
+    this.filtros.set(filtrosDesdeUrl(params, FILTROS_CLIENTES_INICIALES));
+    this.filtrosAbiertos.set(this.cantidadFiltros() > 0);
+    const guardado = this.borrador.leer();
+    if (guardado) {
+      this.editando.set(guardado.editando);
+      this.form.patchValue(guardado.valores);
+      this.form.markAsDirty();
+    }
     this.busqueda$
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe((texto) => {
@@ -128,7 +159,7 @@ export class Clientes implements OnInit {
     this.form.controls.telefono.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.errorTelefono.set(null));
-    this.cargar(0);
+    this.cargar(Math.max(Number(params.get('pagina')) || 1, 1) - 1);
   }
 
   alternarFiltros(): void {
@@ -183,18 +214,38 @@ export class Clientes implements OnInit {
     });
   }
 
-  cancelar(): void {
+  /** Cancelar (o guardar con éxito) olvida el borrador. */
+  /** Cancelar: si hay cambios sin guardar, pide confirmar antes de perderlos (Reglas §12.2). */
+  async cancelar(): Promise<void> {
+    if (
+      this.form.dirty &&
+      !(await this.confirmacion.pedir({
+        titulo: '¿Descartar los cambios?',
+        mensaje: 'Lo que escribiste no se guardará.',
+        aceptar: 'Sí, descartar',
+        cancelar: 'Seguir editando',
+        peligro: true,
+      }))
+    ) {
+      return;
+    }
+    this.borrador.olvidar();
     this.editando.set(null);
     this.form.reset();
     this.errorTelefono.set(null);
   }
 
-  pedirEliminar(cliente: Cliente): void {
-    this.confirmarEliminarId.set(cliente.id);
-  }
-
-  noEliminar(): void {
-    this.confirmarEliminarId.set(null);
+  /** Eliminar no tiene vuelta atrás desde la app: se confirma. */
+  async pedirEliminar(cliente: Cliente): Promise<void> {
+    const ok = await this.confirmacion.pedir({
+      titulo: `¿Eliminar a ${cliente.nombre} ${cliente.apellido}?`,
+      mensaje: 'El cliente dejará de aparecer en la lista y su teléfono quedará libre.',
+      aceptar: 'Sí, eliminar',
+      peligro: true,
+    });
+    if (ok) {
+      this.eliminar(cliente);
+    }
   }
 
   eliminar(cliente: Cliente): void {
@@ -209,8 +260,7 @@ export class Clientes implements OnInit {
       .subscribe({
         next: () => {
           this.accionId.set(null);
-          this.confirmarEliminarId.set(null);
-          this.exito.set(`Cliente ${cliente.nombre} ${cliente.apellido} eliminado.`);
+          this.notificaciones.exito(`Cliente ${cliente.nombre} ${cliente.apellido} eliminado.`);
           if (this.editando()?.id === cliente.id) {
             this.cancelar();
           }
@@ -234,7 +284,7 @@ export class Clientes implements OnInit {
     peticion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (cliente) => {
         this.guardando.set(false);
-        this.exito.set(
+        this.notificaciones.exito(
           actual ? 'Cliente actualizado.' : `Cliente ${cliente.nombre} ${cliente.apellido} creado.`,
         );
         this.cancelar();
@@ -290,7 +340,6 @@ export class Clientes implements OnInit {
 
   private limpiarAvisos(): void {
     this.errorForm.set(null);
-    this.exito.set(null);
     this.error.set(null);
     this.errorTelefono.set(null);
   }
@@ -298,6 +347,15 @@ export class Clientes implements OnInit {
   private cargar(pagina: number): void {
     this.cargando.set(true);
     this.error.set(null);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        ...filtrosAUrl(this.filtros(), FILTROS_CLIENTES_INICIALES),
+        pagina: pagina > 0 ? pagina + 1 : null,
+      },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
     this.service
       .listar(this.filtros(), pagina, TAMANO_PAGINA)
       .pipe(takeUntilDestroyed(this.destroyRef))

@@ -3,13 +3,15 @@
     <header class="registro-card__header">
       <app-logo class="registro-card__logo" variant="dark" />
       <p class="registro-card__subtitle">
-        Registra tu sastrería, Empiezas en el plan Demo. Tú quedas como administrador.
+        Registra tu sastrería: empiezas en el plan Demo. Tú quedas como administrador.
       </p>
     </header>
 
     <div class="registro-field">
       <div class="registro-field__head">
-        <label class="registro-field__label" for="nombreSastreria">Nombre de la sastrería</label>
+        <label class="registro-field__label" for="nombreSastreria"
+          >Nombre de la sastrería <span class="registro-field__req">*</span></label
+        >
         @if (nombreSastreria.touched && nombreSastreria.invalid) {
           <span class="registro-field__error">Obligatorio (máx. 120)</span>
         }
@@ -26,16 +28,17 @@
       </div>
     </div>
 
-    <p class="registro-seccion">Con tu cuenta de Google</p>
     <app-google-button (credencial)="conGoogle($event)" />
 
     <div class="registro-divider"><span class="registro-divider__text">o con tu correo</span></div>
 
     <form class="registro-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
-      <div class="registro-fila">
+      <div class="registro-fila registro-fila--tres">
         <div class="registro-field">
           <div class="registro-field__head">
-            <label class="registro-field__label" for="nombreAdmin">Tu nombre</label>
+            <label class="registro-field__label" for="nombreAdmin"
+              >Nombre <span class="registro-field__req">*</span></label
+            >
             @if (form.controls.nombreAdmin.touched && form.controls.nombreAdmin.invalid) {
               <span class="registro-field__error">Obligatorio</span>
             }
@@ -53,7 +56,9 @@
 
         <div class="registro-field">
           <div class="registro-field__head">
-            <label class="registro-field__label" for="apellidoAdmin">Tu apellido</label>
+            <label class="registro-field__label" for="apellidoAdmin"
+              >Apellido <span class="registro-field__req">*</span></label
+            >
             @if (form.controls.apellidoAdmin.touched && form.controls.apellidoAdmin.invalid) {
               <span class="registro-field__error">Obligatorio</span>
             }
@@ -68,12 +73,12 @@
             />
           </div>
         </div>
-      </div>
 
-      <div class="registro-fila">
         <div class="registro-field">
           <div class="registro-field__head">
-            <label class="registro-field__label" for="numeroDocumento">Número de documento</label>
+            <label class="registro-field__label" for="numeroDocumento"
+              >Documento <span class="registro-field__req">*</span></label
+            >
             @if (form.controls.numeroDocumento.touched && form.controls.numeroDocumento.invalid) {
               <span class="registro-field__error">Obligatorio</span>
             }
@@ -88,10 +93,33 @@
             />
           </div>
         </div>
+      </div>
+
+      <div class="registro-fila registro-fila--correo">
+        <div class="registro-field">
+          <div class="registro-field__head">
+            <label class="registro-field__label" for="email"
+              >Correo <span class="registro-field__req">*</span></label
+            >
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+              <span class="registro-field__error">Correo no válido</span>
+            }
+          </div>
+          <div class="registro-field__control">
+            <input
+              class="registro-field__input"
+              id="email"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              placeholder="algo@ejemplo.com"
+            />
+          </div>
+        </div>
 
         <div class="registro-field">
           <div class="registro-field__head">
-            <label class="registro-field__label" for="telefono">Teléfono (opcional)</label>
+            <label class="registro-field__label" for="telefono">Teléfono</label>
             @if (form.controls.telefono.touched && form.controls.telefono.invalid) {
               <span class="registro-field__error">Máx. 20</span>
             }
@@ -108,29 +136,12 @@
         </div>
       </div>
 
-      <div class="registro-field">
-        <div class="registro-field__head">
-          <label class="registro-field__label" for="email">Correo</label>
-          @if (form.controls.email.touched && form.controls.email.invalid) {
-            <span class="registro-field__error">Correo no válido</span>
-          }
-        </div>
-        <div class="registro-field__control">
-          <input
-            class="registro-field__input"
-            id="email"
-            type="email"
-            formControlName="email"
-            autocomplete="email"
-            placeholder="algo@ejemplo.com"
-          />
-        </div>
-      </div>
-
-      <div class="registro-fila">
+      <div class="registro-fila registro-fila--clave">
         <div class="registro-field">
           <div class="registro-field__head">
-            <label class="registro-field__label" for="password">Contraseña</label>
+            <label class="registro-field__label" for="password"
+              >Contraseña <span class="registro-field__req">*</span></label
+            >
             @if (form.controls.password.touched && form.controls.password.invalid) {
               <span class="registro-field__error">No cumple la política</span>
             }
@@ -139,6 +150,8 @@
             <input
               class="registro-field__input"
               id="password"
+              (focus)="enClave.set(true)"
+              (blur)="enClave.set(false)"
               [type]="verPassword() ? 'text' : 'password'"
               formControlName="password"
               autocomplete="new-password"
@@ -157,7 +170,9 @@
 
         <div class="registro-field">
           <div class="registro-field__head">
-            <label class="registro-field__label" for="confirmacion">Confirma la contraseña</label>
+            <label class="registro-field__label" for="confirmacion"
+              >Confirma la contraseña <span class="registro-field__req">*</span></label
+            >
             @if (form.controls.confirmacion.touched && form.hasError('noCoinciden')) {
               <span class="registro-field__error">No coinciden</span>
             }
@@ -166,17 +181,26 @@
             <input
               class="registro-field__input"
               id="confirmacion"
+              (focus)="enClave.set(true)"
+              (blur)="enClave.set(false)"
               [type]="verPassword() ? 'text' : 'password'"
               formControlName="confirmacion"
               autocomplete="new-password"
             />
           </div>
         </div>
-      </div>
 
-      <span class="registro-field__ayuda" id="politica"
-        >8 a 72 caracteres, con mayúscula, minúscula, número y carácter especial.</span
-      >
+        <span class="registro-oculto" id="politica">{{ politica }}</span>
+        @if (verPolitica()) {
+          <span
+            class="registro-politica"
+            aria-hidden="true"
+            animate.enter="registro-aparecer"
+            animate.leave="registro-desaparecer"
+            >{{ politica }}</span
+          >
+        }
+      </div>
 
       @if (error()) {
         <p class="registro-banner registro-banner--error" role="alert">{{ error() }}</p>

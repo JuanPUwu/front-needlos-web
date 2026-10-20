@@ -1,0 +1,37 @@
+<div class="esk" [attr.data-forma]="forma()" role="status" aria-busy="true">
+  <span class="esk__oculto">{{ texto() }}</span>
+  @switch (forma()) {
+    @case ('tabla') {
+      <span class="esk__hueso esk__cabecera"></span>
+      @for (i of indices(); track i) {
+        <span class="esk__hueso esk__fila-tarjeta" [style.height.px]="alto()"></span>
+      }
+    }
+    @case ('lista') {
+      @for (i of indices(); track i) {
+        <div class="esk__fila" [style.height.px]="alto()">
+          <div class="esk__textos">
+            <span class="esk__hueso esk__linea esk__linea--titulo"></span>
+            <span class="esk__hueso esk__linea esk__linea--detalle"></span>
+          </div>
+          <span class="esk__hueso esk__boton"></span>
+        </div>
+      }
+    }
+    @case ('campos') {
+      @for (i of indices(); track i) {
+        <div class="esk__campo">
+          <span class="esk__hueso esk__etiqueta">Etiqueta</span>
+          <span class="esk__hueso esk__control"></span>
+        </div>
+      }
+      <span class="esk__hueso esk__boton esk__boton--accion"></span>
+    }
+    @case ('numero') {
+      <span class="esk__hueso esk__numero" aria-hidden="true">00</span>
+    }
+    @case ('bloque') {
+      <span class="esk__hueso esk__bloque" [style.height.px]="alto()"></span>
+    }
+  }
+</div>

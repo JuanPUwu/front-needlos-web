@@ -1,4 +1,4 @@
-.panel {
+.sadmin {
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -8,7 +8,7 @@
   background: var(--color-bg);
 }
 
-.panel__card {
+.sadmin__card {
   text-align: center;
   padding: var(--space-8) var(--space-6);
   background: var(--color-surface);
@@ -17,7 +17,7 @@
   box-shadow: var(--shadow-card);
 }
 
-.panel__badge {
+.sadmin__badge {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 999px;
@@ -28,7 +28,7 @@
   letter-spacing: 0.08em;
 }
 
-.panel__titulo {
+.sadmin__titulo {
   margin: var(--space-4) 0 0;
   font-size: 1.6rem;
   font-weight: 700;
@@ -36,19 +36,19 @@
   color: var(--color-text);
 }
 
-.panel__texto {
+.sadmin__texto {
   margin: var(--space-2) 0 var(--space-6);
   color: var(--color-text-muted);
 }
 
-.panel__acciones {
+.sadmin__acciones {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-5);
 }
 
-.panel__enlace {
+.sadmin__enlace {
   color: var(--color-accent);
   font-weight: 600;
   text-decoration: none;
@@ -64,7 +64,7 @@
   }
 }
 
-.panel__logout {
+.sadmin__logout {
   height: 44px;
   padding: 0 var(--space-6);
   border: none;
@@ -75,8 +75,8 @@
   font-weight: 600;
   cursor: pointer;
   transition:
-    background-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
 
   &:hover {
     background: var(--color-accent-hover);

@@ -1,0 +1,90 @@
+<table class="pt" [class.pt--cargando]="cargando()">
+  <!-- Anchos en proporción: la tabla nunca es más ancha que su caja. -->
+  <colgroup>
+    <col class="pt__col--numero" />
+    <col class="pt__col--cliente" />
+    <col class="pt__col--fecha" />
+    <col class="pt__col--fecha" />
+    <col class="pt__col--monto" />
+    <col class="pt__col--monto" />
+    <col class="pt__col--prendas" />
+    <col class="pt__col--estado" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th scope="col">N°</th>
+      <th scope="col">Cliente</th>
+      <th scope="col">Radicado</th>
+      <th scope="col">Entrega</th>
+      <th scope="col">Valor</th>
+      <th scope="col">Saldo</th>
+      <th scope="col">Prendas</th>
+      <th scope="col">Estado</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (p of pedidos(); track p.id) {
+      <tr
+        class="pt__fila"
+        [attr.data-estado]="p.estado"
+        [class.pt__fila--anulada]="p.estado === 'ANULADO'"
+        (click)="abrir.emit(p)"
+      >
+        <td class="pt__celda pt__celda--numero">
+          {{ p.numero }}
+          <!-- En tarjeta: "· En proceso" junto al número. -->
+          <span class="pt__estado-texto">{{ etiquetaEstado[p.estado] }}</span>
+        </td>
+        <td
+          class="pt__celda pt__celda--cliente"
+          [title]="p.cliente.nombre + ' ' + p.cliente.apellido"
+        >
+          {{ p.cliente.nombre }} {{ p.cliente.apellido }}
+        </td>
+        <td class="pt__celda pt__celda--radicado" data-titulo="Radicado">
+          @let radicado = p.radicado | fechaHora;
+          {{ radicado.slice(0, 10) }}
+          <span class="pt__hora">{{ radicado.slice(11) }}</span>
+        </td>
+        <td
+          class="pt__celda pt__celda--entrega"
+          [class.pt__celda--vencida]="p.vencido"
+          data-titulo="Entrega"
+        >
+          {{ p.fechaEntrega | fecha }}
+          @if (p.vencido) {
+            <span class="pt__nota">Vencido</span>
+          }
+        </td>
+        <td class="pt__celda pt__celda--valor">{{ p.total | moneda }}</td>
+        <td
+          class="pt__celda pt__celda--saldo"
+          [attr.data-titulo]="p.estado !== 'ANULADO' && p.saldo > 0 ? 'Saldo pendiente' : 'Saldo'"
+          [class.pt__celda--debe]="p.estado !== 'ANULADO' && p.saldo > 0"
+          [class.pt__celda--pagado]="p.estado !== 'ANULADO' && p.saldo === 0"
+        >
+          @if (p.estado === 'ANULADO') {
+            —
+          } @else if (p.saldo === 0) {
+            Pagado
+          } @else {
+            {{ p.saldo | moneda }}
+          }
+        </td>
+        <td class="pt__celda pt__celda--prendas" [title]="p.prendasResumen">
+          {{ p.prendasResumen }}
+        </td>
+        <td class="pt__celda pt__celda--estado">
+          <button
+            class="pt__estado"
+            type="button"
+            [attr.data-estado]="p.estado"
+            [attr.aria-label]="'Ver pedido ' + p.numero + ': ' + etiquetaEstado[p.estado]"
+            [title]="etiquetaEstado[p.estado]"
+            (click)="$event.stopPropagation(); abrir.emit(p)"
+          ></button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

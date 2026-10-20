@@ -1,0 +1,59 @@
+// Indicador de carga. Solo tokens globales.
+
+:host {
+  display: block;
+}
+
+.cargando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 160px;
+  color: var(--color-text-muted);
+  // Aparece con un pequeño retraso: si la respuesta es instantánea, no parpadea.
+  animation: cargando-aparecer var(--dur-entrar) var(--ease-out) 150ms both;
+}
+
+.cargando--compacto {
+  flex-direction: row;
+  min-height: 0;
+}
+
+.cargando__circulo {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--focus-ring);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: cargando-girar 0.8s linear infinite;
+}
+
+.cargando--compacto .cargando__circulo {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}
+
+.cargando__texto {
+  font-size: 0.9rem;
+}
+
+@keyframes cargando-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cargando-aparecer {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cargando__circulo {
+    animation-duration: 2s;
+  }
+}

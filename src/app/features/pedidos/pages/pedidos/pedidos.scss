@@ -10,7 +10,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: var(--space-7) var(--space-4);
+  padding: var(--space-4);
 }
 
 .pedidos-contenedor {
@@ -18,82 +18,25 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
-}
-
-.pedidos-cabecera {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
   gap: var(--space-4);
-  flex-wrap: wrap;
 }
 
-.pedidos-cabecera__texto {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.pedidos-titulo {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--color-navy);
-}
-
-.pedidos-subtitulo {
-  color: var(--color-text-muted);
-}
-
-// ── Bento: resumen arriba, lista ocupando el resto ──────────
-.pedidos-bento {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-
-.pedidos-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-5);
-
-  @container panel (max-width: 720px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-3);
-  }
-}
-
-.pedidos-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-1);
-  min-width: 0;
-  padding: var(--space-5);
-
-  @container panel (max-width: 480px) {
-    padding: var(--space-3) var(--space-4);
-  }
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  font: inherit;
-  text-align: left;
+// ── Nuevo pedido: botón de ícono "+" en el encabezado ──────
+.pedidos-nuevo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
   cursor: pointer;
-  transition:
-    border-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+  color: var(--color-surface);
+  box-shadow: var(--shadow-card);
 
   &:hover {
-    border-color: var(--color-border);
-  }
-
-  &:active {
-    transform: scale(var(--press-scale));
+    background: var(--color-accent-hover);
   }
 
   &:focus-visible {
@@ -102,51 +45,51 @@
   }
 }
 
-.pedidos-stat__num {
-  font-size: clamp(1.5rem, 6cqi, 2rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--color-navy);
+.pedidos-nuevo__icono {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
-.pedidos-stat--alerta .pedidos-stat__num {
-  color: var(--color-danger);
+// ── Cápsula de búsqueda y filtros (entre los estados y la tabla) ──
+.pedidos-buscar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  // Mismo relleno en las tres cápsulas (estados, búsqueda y tabla).
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  // Mismo nombre que la tabla: los filtros se adaptan al ancho de esta cápsula.
+  container-type: inline-size;
+  container-name: pedidoslista;
+
+  @container panel (max-width: 560px) {
+    padding: var(--space-3);
+  }
 }
 
-.pedidos-stat__label {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
+// ── Bloque de la tabla ──────────────────────────────────────
 .pedidos-bloque {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
   min-width: 0;
-  padding: var(--space-6);
-
-  @container panel (max-width: 480px) {
-    padding: var(--space-5) var(--space-4);
-  }
+  padding: var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   container-type: inline-size;
   container-name: pedidoslista;
-}
 
-.pedidos-bloque__titulo {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.pedidos-bloque__cuenta {
-  font-weight: 400;
-  color: var(--color-text-muted);
+  @container panel (max-width: 560px) {
+    padding: var(--space-3);
+  }
 }
 
 .pedidos-bloque__ayuda {
@@ -154,59 +97,197 @@
   color: var(--color-text-muted);
 }
 
-// ── Filtros ─────────────────────────────────────────────────
 .pedidos-lista-cabecera {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
+  flex-wrap: wrap;
+}
 
-  @container pedidoslista (max-width: 560px) {
-    flex-direction: column;
-    align-items: stretch;
+// Buscador con Recargar y Filtros pegados a su derecha.
+.pedidos-busqueda {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+// Caja del buscador: la lupa va dentro del campo, a la izquierda.
+.pedidos-buscar-boton {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-accent-hover);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
   }
 }
 
-.pedidos-buscador {
-  max-width: 360px;
+.pedidos-buscador-caja {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
 
-  @container pedidoslista (max-width: 560px) {
-    max-width: none;
+// Teléfono: el buscador ocupa su propia fila; debajo, Buscar, Filtros y los resultados.
+@container pedidoslista (max-width: 560px) {
+  .pedidos-busqueda {
+    flex-wrap: wrap;
+  }
+
+  .pedidos-buscador-caja {
+    flex-basis: 100%;
+  }
+
+  .pedidos-buscar-boton {
+    flex: 1;
   }
 }
 
+.pedidos-buscador-caja__lupa {
+  position: absolute;
+  top: 50%;
+  left: var(--space-3);
+  width: 1.15rem;
+  height: 1.15rem;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+// Más específico que .pedidos-filtro__control para que el texto empiece después de la lupa.
+.pedidos-buscador-caja .pedidos-buscador {
+  height: 44px;
+  padding-left: calc(var(--space-3) + 1.15rem + var(--space-2));
+}
+
+.pedidos-herramienta {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.pedidos-herramienta--activa {
+  border-color: var(--color-border);
+  background: var(--focus-ring);
+}
+
+.pedidos-herramienta__icono {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.pedidos-herramienta__cuenta {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--color-navy);
+  color: var(--color-surface);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+// Resultados en su propia cápsula, del alto del buscador.
+.pedidos-cuenta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+
+  strong {
+    color: var(--color-navy);
+  }
+}
+
+// Avisos rápidos (vencidos / para hoy): cápsulas del alto del buscador, a la derecha
+// de los resultados; al tocarlas aplican el filtro.
+.pedidos-aviso-rapido {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.pedidos-aviso-rapido--alerta {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+// ── Filtros (panel plegable) ────────────────────────────────
 .pedidos-filtros {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr)) auto auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto auto;
   align-items: end;
   gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
 
   @container pedidoslista (max-width: 1000px) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  @container pedidoslista (max-width: 560px) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-
-  @container pedidoslista (max-width: 360px) {
+  @container pedidoslista (max-width: 420px) {
     grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.pedidos-filtros-toggle {
-  display: none;
-  align-self: flex-start;
-}
-
-// Teléfono: los filtros se pliegan detrás de "Filtros (n)" para que la lista quede a la vista.
-@container pedidoslista (max-width: 560px) {
-  .pedidos-filtros-toggle {
-    display: inline-flex;
-  }
-
-  .pedidos-filtros:not(.pedidos-filtros--abiertos) {
-    display: none;
   }
 }
 
@@ -221,8 +302,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2) var(--space-4);
-  min-height: 38px;
+  gap: var(--space-3);
 }
 
 .pedidos-filtro__label {
@@ -235,7 +315,7 @@
 .pedidos-filtro__control {
   width: 100%;
   min-width: 0;
-  height: 38px;
+  height: 40px;
   padding: 0 var(--space-3);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-md);
@@ -248,22 +328,6 @@
   &:focus {
     border-color: var(--color-border);
     box-shadow: 0 0 0 4px var(--focus-ring);
-  }
-}
-
-.pedidos-casilla {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: 0.9rem;
-  color: var(--color-text);
-  white-space: nowrap;
-  cursor: pointer;
-
-  input {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--color-accent);
   }
 }
 
@@ -291,169 +355,7 @@
   cursor: pointer;
 }
 
-// ── Lista ───────────────────────────────────────────────────
-.pedidos-lista {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.pedidos-item {
-  display: grid;
-  grid-template-columns: minmax(90px, auto) minmax(0, 1fr) auto auto minmax(110px, auto);
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-2);
-  border-top: 1px solid var(--color-border-soft);
-  color: inherit;
-  text-decoration: none;
-  border-radius: var(--radius-sm);
-  transition: background-color 0.15s var(--ease-out);
-
-  &:hover {
-    background: var(--focus-ring);
-  }
-
-  &:focus-visible {
-    outline: 3px solid var(--focus-ring);
-  }
-
-  @container pedidoslista (max-width: 720px) {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--space-2) var(--space-4);
-    grid-template-areas:
-      'numero chip'
-      'info info'
-      'entrega montos';
-
-    .pedidos-item__numero {
-      grid-area: numero;
-    }
-    .pedidos-item__info {
-      grid-area: info;
-    }
-    .pedidos-item__montos {
-      grid-area: montos;
-    }
-    .pedidos-item__entrega {
-      grid-area: entrega;
-    }
-    .pedidos-chip {
-      grid-area: chip;
-    }
-  }
-}
-
-li:first-child .pedidos-item {
-  border-top: none;
-}
-
-.pedidos-item--anulado {
-  opacity: 0.6;
-}
-
-.pedidos-item__numero {
-  font-weight: 700;
-  color: var(--color-navy);
-}
-
-.pedidos-item__info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
-.pedidos-item__cliente {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.pedidos-item__detalle {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
-.pedidos-item__entrega {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  font-size: 0.9rem;
-  color: var(--color-text);
-}
-
-.pedidos-item__entrega--vencida {
-  color: var(--color-danger);
-  font-weight: 600;
-}
-
-.pedidos-item__etiqueta {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: inherit;
-  opacity: 0.8;
-}
-
-.pedidos-item__montos {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--space-1);
-}
-
-.pedidos-item__total {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text);
-}
-
-.pedidos-item__saldo {
-  font-size: 0.8rem;
-  color: var(--color-warning);
-}
-
-.pedidos-item__saldo--pagado {
-  color: var(--color-success);
-}
-
-.pedidos-chip {
-  justify-self: start;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  white-space: nowrap;
-  background: var(--focus-ring);
-  color: var(--color-navy);
-
-  &[data-estado='FINALIZADO'] {
-    background: var(--color-warning-bg);
-    color: var(--color-warning);
-  }
-
-  &[data-estado='ENTREGADO'] {
-    background: var(--color-success-bg);
-    color: var(--color-success);
-  }
-
-  &[data-estado='ANULADO'] {
-    background: var(--color-danger-bg);
-    color: var(--color-danger);
-  }
-}
-
-// ── Avisos y botones ────────────────────────────────────────
+// ── Avisos, botones y paginación ────────────────────────────
 .pedidos-aviso {
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-sm);
@@ -481,8 +383,8 @@ li:first-child .pedidos-item {
   text-decoration: none;
   cursor: pointer;
   transition:
-    background-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
 
   &:hover:not(:disabled) {
     background: var(--color-accent-hover);
@@ -527,15 +429,10 @@ li:first-child .pedidos-item {
   color: var(--color-text-muted);
 }
 
+// Movimiento reducido: sin transiciones ni efecto de presión en toda la sección.
 @media (prefers-reduced-motion: reduce) {
-  .pedidos-stat,
-  .pedidos-boton,
-  .pedidos-item {
-    transition: none;
-  }
-
-  .pedidos-stat:active,
-  .pedidos-boton:active:not(:disabled) {
-    transform: none;
+  * {
+    transition: none !important;
+    transform: none !important;
   }
 }

@@ -1,12 +1,12 @@
 <main class="sastreria-page">
   <div class="sastreria-contenedor">
-    <a class="sastreria-volver" routerLink="/ajustes">← Ajustes</a>
-    <header class="sastreria-cabecera">
-      <h1 class="sastreria-titulo">Mi sastrería</h1>
-      <p class="sastreria-subtitulo">
-        El nombre es obligatorio; los demás datos son opcionales y saldrán en tus facturas.
-      </p>
-    </header>
+    <app-encabezado
+      titulo="Mi sastrería"
+      subtitulo="El nombre es obligatorio; los demás datos son opcionales y saldrán en tus tickets."
+      icono="tienda"
+      volverRuta="/ajustes"
+      volverEtiqueta="Ajustes"
+    />
 
     <div class="sastreria-bento">
       <!-- ── Datos del negocio ─────────────────────────────────── -->
@@ -14,12 +14,14 @@
         <h2 class="sastreria-bloque__titulo" id="titulo-datos">Datos del negocio</h2>
 
         @if (cargando()) {
-          <p class="sastreria-bloque__ayuda" role="status">Cargando...</p>
+          <app-esqueleto forma="campos" [filas]="4" texto="Cargando datos del negocio..." />
         } @else {
           <form class="sastreria-form" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
             <div class="sastreria-field">
               <div class="sastreria-field__head">
-                <label class="sastreria-field__label" for="nombre">Nombre del negocio</label>
+                <label class="sastreria-field__label" for="nombre"
+                  >Nombre del negocio <span class="sastreria-field__req">*</span></label
+                >
                 @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
                   <span class="sastreria-field__error">Obligatorio</span>
                 }
@@ -60,9 +62,6 @@
             @if (error()) {
               <p class="sastreria-aviso sastreria-aviso--error" role="alert">{{ error() }}</p>
             }
-            @if (exito()) {
-              <p class="sastreria-aviso sastreria-aviso--exito" role="status">Datos guardados.</p>
-            }
 
             <div class="sastreria-form__acciones">
               <button class="sastreria-boton" type="submit" [disabled]="guardando()">
@@ -85,7 +84,7 @@
           }
         </p>
         <div class="sastreria-ticket">
-          <app-ticket [datos]="vistaPrevia()" />
+          <app-ticket [datos]="vistaPrevia()" [llenar]="true" />
         </div>
       </section>
     </div>

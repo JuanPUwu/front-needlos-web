@@ -10,7 +10,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: var(--space-7) var(--space-4);
+  padding: var(--space-4);
 }
 
 .sastreria-contenedor {
@@ -18,35 +18,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
-}
-
-.sastreria-volver {
-  align-self: flex-start;
-  color: var(--color-accent);
-  font-weight: 600;
-  text-decoration: none;
-
-  &:hover {
-    color: var(--color-accent-hover);
-  }
-}
-
-.sastreria-cabecera {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.sastreria-titulo {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--color-navy);
-}
-
-.sastreria-subtitulo {
-  color: var(--color-text-muted);
+  gap: var(--space-4);
 }
 
 // ── Bento ───────────────────────────────────────────────────
@@ -69,13 +41,10 @@
 .sastreria-bloque {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
   min-width: 0;
-  padding: var(--space-6);
+  padding: var(--space-4);
 
-  @container panel (max-width: 480px) {
-    padding: var(--space-5) var(--space-4);
-  }
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
@@ -89,6 +58,7 @@
 
 .sastreria-bloque--resumen {
   grid-area: resumen;
+  min-height: 0;
 }
 
 .sastreria-bloque__titulo {
@@ -107,13 +77,13 @@
 .sastreria-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
 }
 
 .sastreria-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .sastreria-field__head {
@@ -131,6 +101,11 @@
   color: var(--color-text);
 }
 
+// Asterisco rojo de campo obligatorio.
+.sastreria-field__req {
+  color: var(--color-danger);
+}
+
 .sastreria-field__input {
   height: 46px;
   padding: 0 var(--space-4);
@@ -141,8 +116,8 @@
   color: var(--color-text);
   outline: none;
   transition:
-    border-color 0.15s var(--ease-out),
-    box-shadow 0.15s var(--ease-out);
+    border-color var(--dur-color) var(--ease-out),
+    box-shadow var(--dur-color) var(--ease-out);
 
   &:focus {
     border-color: var(--color-border);
@@ -167,12 +142,8 @@
   background: rgba(198, 40, 40, 0.08);
 }
 
-.sastreria-aviso--exito {
-  color: #1b7a34;
-  background: rgba(52, 200, 74, 0.12);
-}
-
 .sastreria-form__acciones {
+  gap: var(--space-4);
   display: flex;
   justify-content: flex-end;
 }
@@ -188,8 +159,8 @@
   font-weight: 600;
   cursor: pointer;
   transition:
-    background-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
 
   &:hover:not(:disabled) {
     background: var(--color-accent-hover);
@@ -222,10 +193,14 @@
 }
 
 // El ticket se muestra como un papel sobre el fondo, centrado.
+// La vista previa ocupa todo el espacio libre de su tarjeta; si el ticket es más alto, se
+// desplaza por dentro.
 .sastreria-ticket {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
   display: flex;
-  justify-content: center;
-  padding: var(--space-5) var(--space-4);
+  padding: var(--space-4);
   border-radius: var(--radius-md);
   background: var(--color-bg);
 }

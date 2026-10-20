@@ -8,8 +8,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
+import { Notificaciones } from '../../../../core/ui/notificaciones';
+import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { FechaHoraPipe } from '../../../../shared/pipes/fecha-hora.pipe';
@@ -23,7 +26,7 @@ import { CuentaService } from '../../services/cuenta.service';
 /** Mi cuenta: cambiar contrasena y ver/cerrar las sesiones abiertas. */
 @Component({
   selector: 'app-mi-cuenta',
-  imports: [ReactiveFormsModule, RouterLink, FechaHoraPipe],
+  imports: [Esqueleto, Encabezado, ReactiveFormsModule, FechaHoraPipe],
   templateUrl: './mi-cuenta.html',
   styleUrl: './mi-cuenta.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +35,8 @@ export class MiCuenta implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly cuentaService = inject(CuentaService);
+  private readonly notificaciones = inject(Notificaciones);
+  private readonly confirmacion = inject(Confirmacion);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly sesion = this.auth.sesion;
@@ -39,7 +44,6 @@ export class MiCuenta implements OnInit {
   // ── Contrasena ──────────────────────────────────────────────────
   readonly guardando = signal(false);
   readonly errorContrasena = signal<string | null>(null);
-  readonly exitoContrasena = signal(false);
 
   readonly form = this.fb.nonNullable.group(
     {
@@ -70,7 +74,6 @@ export class MiCuenta implements OnInit {
     }
     this.guardando.set(true);
     this.errorContrasena.set(null);
-    this.exitoContrasena.set(false);
 
     const { contrasenaActual, contrasenaNueva } = this.form.getRawValue();
     this.cuentaService
@@ -79,7 +82,7 @@ export class MiCuenta implements OnInit {
       .subscribe({
         next: () => {
           this.guardando.set(false);
-          this.exitoContrasena.set(true);
+          this.notificaciones.exito('Contraseña actualizada.');
           this.form.reset();
           // El backend cerro las demas sesiones: se refresca la lista.
           this.cargarSesiones();
@@ -91,7 +94,18 @@ export class MiCuenta implements OnInit {
       });
   }
 
-  cerrarSesion(sesion: SesionActiva): void {
+  async cerrarSesion(sesion: SesionActiva): Promise<void> {
+    const ok = await this.confirmacion.pedir({
+      titulo: sesion.actual ? '¿Cerrar tu sesión?' : '¿Cerrar esa sesión?',
+      mensaje: sesion.actual
+        ? 'Saldrás de la aplicación en este dispositivo.'
+        : 'Ese dispositivo tendrá que volver a iniciar sesión.',
+      aceptar: 'Sí, cerrar sesión',
+      peligro: true,
+    });
+    if (!ok) {
+      return;
+    }
     if (sesion.actual) {
       this.auth.cerrarSesion();
       return;
@@ -99,7 +113,16 @@ export class MiCuenta implements OnInit {
     this.ejecutarCierre(sesion.id, this.cuentaService.cerrarSesion(sesion.id));
   }
 
-  cerrarOtras(): void {
+  async cerrarOtras(): Promise<void> {
+    const ok = await this.confirmacion.pedir({
+      titulo: '¿Cerrar las demás sesiones?',
+      mensaje: 'Todos tus otros dispositivos tendrán que volver a iniciar sesión.',
+      aceptar: 'Sí, cerrar las demás',
+      peligro: true,
+    });
+    if (!ok) {
+      return;
+    }
     this.ejecutarCierre('otras', this.cuentaService.cerrarOtrasSesiones());
   }
 

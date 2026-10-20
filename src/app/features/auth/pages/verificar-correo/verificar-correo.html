@@ -15,7 +15,9 @@
     <form class="verificar-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
       <div class="verificar-field">
         <div class="verificar-field__head">
-          <label class="verificar-field__label" for="codigo">Código de verificación</label>
+          <label class="verificar-field__label" for="codigo"
+            >Código de verificación <span class="verificar-field__req">*</span></label
+          >
           @if (form.controls.codigo.touched && form.controls.codigo.invalid) {
             <span class="verificar-field__error">6 dígitos</span>
           }
@@ -42,12 +44,6 @@
         {{ cargando() ? 'Verificando...' : 'Verificar y entrar' }}
       </button>
     </form>
-
-    @if (reenviado()) {
-      <p class="verificar-banner verificar-banner--exito" role="status">
-        Te enviamos un código nuevo.
-      </p>
-    }
 
     <p class="verificar-pie">
       ¿No te llegó?

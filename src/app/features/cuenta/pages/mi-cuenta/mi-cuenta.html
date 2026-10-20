@@ -1,34 +1,41 @@
 <main class="cuenta">
   <div class="cuenta__contenedor">
-    <a class="cuenta__volver" routerLink="/ajustes">← Ajustes</a>
-    <header class="cuenta__encabezado">
-      <h1 class="cuenta__titulo">Mi cuenta</h1>
-      <p class="cuenta__subtitulo">
-        {{ sesion()?.cuenta?.nombre }} {{ sesion()?.cuenta?.apellido }} ·
-        {{ sesion()?.cuenta?.email }}
-      </p>
-    </header>
+    <app-encabezado
+      titulo="Mi cuenta"
+      [subtitulo]="
+        (sesion()?.cuenta?.nombre ?? '') +
+        ' ' +
+        (sesion()?.cuenta?.apellido ?? '') +
+        ' · ' +
+        (sesion()?.cuenta?.email ?? '')
+      "
+      icono="usuario"
+      volverRuta="/ajustes"
+      volverEtiqueta="Ajustes"
+    />
 
     <div class="cuenta__bento">
       <!-- ── Cambiar contrasena ───────────────────────────────── -->
-      <section class="bloque bloque--contrasena" aria-labelledby="titulo-contrasena">
-        <h2 class="bloque__titulo" id="titulo-contrasena">Cambiar contraseña</h2>
-        <p class="bloque__ayuda">
+      <section class="cuenta-bloque cuenta-bloque--contrasena" aria-labelledby="titulo-contrasena">
+        <h2 class="cuenta-bloque__titulo" id="titulo-contrasena">Cambiar contraseña</h2>
+        <p class="cuenta-bloque__ayuda">
           Al cambiarla se cerrarán tus sesiones en los demás dispositivos.
         </p>
 
-        <form class="bloque__form" [formGroup]="form" (ngSubmit)="cambiarContrasena()" novalidate>
-          <div class="campo">
-            <div class="campo__head">
-              <label class="campo__label" for="contrasenaActual">Contraseña actual</label>
+        <form class="cuenta-form" [formGroup]="form" (ngSubmit)="cambiarContrasena()" novalidate>
+          <div class="cuenta-field">
+            <div class="cuenta-field__head">
+              <label class="cuenta-field__label" for="contrasenaActual"
+                >Contraseña actual <span class="cuenta-field__req">*</span></label
+              >
               @if (
                 form.controls.contrasenaActual.touched && form.controls.contrasenaActual.invalid
               ) {
-                <span class="campo__error">Obligatoria</span>
+                <span class="cuenta-field__error">Obligatoria</span>
               }
             </div>
             <input
-              class="campo__input"
+              class="cuenta-field__input"
               id="contrasenaActual"
               type="password"
               formControlName="contrasenaActual"
@@ -36,35 +43,39 @@
             />
           </div>
 
-          <div class="campo">
-            <div class="campo__head">
-              <label class="campo__label" for="contrasenaNueva">Contraseña nueva</label>
+          <div class="cuenta-field">
+            <div class="cuenta-field__head">
+              <label class="cuenta-field__label" for="contrasenaNueva"
+                >Contraseña nueva <span class="cuenta-field__req">*</span></label
+              >
               @if (form.controls.contrasenaNueva.touched && form.controls.contrasenaNueva.invalid) {
-                <span class="campo__error">No cumple la política</span>
+                <span class="cuenta-field__error">No cumple la política</span>
               }
             </div>
             <input
-              class="campo__input"
+              class="cuenta-field__input"
               id="contrasenaNueva"
               type="password"
               formControlName="contrasenaNueva"
               autocomplete="new-password"
               aria-describedby="politica"
             />
-            <span class="campo__ayuda" id="politica"
+            <span class="cuenta-field__ayuda" id="politica"
               >8 a 72 caracteres, con mayúscula, minúscula, número y carácter especial.</span
             >
           </div>
 
-          <div class="campo">
-            <div class="campo__head">
-              <label class="campo__label" for="confirmacion">Confirmar contraseña nueva</label>
+          <div class="cuenta-field">
+            <div class="cuenta-field__head">
+              <label class="cuenta-field__label" for="confirmacion"
+                >Confirmar contraseña nueva <span class="cuenta-field__req">*</span></label
+              >
               @if (form.controls.confirmacion.touched && form.hasError('noCoinciden')) {
-                <span class="campo__error">No coinciden</span>
+                <span class="cuenta-field__error">No coinciden</span>
               }
             </div>
             <input
-              class="campo__input"
+              class="cuenta-field__input"
               id="confirmacion"
               type="password"
               formControlName="confirmacion"
@@ -73,25 +84,22 @@
           </div>
 
           @if (errorContrasena()) {
-            <p class="aviso aviso--error" role="alert">{{ errorContrasena() }}</p>
-          }
-          @if (exitoContrasena()) {
-            <p class="aviso aviso--exito" role="status">Contraseña actualizada.</p>
+            <p class="cuenta-aviso cuenta-aviso--error" role="alert">{{ errorContrasena() }}</p>
           }
 
-          <button class="boton" type="submit" [disabled]="guardando()">
+          <button class="cuenta-boton" type="submit" [disabled]="guardando()">
             {{ guardando() ? 'Guardando...' : 'Cambiar contraseña' }}
           </button>
         </form>
       </section>
 
       <!-- ── Sesiones abiertas ────────────────────────────────── -->
-      <section class="bloque bloque--sesiones" aria-labelledby="titulo-sesiones">
-        <div class="bloque__cabecera">
-          <h2 class="bloque__titulo" id="titulo-sesiones">Sesiones abiertas</h2>
+      <section class="cuenta-bloque cuenta-bloque--sesiones" aria-labelledby="titulo-sesiones">
+        <div class="cuenta-bloque__cabecera">
+          <h2 class="cuenta-bloque__titulo" id="titulo-sesiones">Sesiones abiertas</h2>
           @if (sesiones().length > 1) {
             <button
-              class="boton boton--secundario"
+              class="cuenta-boton cuenta-boton--secundario"
               type="button"
               [disabled]="cerrandoId() !== null"
               (click)="cerrarOtras()"
@@ -102,30 +110,30 @@
         </div>
 
         @if (errorSesiones()) {
-          <p class="aviso aviso--error" role="alert">{{ errorSesiones() }}</p>
+          <p class="cuenta-aviso cuenta-aviso--error" role="alert">{{ errorSesiones() }}</p>
         }
 
         @if (cargandoSesiones()) {
-          <p class="bloque__ayuda" role="status">Cargando sesiones...</p>
+          <app-esqueleto forma="lista" [filas]="4" [alto]="72" texto="Cargando sesiones..." />
         } @else if (sesiones().length === 0) {
-          <p class="bloque__ayuda">No hay sesiones abiertas.</p>
+          <p class="cuenta-bloque__ayuda">No hay sesiones abiertas.</p>
         } @else {
-          <ul class="sesiones">
+          <ul class="cuenta-sesiones">
             @for (s of sesiones(); track s.id) {
-              <li class="sesion">
-                <div class="sesion__info">
-                  <span class="sesion__dispositivo">
+              <li class="cuenta-sesion">
+                <div class="cuenta-sesion__info">
+                  <span class="cuenta-sesion__dispositivo">
                     {{ s.dispositivo }}
                     @if (s.actual) {
-                      <span class="sesion__actual">Esta sesión</span>
+                      <span class="cuenta-sesion__actual">Esta sesión</span>
                     }
                   </span>
-                  <span class="sesion__detalle"
+                  <span class="cuenta-sesion__detalle"
                     >IP {{ s.ip }} · Última actividad {{ s.ultimoUso | fechaHora }}</span
                   >
                 </div>
                 <button
-                  class="boton boton--secundario"
+                  class="cuenta-boton cuenta-boton--secundario"
                   type="button"
                   [disabled]="cerrandoId() !== null"
                   (click)="cerrarSesion(s)"

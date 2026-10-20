@@ -16,7 +16,9 @@
       <form class="recuperar-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
         <div class="recuperar-field">
           <div class="recuperar-field__head">
-            <label class="recuperar-field__label" for="email">Correo</label>
+            <label class="recuperar-field__label" for="email"
+              >Correo <span class="recuperar-field__req">*</span></label
+            >
             @if (form.controls.email.touched && form.controls.email.invalid) {
               <span class="recuperar-field__error">Correo no válido</span>
             }

@@ -17,7 +17,7 @@
 
 .login-card {
   width: 100%;
-  max-width: 500px;
+  max-width: 550px;
   padding: var(--space-10) var(--space-6) var(--space-6);
 
   @media (max-width: 480px) {
@@ -81,6 +81,11 @@
   color: var(--color-text);
 }
 
+// Asterisco rojo de campo obligatorio.
+.login-field__req {
+  color: var(--color-danger);
+}
+
 .login-field__control {
   display: flex;
   align-items: center;
@@ -91,8 +96,8 @@
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-md);
   transition:
-    border-color 0.15s var(--ease-out),
-    box-shadow 0.15s var(--ease-out);
+    border-color var(--dur-color) var(--ease-out),
+    box-shadow var(--dur-color) var(--ease-out);
 
   &:focus-within {
     border-color: var(--color-border);
@@ -183,8 +188,8 @@
   font-weight: 600;
   cursor: pointer;
   transition:
-    background-color 0.15s var(--ease-out),
-    transform 0.1s var(--ease-out);
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
 
   &:hover:not(:disabled) {
     background: var(--color-accent-hover);

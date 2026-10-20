@@ -1,10 +1,16 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { RedirectFunction, Router, Routes } from '@angular/router';
+import { NombreIcono } from './shared/ui/icono/icono';
 import { autenticadoGuard, invitadoGuard, rolGuard } from './core/auth/auth.guards';
 
+/** El detalle y la edición de un pedido son un popup sobre el listado (`?pedido=`). */
+const aPopupDePedido: RedirectFunction = ({ params }) =>
+  inject(Router).createUrlTree(['/pedidos'], { queryParams: { pedido: params['id'] } });
+
 /** Secciones de negocio aún en construcción (placeholder con su título). */
-const placeholder = (titulo: string) => ({
+const placeholder = (titulo: string, icono: NombreIcono) => ({
   canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
-  data: { titulo },
+  data: { titulo, icono },
   loadComponent: () =>
     import('./shared/ui/seccion-pendiente/seccion-pendiente').then((m) => m.SeccionPendiente),
 });
@@ -93,27 +99,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/pedidos/pages/pedidos/pedidos').then((m) => m.Pedidos),
       },
-      {
-        // Crear exige el permiso CREAR_PEDIDOS: el botón solo se muestra con él y el backend lo valida.
-        path: 'pedidos/nuevo',
-        canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
-        loadComponent: () =>
-          import('./features/pedidos/pages/pedido-form/pedido-form').then((m) => m.PedidoForm),
-      },
-      {
-        path: 'pedidos/:id/editar',
-        canActivate: [rolGuard('SASTRE_ADMIN')],
-        loadComponent: () =>
-          import('./features/pedidos/pages/pedido-form/pedido-form').then((m) => m.PedidoForm),
-      },
-      {
-        path: 'pedidos/:id',
-        canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
-        loadComponent: () =>
-          import('./features/pedidos/pages/pedido-detalle/pedido-detalle').then(
-            (m) => m.PedidoDetalle,
-          ),
-      },
+      // "Nuevo pedido" también es un popup (`?nuevo=1`); el enlace viejo lo abre.
+      { path: 'pedidos/nuevo', redirectTo: '/pedidos?nuevo=1' },
+      // Enlaces viejos a /pedidos/:id(/editar) abren el popup.
+      { path: 'pedidos/:id/editar', redirectTo: aPopupDePedido },
+      { path: 'pedidos/:id', redirectTo: aPopupDePedido },
       {
         path: 'clientes',
         canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
@@ -127,11 +117,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalogo/pages/catalogo/catalogo').then((m) => m.Catalogo),
       },
-      { path: 'inventario', ...placeholder('Inventario') },
-      { path: 'gastos', ...placeholder('Gastos') },
-      { path: 'caja', ...placeholder('Caja') },
-      { path: 'nomina', ...placeholder('Nómina') },
-      { path: 'informes', ...placeholder('Informes') },
+      { path: 'inventario', ...placeholder('Inventario', 'inventario') },
+      { path: 'gastos', ...placeholder('Gastos', 'gastos') },
+      { path: 'caja', ...placeholder('Caja', 'caja') },
+      { path: 'nomina', ...placeholder('Nómina', 'nomina') },
+      { path: 'informes', ...placeholder('Informes', 'informes') },
       {
         path: 'equipo',
         canActivate: [rolGuard('SASTRE_ADMIN')],

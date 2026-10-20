@@ -1,5 +1,11 @@
 @let t = datos();
-<article class="ticket" aria-label="Ticket del pedido">
+<article
+  #papel
+  class="ticket"
+  [class.ticket--llenar]="llenar()"
+  [style.transform]="llenar() ? 'scale(' + escala() + ')' : null"
+  aria-label="Ticket del pedido"
+>
   <header class="ticket-encabezado">
     <h2 class="ticket-sastreria">{{ t.sastreria.nombre }}</h2>
     @if (t.sastreria.nit) {

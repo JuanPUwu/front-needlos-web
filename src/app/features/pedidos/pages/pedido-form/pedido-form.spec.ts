@@ -1,8 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { PermisosService } from '../../../../core/auth/permisos';
+import { Memoria } from '../../../../core/estado/memoria';
 import { TipoPrendaService } from '../../../catalogo/services/tipo-prenda.service';
 import { ClienteService } from '../../../clientes/services/cliente.service';
 import { EmpleadoService } from '../../../equipo/services/empleado.service';
@@ -39,7 +40,6 @@ describe('PedidoForm (nuevo)', () => {
       imports: [PedidoForm],
       providers: [
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({}) } } },
         { provide: PedidoService, useValue: pedidos },
         { provide: ClienteService, useValue: clientes },
         { provide: TipoPrendaService, useValue: tipos },
@@ -54,13 +54,38 @@ describe('PedidoForm (nuevo)', () => {
 
   afterEach(() => vi.useRealTimers());
 
+  it('guarda el borrador mientras se escribe y lo recupera al recargar (con la misma clave)', () => {
+    componente.form.controls.telefono.setValue('3001234567');
+    llenarPrenda();
+    llenarPrenda('15000');
+    componente.form.markAsDirty();
+    componente.form.updateValueAndValidity();
+    // La búsqueda del teléfono (300 ms) reinicia la espera del guardado (400 ms).
+    vi.advanceTimersByTime(1000);
+
+    const guardado = TestBed.inject(Memoria).leer<{ clave: string }>('pedido-nuevo');
+    expect(guardado).not.toBeNull();
+
+    // "Recarga": un formulario nuevo recupera las dos prendas y la clave anti-duplicados.
+    const otro = TestBed.createComponent(PedidoForm).componentInstance;
+    otro.ngOnInit();
+    expect(otro.filas.length).toBe(2);
+    expect(otro.form.controls.telefono.value).toBe('3001234567');
+
+    otro.descartarBorrador();
+    expect(otro.filas.length).toBe(0);
+    expect(TestBed.inject(Memoria).leer('pedido-nuevo')).toBeNull();
+  });
+
+  /** Agrega una prenda con la línea de captura ("Agregar a la lista"). */
   function llenarPrenda(precio = '20000'): void {
-    componente.filas.at(0).patchValue({
+    componente.linea.setValue({
       tipoPrendaId: 't1',
       cantidad: 2,
       descripcion: 'Ajuste de mangas',
       precio,
     });
+    componente.agregarALista();
     componente.form.controls.fechaEntrega.setValue('2099-01-01');
   }
 
@@ -136,10 +161,62 @@ describe('PedidoForm (nuevo)', () => {
     expect(clave1).toBe(clave2);
   });
 
-  it('precarga el precio sugerido al elegir el tipo', () => {
-    const fila = componente.filas.at(0);
-    fila.controls.tipoPrendaId.setValue('t1');
-    componente.alCambiarTipo(fila);
-    expect(fila.controls.precio.value).toBe('25000');
+  it('precarga el precio sugerido al elegir el producto', () => {
+    componente.linea.controls.tipoPrendaId.setValue('t1');
+    componente.alCambiarTipo();
+    expect(componente.linea.controls.precio.value).toBe('25000');
+  });
+
+  it('agrega, edita y quita prendas de la lista; no envía sin prendas', () => {
+    componente.form.controls.telefono.setValue('3110000000');
+    vi.advanceTimersByTime(300);
+    componente.form.patchValue({ nombre: 'Pedro', apellido: 'Ruiz', fechaEntrega: '2099-01-01' });
+
+    componente.enviar();
+    expect(componente.sinPrendas()).toBe(true);
+    expect(pedidos.crear).not.toHaveBeenCalled();
+
+    // Una línea incompleta no se agrega.
+    componente.agregarALista();
+    expect(componente.filas.length).toBe(0);
+
+    llenarPrenda('10000');
+    llenarPrenda('12000');
+    expect(componente.filas.length).toBe(2);
+    expect(componente.piezas()).toBe(4);
+
+    componente.editarLinea(0);
+    componente.linea.controls.cantidad.setValue(5);
+    componente.agregarALista();
+    expect(componente.filas.at(0).getRawValue().cantidad).toBe(5);
+    expect(componente.editandoLinea()).toBeNull();
+
+    componente.quitarPrenda(1);
+    expect(componente.filas.length).toBe(1);
+    expect(componente.subtotal()).toBe(50000);
+  });
+
+  it('el designado se asigna a todas las prendas', () => {
+    componente.form.controls.telefono.setValue('3110000000');
+    vi.advanceTimersByTime(300);
+    componente.form.patchValue({ nombre: 'Pedro', apellido: 'Ruiz', designado: 's9' });
+    llenarPrenda();
+    llenarPrenda();
+    componente.enviar();
+    const [req] = pedidos.crear.mock.calls[0];
+    expect(req.prendas.map((p: { sastreId: string }) => p.sastreId)).toEqual(['s9', 's9']);
+  });
+
+  it('la tarjeta de designado muestra iniciales del sastre, o la silueta si no hay nadie', () => {
+    expect(componente.designadoActual()).toEqual({
+      nombre: 'Sin asignar',
+      iniciales: null,
+      varios: false,
+    });
+    componente.sastres.set([{ accesoId: 's9', nombre: 'María  José Pérez' }]);
+    componente.form.controls.designado.setValue('s9');
+    expect(componente.designadoActual().iniciales).toBe('MJ');
+    componente.form.controls.designado.setValue(componente.varios);
+    expect(componente.designadoActual().varios).toBe(true);
   });
 });

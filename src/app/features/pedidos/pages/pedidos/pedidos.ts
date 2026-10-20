@@ -8,30 +8,44 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subject, debounceTime } from 'rxjs';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
+import { Casilla } from '../../../../shared/ui/casilla/casilla';
+import { PedidosTabla } from '../../components/pedidos-tabla/pedidos-tabla';
+import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { PermisosService } from '../../../../core/auth/permisos';
+import { filtrosAUrl, filtrosDesdeUrl } from '../../../../core/estado/filtros-url';
+import { Memoria } from '../../../../core/estado/memoria';
+import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { mensajeDeError } from '../../../../core/http/api-error';
-import { FechaPipe } from '../../../../shared/pipes/fecha.pipe';
 import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
+import { Icono } from '../../../../shared/ui/icono/icono';
 import { hoyIso } from '../../../../shared/util/fechas';
 import { MiembroAsignable } from '../../../equipo/models/empleado.model';
 import { EmpleadoService } from '../../../equipo/services/empleado.service';
 import { ClienteService } from '../../../clientes/services/cliente.service';
 import {
-  ETIQUETA_ESTADO,
   EstadoPedido,
   FILTROS_PEDIDOS_INICIALES,
   FiltrosPedidos,
   OrdenPedidos,
+  Pedido,
   PedidoResumen,
   ResumenPedidos,
 } from '../../models/pedido.model';
+import { EstadoBarra } from '../../components/estado-barra/estado-barra';
+import { PedidoModal } from '../../components/pedido-modal/pedido-modal';
 import { PedidoService } from '../../services/pedido.service';
 
 const TAMANO_PAGINA = 20;
 /** Valor especial del filtro de sastre: "mis prendas" (mi accesoId). */
 const MIS_PRENDAS = 'mias';
+
+const CLAVE_PANEL = 'pedidos:filtros-abiertos';
+
+/** Vista con la que arranca la sección; en la URL solo se escribe lo que difiere de ella. */
+const VISTA_INICIAL: FiltrosPedidos = { ...FILTROS_PEDIDOS_INICIALES, estado: 'EN_PROCESO' };
 
 const ORDENES: { valor: OrdenPedidos; etiqueta: string }[] = [
   { valor: 'numero,desc', etiqueta: 'Más recientes' },
@@ -40,16 +54,24 @@ const ORDENES: { valor: OrdenPedidos; etiqueta: string }[] = [
   { valor: 'fechaEntrega,desc', etiqueta: 'Entrega más lejana' },
 ];
 
-type Atajo = 'enProceso' | 'listos' | 'vencidos' | 'hoy';
-
 /**
- * Pedidos: resumen (en proceso, listos, vencidos, para hoy; cada tile filtra), listado
- * con filtros y paginación, y acceso a "Nuevo pedido" si el usuario tiene permiso.
- * Acepta `?clienteId=&cliente=` para ver el historial de un cliente (desde Clientes).
+ * Pedidos: pestañas por estado (con su cantidad), tabla con búsqueda, avisos rápidos
+ * (vencidos, para hoy), panel de filtros plegable y paginación; cada fila abre el
+ * detalle. Arranca en "En proceso". Acepta `?clienteId=&cliente=` para ver el
+ * historial de un cliente (desde Clientes; arranca en "Todo").
  */
 @Component({
   selector: 'app-pedidos',
-  imports: [RouterLink, FechaPipe, MonedaPipe],
+  imports: [
+    Esqueleto,
+    Encabezado,
+    MonedaPipe,
+    Icono,
+    EstadoBarra,
+    PedidoModal,
+    Casilla,
+    PedidosTabla,
+  ],
   templateUrl: './pedidos.html',
   styleUrl: './pedidos.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,10 +83,11 @@ export class Pedidos implements OnInit {
   private readonly permisos = inject(PermisosService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly memoria = inject(Memoria);
+  private readonly notificaciones = inject(Notificaciones);
   private readonly destroyRef = inject(DestroyRef);
   private readonly busqueda$ = new Subject<string>();
 
-  readonly etiquetaEstado = ETIQUETA_ESTADO;
   readonly ordenes = ORDENES;
   readonly misPrendas = MIS_PRENDAS;
   readonly puedeCrear = computed(() => this.permisos.puede('CREAR_PEDIDOS'));
@@ -79,21 +102,28 @@ export class Pedidos implements OnInit {
   readonly resumen = signal<ResumenPedidos | null>(null);
   readonly sastres = signal<MiembroAsignable[]>([]);
 
-  readonly filtros = signal<FiltrosPedidos>(FILTROS_PEDIDOS_INICIALES);
-  /** Valor del select de sastre ('' todos, 'mias' o un accesoId). */
-  readonly sastreElegido = signal('');
+  /**
+   * Pestaña, búsqueda y filtros: viven en la URL (sobreviven a la recarga y se pueden
+   * compartir). `sastreId` puede ser 'mias' ("Mis prendas"), que se resuelve al consultar.
+   */
+  readonly filtros = signal<FiltrosPedidos>(VISTA_INICIAL);
   /** Nombre del cliente filtrado (llega desde Clientes). */
   readonly clienteFiltrado = signal<string | null>(null);
   /** Lo que debe en total el cliente filtrado. */
   readonly saldoCliente = signal<number | null>(null);
   readonly errorFiltros = signal<string | null>(null);
-  /** En pantallas angostas los filtros se pliegan detrás de un botón. */
+  /** Pedido abierto en el popup (viene de `?pedido=` en la URL: "atrás" lo cierra). */
+  readonly pedidoAbierto = signal<string | null>(null);
+  /** El popup está en "Editar" (`?modo=editar`): una recarga vuelve a la edición. */
+  readonly pedidoEditando = signal(false);
+  /** Popup de "Nuevo pedido" abierto (`?nuevo=1`, sobrevive a la recarga). */
+  readonly creando = signal(false);
+  /** El panel de filtros se abre con el botón de la barra (preferencia recordada). */
   readonly filtrosAbiertos = signal(false);
-  /** Filtros activos (para el botón "Filtros (n)"). */
+  /** Filtros activos (sin contar la pestaña ni la búsqueda), para el botón de filtros. */
   readonly cantidadFiltros = computed(() => {
     const f = this.filtros();
     return [
-      f.estado,
       f.sastreId,
       f.entregaDesde,
       f.entregaHasta,
@@ -107,7 +137,6 @@ export class Pedidos implements OnInit {
     const f = this.filtros();
     return (
       f.buscar !== '' ||
-      f.estado !== '' ||
       f.clienteId !== '' ||
       f.sastreId !== '' ||
       f.entregaDesde !== '' ||
@@ -120,18 +149,22 @@ export class Pedidos implements OnInit {
 
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
-    const clienteId = params.get('clienteId');
-    if (clienteId) {
-      this.filtros.update((f) => ({ ...f, clienteId }));
-      this.clienteFiltrado.set(params.get('cliente'));
-      this.clientes
-        .obtener(clienteId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (c) => this.saldoCliente.set(c.saldoPendiente),
-          error: () => undefined,
-        });
+    const filtros = filtrosDesdeUrl(params, VISTA_INICIAL);
+    if (filtros.clienteId) {
+      // Historial de un cliente: todos sus pedidos, salvo que la URL diga otra pestaña.
+      if (!params.has('estado')) {
+        filtros.estado = '';
+      }
+      this.ponerCliente(filtros.clienteId, params.get('cliente'));
     }
+    this.filtros.set(filtros);
+    this.filtrosAbiertos.set(this.memoria.leer<boolean>(CLAVE_PANEL) ?? this.cantidadFiltros() > 0);
+    const paginaUrl = Math.max(Number(params.get('pagina')) || 1, 1) - 1;
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((q) => {
+      this.pedidoAbierto.set(q.get('pedido'));
+      this.pedidoEditando.set(q.get('modo') === 'editar');
+      this.creando.set(q.get('nuevo') === '1' && !q.get('pedido'));
+    });
     this.busqueda$
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe((texto) => {
@@ -144,25 +177,90 @@ export class Pedidos implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next: (lista) => this.sastres.set(lista), error: () => undefined });
     this.cargarResumen();
-    this.cargar(0);
+    this.cargar(paginaUrl);
   }
 
   alternarFiltros(): void {
     this.filtrosAbiertos.update((v) => !v);
+    // Preferencia de pantalla: se recuerda 90 días.
+    this.memoria.guardar(CLAVE_PANEL, this.filtrosAbiertos(), 24 * 90);
+  }
+
+  /** El popup pasó a "Editar" o volvió al detalle: se anota en la URL. */
+  alCambiarModo(editando: boolean): void {
+    this.navegar({ modo: editando ? 'editar' : null });
   }
 
   alBuscar(texto: string): void {
     this.busqueda$.next(texto);
   }
 
-  alCambiarEstado(valor: string): void {
-    this.cambiar({ estado: valor as EstadoPedido | '' });
+  /** Botón "Buscar" o Enter: busca ya, sin esperar a que se deje de escribir. */
+  buscarAhora(texto: string): void {
+    const limpio = texto.trim();
+    if (limpio !== this.filtros().buscar) {
+      this.cambiar({ buscar: limpio });
+    } else {
+      this.cargar(0);
+    }
+  }
+
+  nuevoPedido(): void {
+    this.navegar({ nuevo: '1', pedido: null, modo: null }, false);
+  }
+
+  /** Pedido creado: se cierra "nuevo" y se abre su detalle; la lista se actualiza. */
+  alCrear(pedido: Pedido): void {
+    this.notificaciones.exito(`Pedido ${pedido.numero} creado.`);
+    this.cargarResumen();
+    // Una sola navegación: recargar la lista y pasar del formulario al detalle del pedido nuevo
+    // (dos seguidas se pisarían).
+    this.cargar(this.pagina(), { nuevo: null, pedido: pedido.id, modo: null });
+  }
+
+  elegirEstado(valor: EstadoPedido | ''): void {
+    if (valor !== this.filtros().estado) {
+      this.cambiar({ estado: valor });
+    }
+  }
+
+  recargar(): void {
+    this.cargarResumen();
+    this.cargar(this.pagina());
+  }
+
+  abrir(pedido: PedidoResumen): void {
+    // Sin reemplazar: el botón "atrás" del navegador cierra el popup.
+    this.navegar({ pedido: pedido.id, modo: null }, false);
+  }
+
+  cerrarPedido(): void {
+    this.navegar({ pedido: null, modo: null, nuevo: null });
+  }
+
+  /** Desde el popup: cierra y muestra todos los pedidos de ese cliente. */
+  verCliente(cliente: { id: string; nombre: string }): void {
+    this.ponerCliente(cliente.id, cliente.nombre);
+    this.aplicar(
+      { ...FILTROS_PEDIDOS_INICIALES, orden: this.filtros().orden, clienteId: cliente.id },
+      { pedido: null, modo: null },
+    );
+  }
+
+  private ponerCliente(id: string, nombre: string | null): void {
+    this.clienteFiltrado.set(nombre);
+    this.saldoCliente.set(null);
+    this.clientes
+      .obtener(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (c) => this.saldoCliente.set(c.saldoPendiente),
+        error: () => undefined,
+      });
   }
 
   alCambiarSastre(valor: string): void {
-    this.sastreElegido.set(valor);
-    const sastreId = valor === MIS_PRENDAS ? (this.permisos.accesoId() ?? '') : valor;
-    this.cambiar({ sastreId });
+    this.cambiar({ sastreId: valor });
   }
 
   alCambiarOrden(valor: string): void {
@@ -177,6 +275,15 @@ export class Pedidos implements OnInit {
     this.cambiar({ entregaHasta: fecha });
   }
 
+  /** "Para hoy": pedidos que se entregan hoy (fecha de entrega desde y hasta hoy). */
+  readonly esParaHoy = computed(
+    () => this.filtros().entregaDesde === hoyIso() && this.filtros().entregaHasta === hoyIso(),
+  );
+
+  alCambiarParaHoy(valor: boolean): void {
+    this.cambiar({ entregaDesde: valor ? hoyIso() : '', entregaHasta: valor ? hoyIso() : '' });
+  }
+
   alCambiarVencidos(valor: boolean): void {
     this.cambiar({ vencidos: valor });
   }
@@ -189,46 +296,25 @@ export class Pedidos implements OnInit {
     this.cambiar({ sinEntregar: valor });
   }
 
-  /** Los tiles del resumen aplican un filtro rápido (reemplaza los demás). */
-  atajo(tipo: Atajo): void {
+  /** Aviso rápido "N vencidos": muestra todos los vencidos (reemplaza los filtros). */
+  atajo(tipo: 'vencidos'): void {
     const base = { ...FILTROS_PEDIDOS_INICIALES, orden: this.filtros().orden };
-    this.sastreElegido.set('');
     this.quitarCliente(false);
-    switch (tipo) {
-      case 'enProceso':
-        this.aplicar({ ...base, estado: 'EN_PROCESO' });
-        break;
-      case 'listos':
-        this.aplicar({ ...base, estado: 'FINALIZADO' });
-        break;
-      case 'vencidos':
-        this.aplicar({ ...base, vencidos: true });
-        break;
-      case 'hoy':
-        // Igual que el contador: para hoy y con prendas sin entregar.
-        this.aplicar({
-          ...base,
-          entregaDesde: hoyIso(),
-          entregaHasta: hoyIso(),
-          sinEntregar: true,
-        });
-        break;
+    if (tipo === 'vencidos') {
+      this.aplicar({ ...base, vencidos: true });
     }
   }
 
-  /** Quita los filtros pero conserva el orden elegido. */
+  /** Quita los filtros pero conserva la pestaña y el orden elegidos. */
   limpiarFiltros(): void {
-    this.sastreElegido.set('');
     this.quitarCliente(false);
-    this.aplicar({ ...FILTROS_PEDIDOS_INICIALES, orden: this.filtros().orden });
+    const { estado, orden } = this.filtros();
+    this.aplicar({ ...FILTROS_PEDIDOS_INICIALES, estado, orden });
   }
 
   quitarCliente(recargar = true): void {
     this.clienteFiltrado.set(null);
     this.saldoCliente.set(null);
-    if (this.route.snapshot.queryParamMap.has('clienteId')) {
-      this.router.navigate([], { queryParams: {}, replaceUrl: true });
-    }
     if (recargar) {
       this.cambiar({ clienteId: '' });
     } else {
@@ -246,7 +332,8 @@ export class Pedidos implements OnInit {
     this.aplicar({ ...this.filtros(), ...cambio });
   }
 
-  private aplicar(filtros: FiltrosPedidos): void {
+  /** `extra`: otros parámetros de URL a cambiar en la misma navegación (p. ej. cerrar el popup). */
+  private aplicar(filtros: FiltrosPedidos, extra: Params = {}): void {
     this.filtros.set(filtros);
     if (
       filtros.entregaDesde &&
@@ -257,7 +344,7 @@ export class Pedidos implements OnInit {
       return;
     }
     this.errorFiltros.set(null);
-    this.cargar(0);
+    this.cargar(0, extra);
   }
 
   private cargarResumen(): void {
@@ -267,11 +354,33 @@ export class Pedidos implements OnInit {
       .subscribe({ next: (r) => this.resumen.set(r), error: () => undefined });
   }
 
-  private cargar(pagina: number): void {
+  /** Cambia parámetros de la URL sin tocar los demás (por defecto, sin crear historial). */
+  private navegar(params: Params, reemplazar = true): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+      replaceUrl: reemplazar,
+    });
+  }
+
+  private cargar(pagina: number, extra: Params = {}): void {
     this.cargando.set(true);
     this.error.set(null);
+    const filtros = this.filtros();
+    // La URL refleja lo que se ve: una recarga deja al usuario en el mismo punto.
+    this.navegar({
+      ...filtrosAUrl(filtros, VISTA_INICIAL),
+      cliente: filtros.clienteId ? this.clienteFiltrado() : null,
+      pagina: pagina > 0 ? pagina + 1 : null,
+      ...extra,
+    });
+    const consulta =
+      filtros.sastreId === MIS_PRENDAS
+        ? { ...filtros, sastreId: this.permisos.accesoId() ?? '' }
+        : filtros;
     this.service
-      .listar(this.filtros(), pagina, TAMANO_PAGINA)
+      .listar(consulta, pagina, TAMANO_PAGINA)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (p) => {

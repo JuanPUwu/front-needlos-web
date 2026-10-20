@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, map, of, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { borrarTodoLoRecordado, guardarRutaDeRegreso, tomarRutaDeRegreso } from '../estado/almacen';
 import {
   LoginRequest,
   LoginResponse,
@@ -126,11 +127,17 @@ export class AuthService {
     this.http
       .post(`${this.base}/logout`, null)
       .pipe(catchError(() => of(null)))
-      .subscribe(() => this.salir());
+      .subscribe(() => {
+        // Cierre voluntario: se olvida todo lo recordado en este computador.
+        borrarTodoLoRecordado();
+        this.salir();
+      });
   }
 
   /** La sesion ya no es valida en el servidor: limpia el estado local y vuelve al login. */
   sesionExpirada(): void {
+    // Al volver a entrar, se regresa al mismo punto (los borradores se conservan).
+    guardarRutaDeRegreso(this.router.url);
     this.salir();
   }
 
@@ -152,7 +159,8 @@ export class AuthService {
   private entrar(sesion: SesionResponse): void {
     this._sesion.set(sesion);
     this._seleccionPendiente.set(null);
-    this.router.navigate([this.rutaInicial()]);
+    const regreso = sesion.sastreria ? tomarRutaDeRegreso() : null;
+    this.router.navigateByUrl(regreso ?? this.rutaInicial());
   }
 
   private salir(): void {

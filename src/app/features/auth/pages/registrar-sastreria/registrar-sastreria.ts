@@ -1,8 +1,17 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, startWith } from 'rxjs';
+import { Memoria } from '../../../../core/estado/memoria';
+import { recordarFormulario } from '../../../../core/estado/recordar-formulario';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { Icono } from '../../../../shared/ui/icono/icono';
@@ -36,6 +45,10 @@ export class RegistrarSastreria {
 
   readonly cargando = signal(false);
   readonly verPassword = signal(false);
+
+  readonly politica = '8 a 72 caracteres, con mayúscula, minúscula, número y carácter especial.';
+  /** El cursor está en la contraseña o su confirmación. */
+  readonly enClave = signal(false);
   readonly error = signal<string | null>(null);
 
   /** Comun a los dos caminos (correo y Google). */
@@ -67,6 +80,35 @@ export class RegistrarSastreria {
     { validators: camposIguales('password', 'confirmacion') },
   );
 
+  /** Estado de la contraseña (para el globo con la política). */
+  private readonly estadoClave = toSignal(
+    this.form.controls.password.statusChanges.pipe(startWith(this.form.controls.password.status)),
+    { initialValue: this.form.controls.password.status },
+  );
+  /**
+   * La política se ve (globo flotante) mientras se escribe la contraseña y aún no se
+   * cumple; si sale sin cumplirla, queda el error en línea "No cumple la política".
+   */
+  readonly verPolitica = computed(() => this.enClave() && this.estadoClave() === 'INVALID');
+
+  /** Lo escrito sobrevive a la recarga (nunca la contraseña). */
+  private readonly borrador = recordarFormulario(
+    this.form,
+    inject(Memoria),
+    'registro',
+    this.destroyRef,
+    { omitir: ['password', 'confirmacion'] },
+  );
+  private readonly _restaurado = this.restaurarBorrador();
+
+  private restaurarBorrador(): true {
+    const guardado = this.borrador.leer();
+    if (guardado) {
+      this.form.patchValue(guardado.valores);
+    }
+    return true;
+  }
+
   enviar(): void {
     if (this.nombreSastreria.invalid || this.form.invalid) {
       this.nombreSastreria.markAsTouched();
@@ -95,6 +137,7 @@ export class RegistrarSastreria {
         // Con correo no entra directo: falta confirmar el codigo de verificacion.
         next: (res) => {
           this.cargando.set(false);
+          this.borrador.olvidar();
           this.router.navigate(['/verificar-correo'], {
             state: { email: res.email, aviso: res.aviso },
           });
