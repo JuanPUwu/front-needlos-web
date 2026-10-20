@@ -152,11 +152,11 @@
 }
 
 .rm__col--monto {
-  width: 20%;
+  width: 19%;
 }
 
 .rm__col--abrir {
-  width: 8%;
+  width: 9%;
 }
 
 .rm__oculto {
@@ -248,36 +248,27 @@
   color: var(--color-success);
 }
 
-.rm__celda--abrir {
-  padding: var(--space-1) 0;
-  text-overflow: clip;
-}
-
-// Botón de la fila: deja abrir el movimiento con el teclado (la fila también responde al clic).
+// Botón de la fila: cápsula gris sin texto ni ícono, del mismo tamaño que el botón de estado de
+// Pedidos (todo el ancho de su columna del 9 % y 30 px de alto; dueño 2026-10-20). Deja abrir con el teclado; la fila también responde al clic.
 .rm__abrir {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
+  display: flex;
+  width: 100%;
+  height: 30px;
   border: none;
   border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--color-accent);
+  padding: 0;
+  background: var(--abrir-grad);
   cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
 
-  &:hover {
-    background: var(--color-surface);
+  &:active {
+    transform: scale(var(--press-scale));
   }
 
   &:focus-visible {
     outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
   }
-}
-
-.rm__icono {
-  width: 18px;
-  height: 18px;
 }
 
 // ── Paginación en la fila del título ────────────────────────
@@ -382,9 +373,18 @@
     grid-area: abrir;
     justify-self: end;
   }
+
+  // En tarjeta la celda mide lo que su contenido: la cápsula toma un ancho fijo.
+  .rm__abrir {
+    width: 64px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .rm__abrir {
+    transition: none;
+  }
+
   .rm-limpiar,
   .rm-pagina,
   .rm,

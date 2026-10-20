@@ -117,7 +117,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalogo/pages/catalogo/catalogo').then((m) => m.Catalogo),
       },
-      { path: 'inventario', ...placeholder('Inventario', 'inventario') },
+      {
+        // Inventario (F8): todo el equipo consulta; cambiar exige el permiso GESTIONAR_INVENTARIO.
+        path: 'inventario',
+        canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
+        loadComponent: () =>
+          import('./features/inventario/pages/inventario/inventario').then((m) => m.Inventario),
+      },
       {
         // Gastos y resumen (F6): solo el SASTRE_ADMIN.
         path: 'gastos',

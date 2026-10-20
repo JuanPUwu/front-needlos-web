@@ -143,9 +143,7 @@
                 [attr.aria-label]="etiquetaAbrir(m)"
                 [title]="m.tipo === 'GASTO' ? 'Corregir gasto' : 'Abrir pedido'"
                 (click)="$event.stopPropagation(); abrir.emit(m)"
-              >
-                <app-icono class="rm__icono" nombre="flecha-derecha" />
-              </button>
+              ></button>
             </td>
           </tr>
         }

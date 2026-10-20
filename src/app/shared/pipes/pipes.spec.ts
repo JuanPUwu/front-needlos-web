@@ -1,3 +1,4 @@
+import { CantidadPipe } from './cantidad.pipe';
 import { FechaHoraPipe } from './fecha-hora.pipe';
 import { FechaPipe } from './fecha.pipe';
 import { MonedaPipe } from './moneda.pipe';
@@ -39,5 +40,16 @@ describe('FechaHoraPipe', () => {
 
   it('con "hora" muestra solo la hora', () => {
     expect(pipe.transform('2026-10-20T02:30:00Z', 'hora')).toBe('21:30');
+  });
+});
+
+describe('CantidadPipe', () => {
+  const pipe = new CantidadPipe();
+
+  it('muestra decimales solo cuando aportan', () => {
+    expect(pipe.transform(12.5)).toBe('12,5');
+    expect(pipe.transform(3)).toBe('3');
+    expect(pipe.transform(1250)).toBe('1.250');
+    expect(pipe.transform(null)).toBe('');
   });
 });

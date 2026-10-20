@@ -13,7 +13,8 @@ export type Permiso =
   | 'CAMBIAR_ESTADO_PRENDAS'
   | 'ENTREGAR_PRENDAS'
   | 'ASIGNAR_SASTRE'
-  | 'REGISTRAR_ABONOS';
+  | 'REGISTRAR_ABONOS'
+  | 'GESTIONAR_INVENTARIO';
 
 /** Permisos en el orden y con el texto que se muestran en Equipo. */
 export const PERMISOS: { valor: Permiso; etiqueta: string; ayuda: string }[] = [
@@ -27,6 +28,11 @@ export const PERMISOS: { valor: Permiso; etiqueta: string; ayuda: string }[] = [
   { valor: 'ASIGNAR_SASTRE', etiqueta: 'Asignar sastre', ayuda: 'A cada prenda.' },
   { valor: 'REGISTRAR_ABONOS', etiqueta: 'Registrar abonos', ayuda: 'Cobrar a los clientes.' },
   { valor: 'GESTIONAR_CLIENTES', etiqueta: 'Crear y editar clientes', ayuda: 'En Clientes.' },
+  {
+    valor: 'GESTIONAR_INVENTARIO',
+    etiqueta: 'Gestionar inventario',
+    ayuda: 'Materiales, entradas y salidas.',
+  },
 ];
 
 interface MisPermisos {
@@ -65,8 +71,9 @@ export class PermisosService {
     });
   }
 
+  /** El SASTRE_ADMIN los tiene todos siempre (también los permisos nuevos). */
   puede(permiso: Permiso): boolean {
-    return this.lista().has(permiso);
+    return this.admin() || this.lista().has(permiso);
   }
 
   recargar(): void {

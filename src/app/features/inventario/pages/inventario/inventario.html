@@ -1,0 +1,173 @@
+<main class="inventario-page">
+  <div class="inventario-contenedor">
+    <app-encabezado
+      titulo="Inventario"
+      subtitulo="Lo que tienes de telas, hilos e insumos. Cambia con entradas y salidas."
+      icono="inventario"
+      [error]="error()"
+    >
+      @if (puedeGestionar()) {
+        <button
+          class="inventario-nuevo"
+          type="button"
+          aria-label="Nuevo material"
+          title="Nuevo material"
+          (click)="nuevoMaterial()"
+        >
+          <app-icono class="inventario-nuevo__icono" nombre="mas" />
+        </button>
+      }
+    </app-encabezado>
+
+    <!-- ── Búsqueda y filtros (una sola cápsula) ─────────────── -->
+    <section class="inventario-buscar" aria-label="Búsqueda y filtros">
+      <div class="inventario-busqueda">
+        <div class="inventario-buscador-caja">
+          <app-icono class="inventario-buscador-caja__lupa" nombre="buscar" />
+          <input
+            #buscador
+            class="inventario-control inventario-buscador"
+            type="search"
+            placeholder="Buscar por nombre"
+            aria-label="Buscar materiales"
+            [value]="filtros().buscar"
+            (input)="alBuscar(buscador.value)"
+            (keydown.enter)="buscarAhora(buscador.value)"
+          />
+        </div>
+        <button class="inventario-buscar-boton" type="button" (click)="buscarAhora(buscador.value)">
+          Buscar
+        </button>
+        <button
+          class="inventario-herramienta"
+          type="button"
+          aria-label="Filtros"
+          title="Filtros"
+          aria-controls="inventario-filtros"
+          [attr.aria-expanded]="filtrosAbiertos()"
+          [class.inventario-herramienta--activa]="filtrosAbiertos()"
+          (click)="alternarFiltros()"
+        >
+          <app-icono class="inventario-herramienta__icono" nombre="filtros" />
+          @if (cantidadFiltros() > 0) {
+            <span class="inventario-herramienta__cuenta">{{ cantidadFiltros() }}</span>
+          }
+        </button>
+        <span class="inventario-cuenta" role="status">
+          <strong>{{ total() }}</strong> {{ total() === 1 ? 'material' : 'materiales' }}
+        </span>
+      </div>
+
+      @if (filtrosAbiertos()) {
+        <div class="inventario-filtros" id="inventario-filtros">
+          <div class="inventario-filtro">
+            <label class="inventario-filtro__label" for="invEstado">Estado</label>
+            <select
+              #estadoSel
+              class="inventario-control"
+              id="invEstado"
+              (change)="alCambiarEstado(estadoSel.value)"
+            >
+              @for (e of estados; track e.valor) {
+                <option [value]="e.valor" [selected]="e.valor === filtros().estado">
+                  {{ e.etiqueta }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="inventario-filtro">
+            <label class="inventario-filtro__label" for="invStock">Stock</label>
+            <select
+              #stockSel
+              class="inventario-control"
+              id="invStock"
+              (change)="alCambiarStock(stockSel.value)"
+            >
+              <option value="" [selected]="!filtros().stockBajo">Todos</option>
+              <option value="bajo" [selected]="filtros().stockBajo">
+                Solo stock bajo{{ conStockBajo() > 0 ? ' (' + conStockBajo() + ')' : '' }}
+              </option>
+            </select>
+          </div>
+          <div class="inventario-filtro">
+            <label class="inventario-filtro__label" for="invOrden">Ordenar por</label>
+            <select
+              #ordenSel
+              class="inventario-control"
+              id="invOrden"
+              (change)="alCambiarOrden(ordenSel.value)"
+            >
+              @for (o of ordenes; track o.valor) {
+                <option [value]="o.valor" [selected]="o.valor === filtros().orden">
+                  {{ o.etiqueta }}
+                </option>
+              }
+            </select>
+          </div>
+          @if (hayFiltros()) {
+            <button class="inventario-limpiar" type="button" (click)="limpiarFiltros()">
+              Limpiar filtros
+            </button>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ── Listado ──────────────────────────────────────────── -->
+    <section class="inventario-bloque" aria-label="Materiales">
+      @if (cargando() && materiales().length === 0) {
+        <app-esqueleto forma="tabla" [filas]="6" [alto]="48" texto="Cargando inventario..." />
+      } @else if (materiales().length === 0 && !error()) {
+        <p class="inventario-vacio">
+          @if (hayFiltros()) {
+            Ningún material coincide con lo elegido.
+          } @else if (puedeGestionar()) {
+            Aún no hay materiales. Agrega el primero con el botón +.
+          } @else {
+            Aún no hay materiales en el inventario.
+          }
+        </p>
+      } @else if (materiales().length > 0) {
+        <app-materiales-tabla
+          [materiales]="materiales()"
+          [cargando]="cargando()"
+          (abrir)="abrir($event)"
+        />
+        @if (totalPaginas() > 1) {
+          <nav class="inventario-paginacion" aria-label="Paginación">
+            <button
+              class="inventario-pagina"
+              type="button"
+              [disabled]="pagina() === 0"
+              (click)="irAPagina(pagina() - 1)"
+            >
+              Anterior
+            </button>
+            <span class="inventario-paginacion__texto">
+              Página {{ pagina() + 1 }} de {{ totalPaginas() }}
+            </span>
+            <button
+              class="inventario-pagina"
+              type="button"
+              [disabled]="pagina() + 1 >= totalPaginas()"
+              (click)="irAPagina(pagina() + 1)"
+            >
+              Siguiente
+            </button>
+          </nav>
+        }
+      }
+    </section>
+  </div>
+</main>
+
+@for (clave of popup(); track clave) {
+  <app-material-modal
+    animate.enter="mm-entrar"
+    animate.leave="mm-salir"
+    [materialId]="clave === 'nuevo' ? null : clave"
+    [puedeGestionar]="puedeGestionar()"
+    (cambiado)="alCambiar($event)"
+    (cerrado)="cerrarPopup()"
+  />
+}

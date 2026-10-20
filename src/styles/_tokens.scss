@@ -43,6 +43,8 @@
   --estado-finalizado-grad: linear-gradient(135deg, #48ea60, #2c9b3c);
   --estado-entregado-grad: linear-gradient(135deg, #fdbc40, #b18329);
   --estado-anulado-grad: linear-gradient(135deg, #fc615d, #af0000);
+  // Botón "abrir" de los listados sin estado propio (inventario, movimientos): gris (2026-10-20).
+  --abrir-grad: linear-gradient(135deg, #c9ced8, #7f889a);
 
   // Velos detrás de popups y del bloqueo de "procesando"
   --color-velo: rgba(2, 40, 89, 0.35);

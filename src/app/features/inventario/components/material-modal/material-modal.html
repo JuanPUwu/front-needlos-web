@@ -1,0 +1,404 @@
+<div class="mm-fondo" aria-hidden="true" (click)="cerrar()"></div>
+
+<div
+  #caja
+  class="mm-caja"
+  [class.mm-caja--ancha]="materialId()"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-material"
+  tabindex="-1"
+>
+  <app-encabezado
+    idTitulo="titulo-material"
+    [titulo]="material()?.nombre ?? (materialId() ? 'Material' : 'Nuevo material')"
+    [subtitulo]="
+      material()
+        ? 'Hay ' +
+          (material()!.cantidad | cantidad) +
+          ' ' +
+          etiquetaUnidad(material()!.unidad, material()!.cantidad) +
+          ' · mínimo ' +
+          (material()!.stockMinimo | cantidad)
+        : materialId()
+          ? 'Cargando el material…'
+          : 'Agrega un material para llevar la cuenta de lo que tienes.'
+    "
+    icono="inventario"
+    [error]="error()"
+  >
+    @if (material(); as m) {
+      @if (!m.activo) {
+        <span class="mm-chip">Desactivado</span>
+      }
+    }
+    <button class="mm-cerrar" type="button" aria-label="Cerrar" title="Cerrar" (click)="cerrar()">
+      <app-icono class="mm-cerrar__icono" nombre="cerrar" />
+    </button>
+  </app-encabezado>
+
+  @if (cargando()) {
+    <!--
+      Esqueleto: las MISMAS tarjetas, campos y botones que el material cargado (mismas clases,
+      textos invisibles con la misma letra), en piezas grises; al llegar los datos nada salta.
+    -->
+    <div class="mm-cuerpo mm-esqueleto" aria-busy="true">
+      <span class="mm-oculto" role="status">Cargando material...</span>
+      <div class="mm-columna" aria-hidden="true">
+        @if (puedeGestionar()) {
+          <section class="mm-seccion">
+            <span class="mm-hueso mm-hueso--titulo">Registrar movimiento</span>
+            <div class="mm-tipos">
+              <span class="mm-hueso mm-hueso--boton"></span>
+              <span class="mm-hueso mm-hueso--boton"></span>
+            </div>
+            <div class="mm-fila mm-fila--movimiento">
+              <div class="mm-campo">
+                <div class="mm-campo__head">
+                  <span class="mm-campo__label mm-hueso">Cantidad (unidades) *</span>
+                </div>
+                <span class="mm-hueso mm-hueso--control"></span>
+              </div>
+              <div class="mm-campo">
+                <div class="mm-campo__head">
+                  <span class="mm-campo__label mm-hueso">Razón *</span>
+                </div>
+                <span class="mm-hueso mm-hueso--control"></span>
+              </div>
+            </div>
+            <p class="mm-ayuda"><span class="mm-hueso">Hay 10 unidades.</span></p>
+            <span class="mm-hueso mm-hueso--boton"></span>
+          </section>
+        }
+        <section class="mm-seccion">
+          <span class="mm-hueso mm-hueso--titulo">Datos del material</span>
+          <div class="mm-campo">
+            <div class="mm-campo__head">
+              <span class="mm-campo__label mm-hueso">Nombre *</span>
+            </div>
+            <span class="mm-hueso mm-hueso--control"></span>
+          </div>
+          <div class="mm-fila">
+            <div class="mm-campo">
+              <div class="mm-campo__head">
+                <span class="mm-campo__label mm-hueso">Unidad *</span>
+              </div>
+              <span class="mm-hueso mm-hueso--control"></span>
+            </div>
+            <div class="mm-campo">
+              <div class="mm-campo__head">
+                <span class="mm-campo__label mm-hueso">Stock mínimo *</span>
+              </div>
+              <span class="mm-hueso mm-hueso--control"></span>
+            </div>
+          </div>
+          <p class="mm-ayuda mm-hueso">
+            Con la cantidad en el stock mínimo o por debajo, se avisa "Stock bajo". La cantidad solo
+            cambia con entradas y salidas.
+          </p>
+          @if (puedeGestionar()) {
+            <div class="mm-acciones">
+              <span class="mm-hueso mm-hueso--boton"></span>
+              <span class="mm-hueso mm-hueso--boton"></span>
+            </div>
+          }
+        </section>
+      </div>
+      <section class="mm-seccion" aria-hidden="true">
+        <span class="mm-hueso mm-hueso--titulo">Historial</span>
+        <div class="mm-mov mm-hueso">
+          <span class="mm-mov__fila">+ 10 unidades</span>
+          <span>Cantidad inicial</span>
+          <span class="mm-mov__meta">19/10/2026 23:22 · Equipo</span>
+        </div>
+      </section>
+    </div>
+  } @else if (material() || !materialId()) {
+    <!-- Si el material no cargó, solo queda el error en el encabezado. -->
+    <div class="mm-cuerpo">
+      <div class="mm-columna">
+        <!-- ── Registrar movimiento (solo material existente y con permiso) ── -->
+        @if (material(); as m) {
+          @if (puedeGestionar()) {
+            <form
+              class="mm-seccion"
+              [formGroup]="movimiento"
+              (ngSubmit)="registrarMovimiento()"
+              novalidate
+            >
+              <app-titulo-bloque titulo="Registrar movimiento" />
+              @if (m.activo) {
+                <div class="mm-tipos" role="group" aria-label="Tipo de movimiento">
+                  <button
+                    class="mm-tipo"
+                    type="button"
+                    data-tipo="ENTRADA"
+                    [attr.aria-pressed]="movimiento.controls.tipo.value === 'ENTRADA'"
+                    (click)="elegirTipo('ENTRADA')"
+                  >
+                    Entrada
+                  </button>
+                  <button
+                    class="mm-tipo"
+                    type="button"
+                    data-tipo="SALIDA"
+                    [attr.aria-pressed]="movimiento.controls.tipo.value === 'SALIDA'"
+                    (click)="elegirTipo('SALIDA')"
+                  >
+                    Salida
+                  </button>
+                </div>
+
+                <div class="mm-fila mm-fila--movimiento">
+                  <div class="mm-campo">
+                    <div class="mm-campo__head">
+                      <label class="mm-campo__label" for="movCantidad">
+                        Cantidad ({{ etiquetaUnidad(m.unidad) }}) <span class="mm-req">*</span>
+                      </label>
+                      @if (errorCantidad(); as e) {
+                        <span class="mm-campo__error">{{ e }}</span>
+                      }
+                    </div>
+                    <input
+                      class="mm-campo__input"
+                      id="movCantidad"
+                      type="text"
+                      inputmode="decimal"
+                      formControlName="cantidad"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div class="mm-campo">
+                    <div class="mm-campo__head">
+                      <label class="mm-campo__label" for="movRazon">
+                        Razón <span class="mm-req">*</span>
+                      </label>
+                      @if (movimiento.controls.razon.touched && movimiento.controls.razon.invalid) {
+                        <span class="mm-campo__error">Escribe por qué</span>
+                      }
+                    </div>
+                    <input
+                      class="mm-campo__input"
+                      id="movRazon"
+                      type="text"
+                      formControlName="razon"
+                      maxlength="200"
+                      [placeholder]="
+                        movimiento.controls.tipo.value === 'ENTRADA'
+                          ? 'Compra, devolución…'
+                          : 'Pedido #12, daño…'
+                      "
+                    />
+                  </div>
+                </div>
+
+                <p class="mm-ayuda">
+                  @if (quedaria(); as q) {
+                    Quedarán <strong>{{ q | cantidad }} {{ etiquetaUnidad(m.unidad, q) }}</strong
+                    >.
+                  } @else {
+                    Hay {{ m.cantidad | cantidad }} {{ etiquetaUnidad(m.unidad, m.cantidad) }}.
+                  }
+                </p>
+
+                <button class="mm-boton" type="submit" [disabled]="guardando()">
+                  @if (guardando()) {
+                    Registrando...
+                  } @else {
+                    {{
+                      movimiento.controls.tipo.value === 'ENTRADA'
+                        ? 'Registrar entrada'
+                        : 'Registrar salida'
+                    }}
+                  }
+                </button>
+              } @else {
+                <p class="mm-ayuda">
+                  Está desactivado: reactívalo abajo para registrar entradas o salidas.
+                </p>
+              }
+            </form>
+          }
+        }
+
+        <!-- ── Datos del material ──────────────────────────────── -->
+        <form class="mm-seccion" [formGroup]="datos" (ngSubmit)="guardarDatos()" novalidate>
+          <app-titulo-bloque titulo="Datos del material" />
+          <div class="mm-campo">
+            <div class="mm-campo__head">
+              <label class="mm-campo__label" for="matNombre">
+                Nombre <span class="mm-req">*</span>
+              </label>
+              @if (datos.controls.nombre.touched && datos.controls.nombre.invalid) {
+                <span class="mm-campo__error">Escribe el nombre</span>
+              }
+            </div>
+            <input
+              class="mm-campo__input"
+              id="matNombre"
+              type="text"
+              formControlName="nombre"
+              maxlength="80"
+              placeholder="Tela de lino azul, hilo negro…"
+            />
+          </div>
+
+          <div class="mm-fila" [class.mm-fila--tres]="!materialId()">
+            <div class="mm-campo">
+              <div class="mm-campo__head">
+                <label class="mm-campo__label" for="matUnidad">
+                  Unidad <span class="mm-req">*</span>
+                </label>
+              </div>
+              <select class="mm-campo__input" id="matUnidad" formControlName="unidad">
+                @for (u of unidades; track u.valor) {
+                  <option [value]="u.valor">{{ u.plural }}</option>
+                }
+              </select>
+            </div>
+            <div class="mm-campo">
+              <div class="mm-campo__head">
+                <label class="mm-campo__label" for="matMinimo">
+                  Stock mínimo <span class="mm-req">*</span>
+                </label>
+                @if (datos.controls.stockMinimo.touched && datos.controls.stockMinimo.invalid) {
+                  <span class="mm-campo__error">Solo números</span>
+                }
+              </div>
+              <input
+                class="mm-campo__input"
+                id="matMinimo"
+                type="text"
+                inputmode="decimal"
+                formControlName="stockMinimo"
+                placeholder="0"
+              />
+            </div>
+            @if (!materialId()) {
+              <div class="mm-campo">
+                <div class="mm-campo__head">
+                  <label class="mm-campo__label" for="matInicial">Cantidad inicial</label>
+                  @if (
+                    datos.controls.cantidadInicial.touched && datos.controls.cantidadInicial.invalid
+                  ) {
+                    <span class="mm-campo__error">Solo números</span>
+                  }
+                </div>
+                <input
+                  class="mm-campo__input"
+                  id="matInicial"
+                  type="text"
+                  inputmode="decimal"
+                  formControlName="cantidadInicial"
+                  placeholder="0"
+                />
+              </div>
+            }
+          </div>
+
+          <p class="mm-ayuda">
+            {{
+              materialId()
+                ? 'Con la cantidad en el stock mínimo o por debajo, se avisa "Stock bajo". La cantidad solo cambia con entradas y salidas.'
+                : 'La cantidad inicial queda como la primera entrada del historial.'
+            }}
+          </p>
+
+          @if (puedeGestionar()) {
+            <div class="mm-acciones">
+              @if (material(); as m) {
+                <button
+                  class="mm-boton mm-boton--borde"
+                  [class.mm-boton--peligro]="m.activo"
+                  type="button"
+                  [disabled]="guardando()"
+                  (click)="cambiarEstado()"
+                >
+                  {{ m.activo ? 'Desactivar' : 'Reactivar' }}
+                </button>
+              } @else {
+                <button class="mm-boton mm-boton--borde" type="button" (click)="limpiarDatos()">
+                  Limpiar
+                </button>
+              }
+              <button class="mm-boton" type="submit" [disabled]="guardando()">
+                @if (materialId()) {
+                  {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+                } @else {
+                  {{ guardando() ? 'Creando...' : 'Crear material' }}
+                }
+              </button>
+            </div>
+          }
+        </form>
+      </div>
+
+      <!-- ── Historial ─────────────────────────────────────────── -->
+      @if (materialId()) {
+        <section class="mm-seccion mm-historial" aria-labelledby="t-historial">
+          <app-titulo-bloque titulo="Historial" idTitulo="t-historial">
+            @if (totalPaginasHistorial() > 1) {
+              <nav class="mm-paginacion" aria-label="Paginación del historial">
+                <span class="mm-paginacion__texto">
+                  {{ paginaHistorial() + 1 }} de {{ totalPaginasHistorial() }}
+                </span>
+                <button
+                  class="mm-pagina"
+                  type="button"
+                  aria-label="Página anterior"
+                  [disabled]="paginaHistorial() === 0 || cargandoHistorial()"
+                  (click)="irAPaginaHistorial(paginaHistorial() - 1)"
+                >
+                  <app-icono
+                    class="mm-pagina__icono mm-pagina__icono--atras"
+                    nombre="flecha-derecha"
+                  />
+                </button>
+                <button
+                  class="mm-pagina"
+                  type="button"
+                  aria-label="Página siguiente"
+                  [disabled]="
+                    paginaHistorial() + 1 >= totalPaginasHistorial() || cargandoHistorial()
+                  "
+                  (click)="irAPaginaHistorial(paginaHistorial() + 1)"
+                >
+                  <app-icono class="mm-pagina__icono" nombre="flecha-derecha" />
+                </button>
+              </nav>
+            }
+          </app-titulo-bloque>
+
+          @if (cargandoHistorial() && historial().length === 0) {
+            <div class="mm-mov mm-hueso" role="status">
+              <span class="mm-mov__fila">Cargando historial...</span>
+              <span>Cantidad inicial</span>
+              <span class="mm-mov__meta">19/10/2026 23:22 · Equipo</span>
+            </div>
+          } @else if (historial().length === 0) {
+            <p class="mm-ayuda">Aún no hay entradas ni salidas.</p>
+          } @else if (material(); as m) {
+            <ol class="mm-movimientos" [class.mm-movimientos--cargando]="cargandoHistorial()">
+              @for (h of historial(); track h.id) {
+                <li class="mm-mov" [attr.data-tipo]="h.tipo">
+                  <div class="mm-mov__fila">
+                    <strong class="mm-mov__cantidad">
+                      {{ h.tipo === 'ENTRADA' ? '+' : '−' }} {{ h.cantidad | cantidad }}
+                      {{ etiquetaUnidad(m.unidad, h.cantidad) }}
+                    </strong>
+                    <span class="mm-mov__meta"> Quedan {{ h.cantidadResultante | cantidad }} </span>
+                  </div>
+                  <span class="mm-mov__razon">{{ h.razon }}</span>
+                  <span class="mm-mov__meta">
+                    {{ h.registrado | fechaHora
+                    }}{{ h.registradoPor ? ' · ' + h.registradoPor : '' }}
+                  </span>
+                </li>
+              }
+            </ol>
+          }
+        </section>
+      }
+    </div>
+  }
+</div>

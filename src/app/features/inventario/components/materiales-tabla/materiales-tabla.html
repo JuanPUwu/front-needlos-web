@@ -1,0 +1,44 @@
+<table class="mt" [class.mt--cargando]="cargando()">
+  <colgroup>
+    <col class="mt__col--nombre" />
+    <col class="mt__col--cantidad" />
+    <col class="mt__col--minimo" />
+    <col class="mt__col--estado" />
+    <col class="mt__col--abrir" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th scope="col">Material</th>
+      <th scope="col">Cantidad</th>
+      <th scope="col">Stock mínimo</th>
+      <th scope="col">Estado</th>
+      <th scope="col"><span class="mt__oculto">Abrir</span></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (m of materiales(); track m.id) {
+      <tr class="mt__fila" [attr.data-estado]="estado(m)" (click)="abrir.emit(m)">
+        <td class="mt__celda mt__celda--nombre" [title]="m.nombre">{{ m.nombre }}</td>
+        <td class="mt__celda mt__celda--cantidad">
+          <strong>{{ m.cantidad | cantidad }}</strong>
+          {{ etiquetaUnidad(m.unidad, m.cantidad) }}
+        </td>
+        <td class="mt__celda mt__celda--minimo" data-titulo="Mínimo">
+          {{ m.stockMinimo | cantidad }} {{ etiquetaUnidad(m.unidad, m.stockMinimo) }}
+        </td>
+        <td class="mt__celda mt__celda--estado">
+          <span class="mt__estado">{{ etiquetaEstado[estado(m)] }}</span>
+        </td>
+        <td class="mt__celda mt__celda--abrir">
+          <button
+            class="mt__abrir"
+            type="button"
+            [attr.aria-label]="'Abrir ' + m.nombre"
+            title="Abrir"
+            (click)="$event.stopPropagation(); abrir.emit(m)"
+          ></button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

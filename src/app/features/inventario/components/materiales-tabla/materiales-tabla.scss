@@ -1,0 +1,256 @@
+// Listado de materiales: tabla de anchos proporcionales que pasa a tarjetas cuando no cabe.
+// Solo tokens globales. El contenedor `materialeslista` es la tarjeta del listado.
+
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+.mt {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0 var(--space-4);
+  font-size: 0.95rem;
+  transition: opacity var(--dur-color) var(--ease-out);
+
+  th {
+    padding: var(--space-2) var(--space-3) var(--space-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+    text-align: center;
+  }
+
+  th + th {
+    box-shadow: inset 1px 0 0 var(--color-border-soft);
+  }
+}
+
+// Anchos en proporción (suman 100 %).
+.mt__col--nombre {
+  width: 34%;
+}
+
+.mt__col--cantidad {
+  width: 20%;
+}
+
+.mt__col--minimo {
+  width: 18%;
+}
+
+.mt__col--estado {
+  width: 19%;
+}
+
+.mt__col--abrir {
+  width: 9%;
+}
+
+.mt--cargando {
+  opacity: 0.6;
+}
+
+.mt__fila {
+  // El color de la fila se define aquí; las celdas solo lo pintan.
+  --fondo: var(--color-bg);
+  --tono: var(--estado-finalizado);
+
+  cursor: pointer;
+
+  &[data-estado='BAJO'] {
+    --tono: var(--estado-entregado);
+  }
+
+  &[data-estado='AGOTADO'] {
+    --tono: var(--estado-anulado);
+  }
+
+  &[data-estado='DESACTIVADO'] {
+    --tono: var(--color-text-muted);
+
+    .mt__celda--nombre {
+      color: var(--color-text-muted);
+    }
+  }
+
+  &:hover {
+    --fondo: var(--focus-ring);
+  }
+
+  .mt__celda {
+    background: var(--fondo);
+    transition: background-color var(--dur-color) var(--ease-out);
+  }
+}
+
+.mt__celda {
+  padding: var(--space-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+
+  &:first-child {
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+  }
+
+  &:last-child {
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+}
+
+.mt__celda--nombre {
+  font-weight: 600;
+  text-align: left;
+}
+
+.mt__celda--minimo {
+  color: var(--color-text-muted);
+}
+
+.mt__estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--tono);
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tono);
+  }
+}
+
+// Botón de la fila: cápsula gris sin texto ni ícono, del mismo tamaño que el botón de estado de
+// Pedidos (todo el ancho de su columna del 9 % y 30 px de alto; dueño 2026-10-20). Deja abrir con el teclado; la fila también responde al clic.
+.mt__abrir {
+  display: flex;
+  width: 100%;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0;
+  background: var(--abrir-grad);
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &:active {
+    transform: scale(var(--press-scale));
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.mt__oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+// ── Tarjetas: cuando la tabla no cabe ───────────────────────
+@container materialeslista (max-width: 640px) {
+  .mt {
+    display: block;
+    border-spacing: 0;
+
+    colgroup,
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+  }
+
+  // Tarjeta: borde izquierdo del estado; nombre | estado; cantidad | abrir; mínimo.
+  .mt__fila {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'nombre estado'
+      'cantidad abrir'
+      'minimo minimo';
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-left: 4px solid var(--tono);
+    border-radius: var(--radius-md);
+    background: var(--fondo);
+    transition: background-color var(--dur-color) var(--ease-out);
+
+    .mt__celda {
+      padding: 0;
+      background: none;
+      border-radius: 0;
+      text-align: left;
+    }
+  }
+
+  .mt__celda--nombre {
+    grid-area: nombre;
+    white-space: normal;
+  }
+
+  .mt__celda--estado {
+    grid-area: estado;
+    text-align: right !important;
+  }
+
+  .mt__celda--cantidad {
+    grid-area: cantidad;
+  }
+
+  .mt__celda--abrir {
+    grid-area: abrir;
+    text-align: right !important;
+  }
+
+  // En tarjeta la celda mide lo que su contenido: la cápsula toma un ancho fijo.
+  .mt__abrir {
+    width: 64px;
+  }
+
+  .mt__celda--minimo {
+    grid-area: minimo;
+    padding-top: var(--space-3) !important;
+    border-top: 1px solid var(--color-border-soft);
+    font-size: 0.9rem;
+
+    &::before {
+      content: attr(data-titulo) ': ';
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mt__abrir {
+    transition: none;
+  }
+
+  .mt,
+  .mt__fila,
+  .mt__celda {
+    transition: none;
+  }
+}

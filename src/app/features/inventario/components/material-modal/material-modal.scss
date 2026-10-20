@@ -1,0 +1,534 @@
+// Popup del material: medidas del formulario base (Reglas §12.3). Solo tokens globales.
+
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+
+  @media (max-width: 560px) {
+    padding: 0;
+  }
+}
+
+.mm-fondo {
+  position: absolute;
+  inset: 0;
+  background: var(--color-velo);
+}
+
+// La caja es el contenedor "panel": el contenido se adapta al ancho del popup.
+.mm-caja {
+  position: relative;
+  width: min(760px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: panel / inline-size;
+  outline: none;
+
+  @media (max-width: 560px) {
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+// Material existente: movimiento y datos | historial, en dos columnas.
+.mm-caja--ancha {
+  width: min(1120px, 100%);
+}
+
+.mm-cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.mm-caja--ancha .mm-cuerpo {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+
+  @container panel (max-width: 860px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mm-columna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.mm-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.mm-cerrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.mm-cerrar__icono {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+// ── Tarjetas, filas y campos ────────────────────────────────
+.mm-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: mmseccion / inline-size;
+}
+
+.mm-fila {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: end;
+
+  @container mmseccion (max-width: 380px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mm-fila--tres {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  @container mmseccion (max-width: 520px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+    .mm-campo:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+// Movimiento: la cantidad más angosta que la razón.
+.mm-fila--movimiento {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+}
+
+.mm-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.mm-campo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.mm-campo__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.mm-req {
+  color: var(--color-danger);
+}
+
+.mm-campo__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.mm-campo__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+
+  &.ng-touched.ng-invalid {
+    border-color: var(--color-danger);
+  }
+
+  &:disabled {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+}
+
+.mm-ayuda {
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+
+  strong {
+    color: var(--color-text);
+  }
+}
+
+// ── Entrada | Salida ────────────────────────────────────────
+.mm-tipos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.mm-tipo {
+  --tono: var(--estado-finalizado);
+  --tono-bg: var(--estado-finalizado-bg);
+
+  height: 44px;
+  border: 1.5px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &[data-tipo='SALIDA'] {
+    --tono: var(--estado-entregado);
+    --tono-bg: var(--estado-entregado-bg);
+  }
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &[aria-pressed='true'] {
+    border-color: var(--tono);
+    background: var(--tono-bg);
+    color: var(--tono);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ── Acciones ────────────────────────────────────────────────
+.mm-acciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container mmseccion (max-width: 360px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mm-boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.mm-boton--borde {
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-accent);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+.mm-boton--peligro {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+
+  &:hover:not(:disabled) {
+    background: var(--color-danger-bg);
+  }
+}
+
+// ── Historial ───────────────────────────────────────────────
+.mm-paginacion {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mm-paginacion__texto {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.mm-pagina {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-accent);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.mm-pagina__icono {
+  width: 18px;
+  height: 18px;
+}
+
+.mm-pagina__icono--atras {
+  transform: scaleX(-1);
+}
+
+.mm-movimientos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: 520px;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+  transition: opacity var(--dur-color) var(--ease-out);
+}
+
+.mm-movimientos--cargando {
+  opacity: 0.6;
+}
+
+.mm-mov {
+  --tono: var(--estado-finalizado);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--tono);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+
+  &[data-tipo='SALIDA'] {
+    --tono: var(--estado-entregado);
+  }
+}
+
+.mm-mov__fila {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.mm-mov__cantidad {
+  color: var(--tono);
+  font-variant-numeric: tabular-nums;
+}
+
+.mm-mov__razon {
+  color: var(--color-text);
+}
+
+.mm-mov__meta {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+// ── Esqueleto: mismas piezas que el contenido, en gris con brillo ─
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador continuo de carga.
+.mm-hueso {
+  width: fit-content;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+    color-mix(in srgb, var(--color-bg), var(--color-navy) 6%);
+  background-size: 200% 100%;
+  color: transparent;
+  animation: mm-brillo 1.4s linear infinite;
+
+  * {
+    color: transparent;
+  }
+}
+
+.mm-hueso--titulo {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.mm-hueso--control {
+  display: block;
+  width: 100%;
+  height: 46px;
+  border-radius: var(--radius-md);
+}
+
+.mm-hueso--boton {
+  display: block;
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-md);
+}
+
+// El historial de ejemplo ocupa lo mismo que un movimiento real.
+.mm-mov.mm-hueso {
+  width: auto;
+  border-left-color: transparent;
+}
+
+.mm-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@keyframes mm-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+// ── Movimiento: el popup entero aparece y se va con un fundido (≤ 100 ms) ─
+:host(.mm-entrar) {
+  animation: mm-fundido var(--dur-popup) var(--ease-out);
+}
+
+:host(.mm-salir) {
+  animation: mm-fundido var(--dur-salir) var(--ease-in) reverse forwards;
+}
+
+@keyframes mm-fundido {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host(.mm-entrar) {
+    animation: none;
+  }
+
+  :host(.mm-salir) {
+    animation-duration: 1ms;
+  }
+
+  .mm-boton,
+  .mm-tipo,
+  .mm-movimientos {
+    transition: none;
+  }
+
+  .mm-hueso {
+    animation: none;
+  }
+}
