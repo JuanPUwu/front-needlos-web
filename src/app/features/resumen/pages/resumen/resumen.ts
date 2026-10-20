@@ -35,6 +35,10 @@ import {
   Totales,
 } from '../../models/resumen.model';
 import { ResumenService, diasEntre, fechasDePeriodo } from '../../services/resumen.service';
+import { INTERVALO_LISTAS_MS, recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 const TAMANO_PAGINA = 20;
 
@@ -55,6 +59,7 @@ const CEROS: Totales = { ingresos: 0, devoluciones: 0, egresos: 0, neto: 0 };
 @Component({
   selector: 'app-resumen',
   imports: [
+    BotonRecargar,
     TituloBloque,
     Encabezado,
     MonedaPipe,
@@ -68,6 +73,7 @@ const CEROS: Totales = { ingresos: 0, devoluciones: 0, egresos: 0, neto: 0 };
 })
 export class Resumen implements OnInit {
   private readonly service = inject(ResumenService);
+  private readonly confirmacion = inject(Confirmacion);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -134,6 +140,10 @@ export class Resumen implements OnInit {
   });
   readonly esqueleto = computed(() => !this.datos());
 
+  constructor() {
+    recargaAutomatica(() => this.recargar(), { cadaMs: INTERVALO_LISTAS_MS });
+  }
+
   ngOnInit(): void {
     const q = this.route.snapshot.queryParamMap;
     const periodo = (q.get('periodo') as Periodo | null) ?? 'hoy';
@@ -147,6 +157,26 @@ export class Resumen implements OnInit {
     }
     this.filtrosMov.set(filtrosDesdeUrl(q, FILTROS_MOVIMIENTOS_INICIALES));
     this.cargar(Math.max(Number(q.get('pagina')) || 1, 1) - 1);
+  }
+
+  /** Trae lo último sin vaciar lo que se ve (cifras y la misma página de movimientos). */
+  recargar(): void {
+    const { desde, hasta } = this.fechas();
+    this.cargando.set(true);
+    this.service
+      .obtener(desde, hasta)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => {
+          this.datos.set(r);
+          this.cargando.set(false);
+        },
+        error: (err: unknown) => {
+          this.cargando.set(false);
+          this.error.set(mensajeDeError(err, 'No se pudo cargar el resumen.'));
+        },
+      });
+    this.cargarMovimientos(this.paginaMov());
   }
 
   elegir(periodo: Periodo): void {
@@ -163,6 +193,16 @@ export class Resumen implements OnInit {
   verRango(): void {
     if (this.rango.invalid) {
       this.rango.markAllAsTouched();
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.rango,
+        'ver el rango',
+        { desde: 'la fecha desde', hasta: 'la fecha hasta' },
+        this.rango.hasError('rangoInvertido') ? ['que "Hasta" no sea anterior a "Desde"'] : [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     const { desde, hasta } = this.rango.getRawValue();

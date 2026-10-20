@@ -3,11 +3,12 @@ import { RouterLink } from '@angular/router';
 import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { Icono } from '../../../../shared/ui/icono/icono';
 
 /** Ajustes: accesos a la configuración de la sastrería y de la cuenta, y cerrar sesión. */
 @Component({
   selector: 'app-ajustes',
-  imports: [Encabezado, RouterLink],
+  imports: [Encabezado, RouterLink, Icono],
   templateUrl: './ajustes.html',
   styleUrl: './ajustes.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

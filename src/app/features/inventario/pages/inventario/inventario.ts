@@ -30,6 +30,9 @@ import {
   OrdenMateriales,
 } from '../../models/material.model';
 import { MaterialService } from '../../services/material.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const TAMANO_PAGINA = 20;
 const CLAVE_PANEL = 'inventario:filtros-abiertos';
@@ -41,7 +44,7 @@ const CLAVE_PANEL = 'inventario:filtros-abiertos';
  */
 @Component({
   selector: 'app-inventario',
-  imports: [Encabezado, Esqueleto, Icono, MaterialesTabla, MaterialModal],
+  imports: [Vacio, BotonRecargar, Encabezado, Esqueleto, Icono, MaterialesTabla, MaterialModal],
   templateUrl: './inventario.html',
   styleUrl: './inventario.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -84,6 +87,12 @@ export class Inventario implements OnInit {
   });
   readonly hayFiltros = computed(() => this.cantidadFiltros() > 0 || this.filtros().buscar !== '');
 
+  constructor() {
+    recargaAutomatica(() => this.recargar(), {
+      puede: () => !this.materialAbierto() && !this.creando(),
+    });
+  }
+
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
     this.filtros.set(filtrosDesdeUrl(params, FILTROS_MATERIALES_INICIALES));
@@ -101,6 +110,11 @@ export class Inventario implements OnInit {
       });
     this.cargar(Math.max(Number(params.get('pagina')) || 1, 1) - 1);
     this.contarStockBajo();
+  }
+
+  /** Trae lo último sin perder lo que se ve. */
+  recargar(): void {
+    this.cargar(this.pagina());
   }
 
   alBuscar(texto: string): void {

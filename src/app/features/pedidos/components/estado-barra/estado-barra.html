@@ -9,13 +9,12 @@
       [attr.data-estado]="t.valor || 'TODO'"
       (click)="elegir.emit(t.valor)"
     >
-      <span class="barra-pestana__texto">
-        {{ t.etiqueta }}
-        @if (cantidadDe(t.valor); as n) {
-          <span class="barra-pestana__cuenta">{{ n }}</span>
-        }
-      </span>
+      <span class="barra-pestana__texto">{{ t.etiqueta }}</span>
       <app-icono class="barra-pestana__icono" [nombre]="t.icono" />
+      <!-- Cantidad: círculo en la esquina, como el contador de filtros (dueño 2026-10-20). -->
+      @if (cantidadDe(t.valor); as n) {
+        <span class="barra-pestana__cuenta">{{ n }}</span>
+      }
     </button>
   }
 </div>

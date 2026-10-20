@@ -32,6 +32,10 @@ import {
   OrdenClientes,
 } from '../../models/cliente.model';
 import { ClienteService } from '../../services/cliente.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 /** Al menos un caracter visible (el backend rechaza textos solo con espacios). */
 const CON_TEXTO = /\S/;
@@ -54,6 +58,8 @@ const ORDENES: { valor: OrdenClientes; etiqueta: string }[] = [
 @Component({
   selector: 'app-clientes',
   imports: [
+    Vacio,
+    BotonRecargar,
     TituloBloque,
     Esqueleto,
     Encabezado,
@@ -103,6 +109,8 @@ export class Clientes implements OnInit {
     () => [this.filtros().desde, this.filtros().hasta].filter(Boolean).length,
   );
   readonly cargando = signal(true);
+  /** Ya cargó una vez: recargar no vuelve al esqueleto (conserva lo que se ve). */
+  readonly listo = signal(false);
   readonly error = signal<string | null>(null);
 
   readonly editando = signal<Cliente | null>(null);
@@ -145,6 +153,10 @@ export class Clientes implements OnInit {
     },
   );
 
+  constructor() {
+    recargaAutomatica(() => this.recargar());
+  }
+
   ngOnInit(): void {
     // Filtros y página vienen de la URL: una recarga deja la lista igual.
     const params = this.route.snapshot.queryParamMap;
@@ -169,6 +181,11 @@ export class Clientes implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.errorTelefono.set(null));
     this.cargar(Math.max(Number(params.get('pagina')) || 1, 1) - 1);
+  }
+
+  /** Trae lo último sin perder lo que se ve. */
+  recargar(): void {
+    this.cargar(this.pagina());
   }
 
   alternarFiltros(): void {
@@ -205,6 +222,16 @@ export class Clientes implements OnInit {
   enviar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.form,
+        this.editando() ? 'guardar el cliente' : 'crear el cliente',
+        { nombre: 'el nombre', apellido: 'el apellido', telefono: 'el teléfono' },
+        [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     if (this.guardando()) {
@@ -371,6 +398,7 @@ export class Clientes implements OnInit {
       .subscribe({
         next: (p) => {
           this.clientes.set(p.contenido);
+          this.listo.set(true);
           this.total.set(p.totalElementos);
           this.pagina.set(p.pagina);
           this.totalPaginas.set(p.totalPaginas);

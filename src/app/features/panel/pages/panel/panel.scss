@@ -254,16 +254,6 @@
   color: var(--color-text-muted);
 }
 
-// Campana de escritorio: fija arriba a la derecha, centrada en el alto del encabezado.
-.panel__campana {
-  position: fixed;
-  // Alineada con el botón "+" del encabezado (misma altura de 48 px).
-  top: calc(var(--space-4) * 3 - 3px);
-  right: calc(var(--space-4) + var(--space-4) + var(--space-4));
-  // Capas (Reglas §12.2): cajón 40 < campana 45 < popups 50.
-  z-index: 45;
-}
-
 // El área donde se pintan las secciones: ocupa el alto que queda y hace scroll
 // internamente si la sección crece (la barra lateral no se mueve).
 .panel__contenido {
@@ -279,8 +269,6 @@
   // contenido (no al del viewport), que es el espacio que queda tras la barra.
   container-type: inline-size;
   container-name: panel;
-  // Los encabezados de las secciones dejan este espacio libre para la campana.
-  --reserva-campana: 60px;
 }
 
 // ── Tablets y pantallas delgadas: barra lateral como cajón (hamburguesa) ──
@@ -297,21 +285,12 @@
     flex-direction: column;
   }
 
-  // La campana va en la barra superior: los encabezados no reservan espacio.
-  .panel__campana {
-    display: none;
-  }
-
-  .panel__contenido {
-    --reserva-campana: 0px;
-  }
-
   .panel__topbar {
     display: flex;
     align-items: center;
     gap: var(--space-4);
     flex-shrink: 0;
-    padding: var(--space-3) var(--space-5);
+    padding: var(--space-4);
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border-soft);
   }
@@ -376,5 +355,30 @@
 
   .panel__backdrop {
     animation: none;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .panel__nav {
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-3) var(--space-3);
+  }
+
+  .panel__plan {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .panel__item {
+    padding: 0 var(--space-3);
+  }
+
+  .panel__perfil {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .panel__topbar {
+    gap: var(--space-3);
+    padding: var(--space-3);
   }
 }

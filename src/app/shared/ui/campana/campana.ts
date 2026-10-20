@@ -1,8 +1,16 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
-import { Bandeja, NotificacionBandeja } from '../../../../core/notificaciones/bandeja';
-import { FechaHoraPipe } from '../../../../shared/pipes/fecha-hora.pipe';
-import { Icono } from '../../../../shared/ui/icono/icono';
+import { Bandeja, NotificacionBandeja } from '../../../core/notificaciones/bandeja';
+import { FechaHoraPipe } from '../../pipes/fecha-hora.pipe';
+import { Icono } from '../icono/icono';
+import { Vacio } from '../vacio/vacio';
 
 /** Mientras carga: avisos de ejemplo con el mismo marcado, en gris. */
 const ESQUELETO: NotificacionBandeja[] = Array.from({ length: 4 }, (_, i) => ({
@@ -16,13 +24,13 @@ const ESQUELETO: NotificacionBandeja[] = Array.from({ length: 4 }, (_, i) => ({
 }));
 
 /**
- * Campana de notificaciones (Manual §19.1): arriba a la derecha en escritorio y en la barra
- * superior de tablet/teléfono. Muestra cuántas hay sin leer y, al abrirla, la bandeja con lo más
+ * Campana de notificaciones (Manual §19.1): la última acción del encabezado de cada sección
+ * (`app-encabezado`), en todas las pantallas. Muestra cuántas hay sin leer y, al abrirla, la bandeja con lo más
  * reciente primero. Tocar un aviso lo marca leído y lleva a donde corresponde.
  */
 @Component({
   selector: 'app-campana',
-  imports: [Icono, FechaHoraPipe],
+  imports: [Vacio, Icono, FechaHoraPipe],
   templateUrl: './campana.html',
   styleUrl: './campana.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,12 +38,19 @@ const ESQUELETO: NotificacionBandeja[] = Array.from({ length: 4 }, (_, i) => ({
     '(document:click)': 'alClicFuera($event)',
     '(document:keydown.escape)': 'cerrar()',
     '(window:resize)': 'cerrar()',
+    '[class.cmp--barra]': "variante() === 'barra'",
   },
 })
 export class Campana {
   readonly bandeja = inject(Bandeja);
   private readonly router = inject(Router);
   private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /**
+   * `encabezado`: cuadrada de 48 px como el "+" (escritorio). `barra`: igual al botón del menú
+   * hamburguesa (44 px), para la barra superior de tablet/teléfono.
+   */
+  readonly variante = input<'encabezado' | 'barra'>('encabezado');
 
   readonly abierta = signal(false);
   readonly esqueleto = ESQUELETO;

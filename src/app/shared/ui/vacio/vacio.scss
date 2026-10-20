@@ -1,0 +1,67 @@
+// Estado vacío de una lista. Solo tokens globales; espaciado con gap.
+
+:host {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.vacio {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.vacio__circulo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  // Gris, no azul: no debe parecer un botón ni una acción (dueño 2026-10-20).
+  color: var(--color-text-muted);
+}
+
+.vacio__icono {
+  width: 28px;
+  height: 28px;
+}
+
+.vacio__titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.vacio--compacto {
+  gap: var(--space-2);
+  padding: var(--space-3);
+
+  .vacio__circulo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .vacio__icono {
+    width: 22px;
+    height: 22px;
+  }
+
+  .vacio__titulo {
+    font-size: 0.9rem;
+  }
+}
+
+.vacio__mensaje {
+  max-width: 36ch;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}

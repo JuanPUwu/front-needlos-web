@@ -48,7 +48,10 @@ describe('Clientes', () => {
       imports: [Clientes],
       providers: [
         { provide: ClienteService, useValue: service },
-        { provide: AuthService, useValue: { roles } },
+        {
+          provide: AuthService,
+          useValue: { roles, autenticado: () => false, soporte: () => false, sesion: () => null },
+        },
         { provide: PermisosService, useValue: { puede: () => true } },
         provideRouter([]),
       ],

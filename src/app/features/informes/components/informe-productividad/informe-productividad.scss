@@ -110,10 +110,9 @@
 }
 
 .ip-vacio {
-  padding: var(--space-4) 0;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-align: center;
+  // Lista vacía: app-vacio centrado en el espacio libre (dueño 2026-10-20).
+  flex: 1;
+  display: flex;
 }
 
 .ip-ayuda {
@@ -160,5 +159,23 @@
 @media (prefers-reduced-motion: reduce) {
   .ip--esqueleto * {
     animation: none;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  :host {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .ip-encabezado {
+    gap: var(--space-3);
+    padding: 0 var(--space-3);
+  }
+
+  .ip-fila {
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-3);
   }
 }

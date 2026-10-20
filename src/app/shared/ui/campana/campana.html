@@ -63,7 +63,9 @@
           </button>
         </li>
       } @empty {
-        <li class="cmp__vacio">No tienes notificaciones.</li>
+        <li class="cmp__vacio">
+          <app-vacio icono="campana" titulo="No tienes notificaciones" [compacto]="true" />
+        </li>
       }
     </ul>
   </section>

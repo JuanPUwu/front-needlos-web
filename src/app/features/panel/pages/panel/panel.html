@@ -17,8 +17,9 @@
         {{ a.texto }}
       </span>
     }
+    <!-- Tablet/teléfono: la campana va junto al menú, con su misma forma (dueño 2026-10-20). -->
     @if (bandejaActiva()) {
-      <app-campana />
+      <app-campana variante="barra" />
     }
     <button
       class="panel__hamburguesa"
@@ -120,10 +121,4 @@
   <section class="panel__contenido">
     <router-outlet />
   </section>
-
-  <!-- Bandeja de notificaciones: arriba a la derecha, en el espacio que le reservan los
-       encabezados de las secciones (dueño 2026-10-20). En tablet/teléfono va en la barra superior. -->
-  @if (bandejaActiva()) {
-    <app-campana class="panel__campana" />
-  }
 </main>

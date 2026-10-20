@@ -39,7 +39,15 @@ describe('ConfiguracionSastreria', () => {
       providers: [
         provideRouter([]),
         { provide: SastreriaService, useValue: service },
-        { provide: AuthService, useValue: { rutaInicial: () => '/inicio' } },
+        {
+          provide: AuthService,
+          useValue: {
+            rutaInicial: () => '/inicio',
+            autenticado: () => false,
+            soporte: () => false,
+            sesion: () => null,
+          },
+        },
       ],
     });
     componente = TestBed.createComponent(ConfiguracionSastreria).componentInstance;

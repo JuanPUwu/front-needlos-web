@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--space-2);
+  gap: var(--space-4);
   width: min(380px, calc(100vw - 2 * var(--space-4)));
   pointer-events: none;
 }
@@ -18,9 +18,9 @@
 .notif {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-4);
   width: 100%;
-  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  padding: var(--space-4);
   border: 1px solid var(--color-border-soft);
   border-left: 4px solid var(--tono);
   border-radius: var(--radius-md);
@@ -113,5 +113,17 @@
   .notif--entrar,
   .notif--salir {
     animation-duration: 1ms;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .notif-pila {
+    gap: var(--space-3);
+  }
+
+  .notif {
+    gap: var(--space-3);
+    padding: var(--space-3);
   }
 }

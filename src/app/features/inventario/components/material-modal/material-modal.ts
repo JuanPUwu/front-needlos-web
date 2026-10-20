@@ -38,6 +38,8 @@ import {
   etiquetaUnidad,
 } from '../../models/material.model';
 import { MaterialService } from '../../services/material.service';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 const CON_TEXTO = /\S/;
 const TAMANO_HISTORIAL = 10;
@@ -58,7 +60,15 @@ export interface CambioMaterial {
  */
 @Component({
   selector: 'app-material-modal',
-  imports: [ReactiveFormsModule, Encabezado, Icono, TituloBloque, CantidadPipe, FechaHoraPipe],
+  imports: [
+    Vacio,
+    ReactiveFormsModule,
+    Encabezado,
+    Icono,
+    TituloBloque,
+    CantidadPipe,
+    FechaHoraPipe,
+  ],
   templateUrl: './material-modal.html',
   styleUrl: './material-modal.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -212,6 +222,17 @@ export class MaterialModal implements OnInit, OnDestroy {
     const cantidad = aNumero(this.movimiento.controls.cantidad.value);
     this.movimiento.markAllAsTouched();
     if (!m || this.movimiento.invalid || cantidad === null || this.errorCantidad()) {
+      const problema = this.movimiento.controls.cantidad.valid ? this.errorCantidad() : null;
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.movimiento,
+        'registrar el movimiento',
+        { tipo: 'el tipo', cantidad: 'la cantidad', razon: 'la razón' },
+        problema ? [`la cantidad (${problema.toLowerCase()})`] : [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     if (this.guardando()) {
@@ -250,7 +271,25 @@ export class MaterialModal implements OnInit, OnDestroy {
     const stockMinimo = aNumero(this.datos.controls.stockMinimo.value);
     const inicial = aNumero(this.datos.controls.cantidadInicial.value);
     this.datos.markAllAsTouched();
-    if (this.datos.invalid || stockMinimo === null || this.guardando()) {
+    if (this.datos.invalid || stockMinimo === null) {
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.datos,
+        this.materialId() ? 'guardar el material' : 'crear el material',
+        {
+          nombre: 'el nombre',
+          unidad: 'la unidad',
+          stockMinimo: 'el stock mínimo',
+          cantidadInicial: 'la cantidad inicial',
+        },
+        [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
+      return;
+    }
+    if (this.guardando()) {
       return;
     }
     const v = this.datos.getRawValue();

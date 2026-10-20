@@ -68,6 +68,8 @@
 
   @container panel (max-width: 560px) {
     padding: var(--space-3);
+    // Relleno y separación iguales en teléfono.
+    gap: var(--space-3);
   }
 }
 
@@ -84,6 +86,7 @@
 
   @container materialeslista (max-width: 560px) {
     flex-wrap: wrap;
+    gap: var(--space-3);
 
     .inventario-buscador-caja {
       flex-basis: 100%;
@@ -282,13 +285,6 @@
   }
 }
 
-.inventario-vacio {
-  padding: var(--space-6) 0;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
 // ── Paginación ──────────────────────────────────────────────
 .inventario-paginacion {
   display: flex;
@@ -300,4 +296,55 @@
 .inventario-paginacion__texto {
   font-size: 0.9rem;
   color: var(--color-text-muted);
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .inventario-page,
+  .inventario-contenedor {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// Teléfono: "Limpiar filtros" ocupa toda la fila (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .inventario-limpiar {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .inventario-page {
+    padding: var(--space-3);
+  }
+
+  .inventario-contenedor {
+    gap: var(--space-3);
+  }
+
+  .inventario-buscar-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .inventario-cuenta {
+    padding: 0 var(--space-3);
+  }
+
+  .inventario-filtros {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .inventario-limpiar {
+    padding: 0 var(--space-3);
+  }
+
+  .inventario-pagina {
+    padding: 0 var(--space-3);
+  }
 }

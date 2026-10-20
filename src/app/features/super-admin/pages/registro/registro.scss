@@ -60,7 +60,7 @@
   @container sregbloque (max-width: 760px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    .sreg-control--buscar {
+    .sreg-buscar {
       grid-column: 1 / -1;
     }
   }
@@ -187,10 +187,9 @@
 }
 
 .sreg-vacio {
-  padding: var(--space-6) 0;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-align: center;
+  // Lista vacía: app-vacio centrado en el espacio libre (dueño 2026-10-20).
+  flex: 1;
+  display: flex;
 }
 
 .sreg-paginacion {
@@ -242,5 +241,69 @@
   .sreg--esqueleto .sreg-item__fila > *,
   .sreg-cuenta--esqueleto {
     animation: none;
+  }
+}
+
+// Buscador y botón de recargar en la misma celda (dueño 2026-10-20).
+.sreg-buscar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .sreg {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// Teléfono: "Limpiar filtros" ocupa toda la fila (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .sreg-limpiar {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .sreg {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .sreg-bloque {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .sreg-filtros {
+    gap: var(--space-3);
+  }
+
+  .sreg-limpiar {
+    padding: 0 var(--space-3);
+  }
+
+  .sreg-pagina {
+    padding: 0 var(--space-3);
+  }
+
+  .sreg-item {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .sreg-buscar {
+    gap: var(--space-3);
   }
 }

@@ -30,6 +30,9 @@ import {
   OrdenGastos,
 } from '../../models/gasto.model';
 import { GastoService } from '../../services/gasto.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const TAMANO_PAGINA = 20;
 const CLAVE_PANEL = 'gastos:filtros-abiertos';
@@ -41,7 +44,16 @@ const CLAVE_PANEL = 'gastos:filtros-abiertos';
  */
 @Component({
   selector: 'app-gastos',
-  imports: [Encabezado, Esqueleto, Icono, MonedaPipe, GastosTabla, GastoModal],
+  imports: [
+    Vacio,
+    BotonRecargar,
+    Encabezado,
+    Esqueleto,
+    Icono,
+    MonedaPipe,
+    GastosTabla,
+    GastoModal,
+  ],
   templateUrl: './gastos.html',
   styleUrl: './gastos.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,6 +92,12 @@ export class Gastos implements OnInit {
   });
   readonly hayFiltros = computed(() => this.cantidadFiltros() > 0 || this.filtros().buscar !== '');
 
+  constructor() {
+    recargaAutomatica(() => this.recargar(), {
+      puede: () => !this.gastoAbierto() && !this.creando(),
+    });
+  }
+
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
     this.filtros.set(filtrosDesdeUrl(params, FILTROS_GASTOS_INICIALES));
@@ -96,6 +114,11 @@ export class Gastos implements OnInit {
         }
       });
     this.cargar(Math.max(Number(params.get('pagina')) || 1, 1) - 1);
+  }
+
+  /** Trae lo último sin perder lo que se ve. */
+  recargar(): void {
+    this.cargar(this.pagina());
   }
 
   alBuscar(texto: string): void {

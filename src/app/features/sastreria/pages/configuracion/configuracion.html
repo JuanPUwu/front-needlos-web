@@ -1,6 +1,9 @@
 <main class="sastreria-page">
   <div class="sastreria-contenedor">
     <app-encabezado
+      [recargable]="true"
+      [recargando]="cargando()"
+      (recargar)="recargar()"
       titulo="Mi sastrería"
       subtitulo="El nombre es obligatorio; los demás datos son opcionales y saldrán en tus tickets."
       icono="tienda"

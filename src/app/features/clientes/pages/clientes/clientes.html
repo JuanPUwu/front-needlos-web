@@ -10,7 +10,7 @@
       <!-- ── Resumen ───────────────────────────────────────────── -->
       <div class="clientes-stat">
         <span class="clientes-stat__num">
-          @if (cargando()) {
+          @if (cargando() && !listo()) {
             <app-esqueleto forma="numero" texto="Cargando..." />
           } @else {
             {{ total() }}
@@ -117,15 +117,18 @@
             idTitulo="titulo-lista"
             [error]="errorFiltros() ?? error()"
           />
-          <input
-            #buscador
-            class="clientes-field__input clientes-buscador"
-            type="search"
-            placeholder="Buscar por nombre, apellido o teléfono"
-            aria-label="Buscar clientes"
-            [value]="filtros().buscar"
-            (input)="alBuscar(buscador.value)"
-          />
+          <div class="clientes-buscar">
+            <input
+              #buscador
+              class="clientes-field__input clientes-buscador"
+              type="search"
+              placeholder="Buscar por nombre, apellido o teléfono"
+              aria-label="Buscar clientes"
+              [value]="filtros().buscar"
+              (input)="alBuscar(buscador.value)"
+            />
+            <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
+          </div>
         </div>
 
         <button
@@ -198,16 +201,22 @@
           }
         </div>
 
-        @if (cargando()) {
+        @if (cargando() && !listo()) {
           <app-esqueleto forma="lista" [filas]="6" [alto]="92" texto="Cargando clientes..." />
         } @else if (clientes().length === 0) {
-          <p class="clientes-bloque__ayuda">
-            {{
-              hayFiltros()
-                ? 'Ningún cliente coincide con los filtros.'
-                : 'Aún no hay clientes. Crea el primero.'
-            }}
-          </p>
+          @if (hayFiltros()) {
+            <app-vacio
+              icono="carrete"
+              titulo="No encontramos clientes"
+              mensaje="Ningún cliente coincide con los filtros. Prueba con otra búsqueda u otros filtros."
+            />
+          } @else {
+            <app-vacio
+              icono="clientes"
+              titulo="Aún no hay clientes"
+              mensaje="Crea el primero en el formulario."
+            />
+          }
         } @else {
           <ul class="clientes-lista">
             @for (c of clientes(); track c.id) {

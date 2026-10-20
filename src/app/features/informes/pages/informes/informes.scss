@@ -24,15 +24,12 @@
 }
 
 .informes-periodo {
-  // Pestañas y fechas en la misma fila (deja más alto a los informes); el rango, debajo.
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  // Pestañas (con recargar) y fechas en la misma fila; el rango, debajo. Flex: sin fecha
+  // (periodo "Hoy") no queda una columna vacía a la derecha.
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-4);
-
-  @container panel (max-width: 760px) {
-    grid-template-columns: minmax(0, 1fr);
-  }
   min-width: 0;
   padding: var(--space-4);
   background: var(--color-surface);
@@ -84,7 +81,7 @@
 }
 
 .informes-rango {
-  grid-column: 1 / -1;
+  flex-basis: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   align-items: end;
@@ -169,7 +166,13 @@
 }
 
 .informes-fechas {
+  flex-shrink: 0;
   margin-left: var(--space-2);
+
+  @container panel (max-width: 760px) {
+    flex-basis: 100%;
+  }
+
   font-size: 0.9rem;
   color: var(--color-text-muted);
 }
@@ -194,5 +197,87 @@
 @media (prefers-reduced-motion: reduce) {
   .informes-pestana {
     transition: none;
+  }
+}
+
+// Pestañas de periodo y, al final, el botón de recargar (dueño 2026-10-20).
+.informes-periodo__fila {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+
+  .informes-pestanas {
+    flex: 1;
+    min-width: 0;
+  }
+
+  // Teléfono: las pestañas toman la fila y el botón baja a la derecha.
+  @container panel (max-width: 560px) {
+    flex-wrap: wrap;
+
+    .informes-pestanas {
+      flex-basis: 100%;
+    }
+
+    app-boton-recargar {
+      // Alineación a la derecha de su fila (no es espaciado entre elementos).
+      margin-left: auto;
+    }
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .informes-page,
+  .informes-contenedor {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .informes-page {
+    padding: var(--space-3);
+  }
+
+  .informes-contenedor {
+    gap: var(--space-3);
+  }
+
+  .informes-periodo {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .informes-pestanas {
+    gap: var(--space-3);
+  }
+
+  .informes-rango {
+    gap: var(--space-3);
+  }
+
+  .informes-campo {
+    gap: var(--space-3);
+  }
+
+  .informes-control {
+    padding: 0 var(--space-3);
+  }
+
+  .informes-ver {
+    padding: 0 var(--space-3);
+  }
+
+  .informes-grilla {
+    gap: var(--space-3);
+  }
+
+  .informes-periodo__fila {
+    gap: var(--space-3);
   }
 }

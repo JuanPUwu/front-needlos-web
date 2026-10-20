@@ -6,8 +6,8 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { EstadoSastreria } from '../../../../core/auth/estado-sastreria';
 import { Bandeja } from '../../../../core/notificaciones/bandeja';
 import { Icono, NombreIcono } from '../../../../shared/ui/icono/icono';
+import { Campana } from '../../../../shared/ui/campana/campana';
 import { Logo } from '../../../../shared/ui/logo/logo';
-import { Campana } from '../../components/campana/campana';
 
 /** Una sección de la barra lateral. */
 interface SeccionNav {
@@ -38,7 +38,10 @@ export class Panel {
 
   readonly esAdmin = computed(() => this.auth.roles().includes('SASTRE_ADMIN'));
 
-  /** La bandeja de notificaciones (no en modo soporte). Se crea aquí para toda la app. */
+  /**
+   * La bandeja de notificaciones se crea aquí para toda la app. Su campana va en el encabezado de
+   * cada sección (escritorio) y en la barra superior junto al menú (tablet/teléfono).
+   */
   readonly bandejaActiva = inject(Bandeja).activa;
 
   /** Tarjeta de la barra lateral: la sastrería (o la plataforma, para el SuperAdmin) y quién soy. */

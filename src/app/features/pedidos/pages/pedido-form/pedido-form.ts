@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   OnInit,
   computed,
   inject,
@@ -96,6 +97,7 @@ export class PedidoForm implements OnInit {
   private readonly memoria = inject(Memoria);
   private readonly router = inject(Router);
   private readonly confirmacion = inject(Confirmacion);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
 
   /** Vive en el popup de Pedidos. Con id edita ese pedido; sin id crea uno nuevo. */
@@ -126,6 +128,10 @@ export class PedidoForm implements OnInit {
   readonly clienteEncontrado = signal<Cliente | null>(null);
   readonly buscandoCliente = signal(false);
   readonly telefonoConsultado = signal(false);
+  /** Hay avisos del cliente que mostrar (cliente registrado, debe, cliente nuevo). */
+  readonly hayAvisos = computed(
+    () => !this.editando() && this.telefonoConsultado() && !this.buscandoCliente(),
+  );
   readonly errorTelefono = signal<string | null>(null);
 
   /** Clave de la operación: se conserva al reintentar (y al recargar) para no duplicar. */
@@ -388,6 +394,7 @@ export class PedidoForm implements OnInit {
       descripcion: f.descripcion,
     });
     this.editandoLinea.set(indice);
+    this.llevarA('#lineaTipo');
   }
 
   cancelarLinea(): void {
@@ -452,6 +459,7 @@ export class PedidoForm implements OnInit {
       this.totalBajoAbonado()
     ) {
       this.form.markAllAsTouched();
+      this.avisarFaltantes();
       return;
     }
     if (this.guardando()) {
@@ -530,6 +538,63 @@ export class PedidoForm implements OnInit {
         this.error.set(mensajeDeError(err, 'No se pudo guardar el pedido.'));
       },
     });
+  }
+
+  /**
+   * Qué falta para crear o guardar (dueño 2026-10-20): se avisa en un popup que hay que aceptar
+   * y, si el formulario se desplaza (teléfono), se lleva al primer dato que falta.
+   */
+  private avisarFaltantes(): void {
+    const c = this.form.controls;
+    const faltan: { texto: string; selector: string }[] = [];
+    if (c.telefono.invalid) {
+      faltan.push({ texto: 'el teléfono del cliente', selector: '#telefono' });
+    }
+    if (c.nombre.invalid || c.apellido.invalid) {
+      faltan.push({ texto: 'el nombre y el apellido', selector: '#nombre' });
+    }
+    if (this.filas.length === 0) {
+      faltan.push({ texto: 'al menos una prenda en la lista', selector: '#lineaTipo' });
+    }
+    if (c.fechaEntrega.invalid) {
+      faltan.push({ texto: 'la fecha de entrega', selector: 'app-calendario' });
+    }
+    if (faltan.length > 0) {
+      const lista = faltan.map((f) => f.texto);
+      const texto =
+        lista.length === 1 ? lista[0] : lista.slice(0, -1).join(', ') + ' y ' + lista.at(-1);
+      const que = this.editando() ? 'guardar' : 'crear';
+      this.avisar('Falta información', `Para ${que} el pedido falta ${texto}.`, faltan[0].selector);
+      return;
+    }
+    // Lo demás (descuento, abono, total) ya se explica en la línea del título.
+    const motivo = this.errorAviso();
+    if (motivo) {
+      this.avisar('Revisa el pedido', motivo, '.pf-cobro');
+    }
+  }
+
+  /**
+   * Aviso en el centro de la pantalla que hay que aceptar (dueño 2026-10-20: no una
+   * notificación); al aceptarlo, si el popup se desplaza, lleva al dato que falta.
+   */
+  private avisar(titulo: string, mensaje: string, selector: string): void {
+    void this.confirmacion.avisar({ titulo, mensaje }).then(() => this.llevarA(selector));
+  }
+
+  /**
+   * Solo cuando el popup se desplaza (teléfono o pantallas bajas): lleva lo indicado a la mitad
+   * de la pantalla, para ahorrarle el desplazamiento a la persona (dueño 2026-10-20).
+   */
+  private llevarA(selector: string): void {
+    const destino = this.host.nativeElement.querySelector<HTMLElement>(selector);
+    const caja = this.host.nativeElement.closest<HTMLElement>('[role="dialog"]');
+    if (!destino || !caja || caja.scrollHeight <= caja.clientHeight) {
+      return;
+    }
+    const suave = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const objetivo = destino.closest<HTMLElement>('.pf-seccion') ?? destino;
+    objetivo.scrollIntoView({ block: 'center', behavior: suave ? 'smooth' : 'auto' });
   }
 
   private buscarCliente(telefono: string): void {

@@ -149,12 +149,9 @@
 
 // Lista vacía: mide lo mismo que una fila.
 .sas-vacio {
+  // Lista vacía: app-vacio centrado en el espacio libre (dueño 2026-10-20).
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 64px;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
 }
 
 // ── Formulario ──────────────────────────────────────────────
@@ -220,10 +217,6 @@
   &:focus {
     border-color: var(--color-border);
     box-shadow: 0 0 0 4px var(--focus-ring);
-  }
-
-  &.ng-touched.ng-invalid {
-    border-color: var(--color-danger);
   }
 }
 
@@ -329,5 +322,59 @@
 
   .sas--esqueleto * {
     animation: none !important;
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .sas {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .sas {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .sas-bento {
+    gap: var(--space-3);
+  }
+
+  .sas-columna {
+    gap: var(--space-3);
+  }
+
+  .sas-seccion {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .sas-item {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .sas-fila {
+    gap: var(--space-3);
+  }
+
+  .sas-campo {
+    gap: var(--space-3);
+  }
+
+  .sas-campo__input {
+    padding: 0 var(--space-3);
+  }
+
+  .sas-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .sas-boton--chico {
+    padding: 0 var(--space-3);
   }
 }

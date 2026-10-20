@@ -4,6 +4,7 @@ import { FechaPipe } from '../../../../shared/pipes/fecha.pipe';
 import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
 import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { Cartera, ETIQUETA_ENTREGA } from '../../models/informe.model';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const FILA = { id: '', numero: '#0-0', cliente: 'Cliente de ejemplo', fechaEntrega: '2026-01-01' };
 
@@ -26,7 +27,7 @@ const ESQUELETO: Cartera = {
  */
 @Component({
   selector: 'app-informe-cartera',
-  imports: [TituloBloque, MonedaPipe, FechaPipe],
+  imports: [Vacio, TituloBloque, MonedaPipe, FechaPipe],
   templateUrl: './informe-cartera.html',
   styleUrl: './informe-cartera.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

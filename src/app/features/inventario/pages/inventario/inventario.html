@@ -38,6 +38,7 @@
         <button class="inventario-buscar-boton" type="button" (click)="buscarAhora(buscador.value)">
           Buscar
         </button>
+        <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
         <button
           class="inventario-herramienta"
           type="button"
@@ -118,15 +119,25 @@
       @if (cargando() && materiales().length === 0) {
         <app-esqueleto forma="tabla" [filas]="6" [alto]="48" texto="Cargando inventario..." />
       } @else if (materiales().length === 0 && !error()) {
-        <p class="inventario-vacio">
-          @if (hayFiltros()) {
-            Ningún material coincide con lo elegido.
-          } @else if (puedeGestionar()) {
-            Aún no hay materiales. Agrega el primero con el botón +.
-          } @else {
-            Aún no hay materiales en el inventario.
-          }
-        </p>
+        @if (hayFiltros()) {
+          <app-vacio
+            icono="carrete"
+            titulo="No encontramos materiales"
+            mensaje="Ningún material coincide con lo elegido. Prueba con otra búsqueda u otros filtros."
+          />
+        } @else if (puedeGestionar()) {
+          <app-vacio
+            icono="inventario"
+            titulo="Aún no hay materiales"
+            mensaje="Agrega el primero con el botón +."
+          />
+        } @else {
+          <app-vacio
+            icono="inventario"
+            titulo="Aún no hay materiales"
+            mensaje="El inventario todavía está vacío."
+          />
+        }
       } @else if (materiales().length > 0) {
         <app-materiales-tabla
           [materiales]="materiales()"

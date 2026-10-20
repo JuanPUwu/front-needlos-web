@@ -36,6 +36,7 @@
         <button class="gastos-buscar-boton" type="button" (click)="buscarAhora(buscador.value)">
           Buscar
         </button>
+        <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
         <button
           class="gastos-herramienta"
           type="button"
@@ -127,13 +128,19 @@
       @if (cargando() && gastos().length === 0) {
         <app-esqueleto forma="tabla" [filas]="6" [alto]="48" texto="Cargando gastos..." />
       } @else if (gastos().length === 0) {
-        <p class="gastos-vacio">
-          {{
-            hayFiltros()
-              ? 'Ningún gasto coincide con lo elegido.'
-              : 'Aún no hay gastos. Registra el primero con el botón +.'
-          }}
-        </p>
+        @if (hayFiltros()) {
+          <app-vacio
+            icono="carrete"
+            titulo="No encontramos gastos"
+            mensaje="Ningún gasto coincide con lo elegido. Prueba con otra búsqueda u otros filtros."
+          />
+        } @else {
+          <app-vacio
+            icono="gastos"
+            titulo="Aún no hay gastos"
+            mensaje="Registra el primero con el botón +."
+          />
+        }
       } @else {
         <app-gastos-tabla
           [gastos]="gastos()"

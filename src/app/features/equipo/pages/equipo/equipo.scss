@@ -357,13 +357,28 @@
 
 // ── Filtros ─────────────────────────────────────────────────
 .equipo-filtros {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 160px) minmax(0, 140px) auto;
+  // Ancho: todo en una fila que ocupa el ancho completo (sin columnas vacías).
+  display: flex;
   align-items: center;
   gap: var(--space-4);
 
+  .equipo-filtros__buscar {
+    flex: 2 1 0;
+  }
+
+  > select {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
   @container listacard (max-width: 620px) {
+    display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+    // El buscador (con su botón de recargar) toma la fila completa.
+    .equipo-filtros__buscar {
+      grid-column: 1 / -1;
+    }
   }
 
   @container listacard (max-width: 380px) {
@@ -380,7 +395,8 @@
 .equipo-filtros__control {
   width: 100%;
   min-width: 0;
-  height: 38px;
+  // Misma altura que el botón de recargar y los filtros de las demás secciones.
+  height: 44px;
   padding: 0 var(--space-3);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-md);
@@ -494,5 +510,114 @@
 
   .equipo-boton:active:not(:disabled) {
     transform: none;
+  }
+}
+
+// Buscador y botón de recargar en la misma celda (dueño 2026-10-20).
+.equipo-filtros__buscar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .equipo-page,
+  .equipo-contenedor {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// Teléfono: "Limpiar filtros" ocupa toda la fila (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .equipo-filtros__limpiar {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .equipo-page {
+    padding: var(--space-3);
+  }
+
+  .equipo-contenedor {
+    gap: var(--space-3);
+  }
+
+  .equipo-bento {
+    gap: var(--space-3);
+  }
+
+  .equipo-stats {
+    gap: var(--space-3);
+  }
+
+  .equipo-stat {
+    padding: var(--space-3);
+  }
+
+  .equipo-bloque {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .equipo-form {
+    gap: var(--space-3);
+  }
+
+  .equipo-fila {
+    gap: var(--space-3);
+  }
+
+  .equipo-field {
+    gap: var(--space-3);
+  }
+
+  .equipo-field__input {
+    padding: 0 var(--space-3);
+  }
+
+  .equipo-form__acciones {
+    gap: var(--space-3);
+  }
+
+  .equipo-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .equipo-boton--secundario {
+    padding: 0 var(--space-3);
+  }
+
+  .equipo-boton--peligro {
+    padding: 0 var(--space-3);
+  }
+
+  .equipo-lista-scroll {
+    gap: var(--space-3);
+  }
+
+  .equipo-filtros {
+    gap: var(--space-3);
+  }
+
+  .equipo-item {
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+  }
+
+  .equipo-filtros__buscar {
+    gap: var(--space-3);
   }
 }

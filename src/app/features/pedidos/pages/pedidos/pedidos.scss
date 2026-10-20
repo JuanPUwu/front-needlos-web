@@ -65,10 +65,6 @@
   // Mismo nombre que la tabla: los filtros se adaptan al ancho de esta cápsula.
   container-type: inline-size;
   container-name: pedidoslista;
-
-  @container panel (max-width: 560px) {
-    padding: var(--space-3);
-  }
 }
 
 // ── Bloque de la tabla ──────────────────────────────────────
@@ -86,15 +82,6 @@
   box-shadow: var(--shadow-card);
   container-type: inline-size;
   container-name: pedidoslista;
-
-  @container panel (max-width: 560px) {
-    padding: var(--space-3);
-  }
-}
-
-.pedidos-bloque__ayuda {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
 }
 
 .pedidos-lista-cabecera {
@@ -396,5 +383,82 @@
   * {
     transition: none !important;
     transform: none !important;
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .pedidos-page,
+  .pedidos-contenedor {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+
+  // Casillas de filtro: dos por fila a todo el ancho; "Limpiar filtros" ocupa la fila entera
+  // (dueño 2026-10-20).
+  .pedidos-filtro--casillas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-column: 1 / -1;
+  }
+
+  .pedidos-filtros__limpiar {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .pedidos-page {
+    padding: var(--space-3);
+  }
+
+  .pedidos-contenedor {
+    gap: var(--space-3);
+  }
+
+  .pedidos-buscar {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .pedidos-bloque {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .pedidos-lista-cabecera {
+    gap: var(--space-3);
+  }
+
+  .pedidos-busqueda {
+    gap: var(--space-3);
+  }
+
+  .pedidos-buscar-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .pedidos-cuenta {
+    padding: 0 var(--space-3);
+  }
+
+  .pedidos-filtros {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .pedidos-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .pedidos-boton--secundario {
+    padding: 0 var(--space-3);
+  }
+
+  .pedidos-paginacion {
+    gap: var(--space-3);
   }
 }

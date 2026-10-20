@@ -45,3 +45,41 @@ body {
     min-height: 22px;
   }
 }
+
+/*
+ * Fechas y horas (dueño 2026-10-20): Safari (iPhone) les da un ancho mínimo propio y centra el
+ * texto, así que se salían de su contenedor. Toman el ancho de su contenedor y el texto a la
+ * izquierda, como los demás campos.
+ */
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'],
+input[type='month'] {
+  -webkit-appearance: none;
+  appearance: none;
+  // Safari los dibuja como inline-flex centrado en vertical: se conserva (con display: block la
+  // fecha subía al borde superior y el campo crecía).
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+
+  &::-webkit-date-and-time-value {
+    margin: 0;
+    text-align: left;
+  }
+}
+
+/*
+ * Obligatorio sin llenar (dueño 2026-10-20): al intentar enviar (markAllAsTouched) o al salir
+ * de un campo obligatorio vacío o mal escrito, su borde se pinta de rojo. Vale para todos los
+ * formularios de la app. Los campos sin borde propio (dentro de una caja, como en las tarjetas
+ * de acceso) pintan su caja con `:has(.ng-touched.ng-invalid)`, y las piezas propias
+ * (calendario, lista de prendas) con su clase de error.
+ */
+input.ng-touched.ng-invalid,
+select.ng-touched.ng-invalid,
+textarea.ng-touched.ng-invalid {
+  border-color: var(--color-danger);
+}

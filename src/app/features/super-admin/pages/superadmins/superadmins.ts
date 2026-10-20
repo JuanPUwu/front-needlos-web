@@ -18,6 +18,9 @@ import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque'
 import { InvitacionSuperAdmin, SuperAdmin, SuperAdmins } from '../../models/plataforma.model';
 import { EstadoSuperAdmin } from '../../services/estado-super-admin';
 import { PlataformaService } from '../../services/plataforma.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 /**
  * SuperAdmins (Manual §16). Todos ven quiénes son; solo el SuperAdmin principal invita por correo,
@@ -26,7 +29,7 @@ import { PlataformaService } from '../../services/plataforma.service';
  */
 @Component({
   selector: 'app-super-admin-superadmins',
-  imports: [ReactiveFormsModule, Encabezado, TituloBloque, FechaHoraPipe],
+  imports: [Vacio, ReactiveFormsModule, Encabezado, TituloBloque, FechaHoraPipe],
   templateUrl: './superadmins.html',
   styleUrl: './superadmins.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +44,7 @@ export class SuperAdminSuperAdmins implements OnInit {
 
   readonly datos = signal<SuperAdmins | null>(null);
   readonly error = signal<string | null>(null);
+  readonly cargando = signal(false);
   readonly errorInvitar = signal<string | null>(null);
   readonly ocupado = signal(false);
 
@@ -68,13 +72,32 @@ export class SuperAdminSuperAdmins implements OnInit {
     email: ['', [Validators.required, Validators.email, Validators.maxLength(120)]],
   });
 
+  constructor() {
+    recargaAutomatica(() => this.recargar());
+  }
+
   ngOnInit(): void {
+    this.cargar();
+  }
+
+  /** Trae lo último sin perder lo que se ve. */
+  recargar(): void {
     this.cargar();
   }
 
   invitar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.form,
+        'enviar la invitación',
+        { nombre: 'el nombre', apellido: 'el apellido', email: 'el correo' },
+        [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     if (this.ocupado()) {
@@ -143,13 +166,19 @@ export class SuperAdminSuperAdmins implements OnInit {
   }
 
   private cargar(): void {
+    this.cargando.set(true);
     this.service
       .superAdmins()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (d) => this.datos.set(d),
-        error: (err: unknown) =>
-          this.error.set(mensajeDeError(err, 'No se pudieron cargar los SuperAdmins.')),
+        next: (d) => {
+          this.datos.set(d);
+          this.cargando.set(false);
+        },
+        error: (err: unknown) => {
+          this.cargando.set(false);
+          this.error.set(mensajeDeError(err, 'No se pudieron cargar los SuperAdmins.'));
+        },
       });
   }
 }

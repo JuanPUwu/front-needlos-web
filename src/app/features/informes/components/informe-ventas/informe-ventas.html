@@ -36,7 +36,14 @@
             </span>
           </li>
         } @empty {
-          <li class="iv-vacio">Sin ingresos en este periodo.</li>
+          <li class="iv-vacio">
+            <app-vacio
+              icono="caja"
+              titulo="Sin ingresos"
+              mensaje="No hay ingresos en este periodo."
+              [compacto]="true"
+            />
+          </li>
         }
       </ul>
 

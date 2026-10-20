@@ -29,6 +29,7 @@ import {
   SastreriaPlataforma,
 } from '../../models/plataforma.model';
 import { PlataformaService } from '../../services/plataforma.service';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 /** Mientras carga: el mismo marcado con datos de ejemplo en piezas grises (mide igual). */
 const ESQUELETO: SastreriaPlataforma = {
@@ -59,7 +60,7 @@ export interface CambioSastreria {
  */
 @Component({
   selector: 'app-sastreria-modal',
-  imports: [Encabezado, Icono, TituloBloque, FechaHoraPipe],
+  imports: [Vacio, Encabezado, Icono, TituloBloque, FechaHoraPipe],
   templateUrl: './sastreria-modal.html',
   styleUrl: './sastreria-modal.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

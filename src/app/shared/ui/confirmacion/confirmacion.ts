@@ -7,13 +7,16 @@ import {
   viewChild,
 } from '@angular/core';
 import { Confirmacion } from '../../../core/ui/confirmacion';
+import { Icono } from '../icono/icono';
 
 /**
- * Popup de confirmación (una sola instancia, en la raíz de la app). Enfoca "Cancelar" al
- * abrirse (lo seguro ante un Enter accidental); Escape o tocar el fondo cancelan.
+ * Popup de confirmación o de aviso (una sola instancia, en la raíz de la app). Enfoca
+ * "Cancelar" al abrirse (lo seguro ante un Enter accidental) o "Aceptar" en un aviso; Escape o
+ * tocar el fondo cancelan (o cierran el aviso).
  */
 @Component({
   selector: 'app-confirmacion',
+  imports: [Icono],
   templateUrl: './confirmacion.html',
   styleUrl: './confirmacion.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,12 +24,12 @@ import { Confirmacion } from '../../../core/ui/confirmacion';
 })
 export class ConfirmacionComponent {
   readonly servicio = inject(Confirmacion);
-  private readonly cancelar = viewChild<ElementRef<HTMLButtonElement>>('cancelar');
+  private readonly primero = viewChild<ElementRef<HTMLButtonElement>>('primero');
 
   constructor() {
     effect(() => {
       if (this.servicio.actual()) {
-        queueMicrotask(() => this.cancelar()?.nativeElement.focus());
+        queueMicrotask(() => this.primero()?.nativeElement.focus());
       }
     });
   }

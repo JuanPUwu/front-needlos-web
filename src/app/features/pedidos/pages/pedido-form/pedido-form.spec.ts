@@ -24,6 +24,7 @@ describe('PedidoForm (nuevo)', () => {
   let tipos: { listar: ReturnType<typeof vi.fn>; precioSugerido: ReturnType<typeof vi.fn> };
   let componente: PedidoForm;
   let confirmar: ReturnType<typeof vi.fn>;
+  let avisar: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -39,6 +40,7 @@ describe('PedidoForm (nuevo)', () => {
       precioSugerido: vi.fn(() => of({ precio: 25000, origen: 'HISTORICO' })),
     };
     confirmar = vi.fn().mockResolvedValue(true);
+    avisar = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
       imports: [PedidoForm],
       providers: [
@@ -48,7 +50,7 @@ describe('PedidoForm (nuevo)', () => {
         { provide: TipoPrendaService, useValue: tipos },
         { provide: EmpleadoService, useValue: { asignables: () => of([]) } },
         { provide: PermisosService, useValue: { puede: () => true } },
-        { provide: Confirmacion, useValue: { pedir: confirmar } },
+        { provide: Confirmacion, useValue: { pedir: confirmar, avisar } },
       ],
     });
     componente = TestBed.createComponent(PedidoForm).componentInstance;
@@ -198,6 +200,18 @@ describe('PedidoForm (nuevo)', () => {
     componente.quitarPrenda(1);
     expect(componente.filas.length).toBe(1);
     expect(componente.subtotal()).toBe(50000);
+  });
+
+  it('si falta algo para crear, avisa qué falta con una notificación y no lo envía', async () => {
+    componente.form.controls.telefono.setValue('3001234567');
+    componente.form.controls.nombre.setValue('Ana');
+    componente.form.controls.apellido.setValue('Ruiz');
+    await componente.enviar();
+    expect(pedidos.crear).not.toHaveBeenCalled();
+    expect(avisar).toHaveBeenCalledWith({
+      titulo: 'Falta información',
+      mensaje: 'Para crear el pedido falta al menos una prenda en la lista y la fecha de entrega.',
+    });
   });
 
   it('el designado se asigna a todas las prendas', async () => {

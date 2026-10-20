@@ -14,29 +14,24 @@
   padding: var(--space-4);
 }
 
-// ── Tiles compactos (no se estiran; el espacio libre queda a la derecha/abajo) ──
+// ── Tarjetas: llenan el ancho, todas del mismo alto (4 en fila, 2×2 o una columna) ──
 .ajustes__bento {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 280px));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+  align-content: start;
 
   @container panel (max-width: 560px) {
     grid-template-columns: minmax(0, 1fr);
   }
-  gap: var(--space-4);
-  justify-content: start;
-  align-content: start;
 }
 
 .ajustes__tile {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-4);
   min-width: 0;
-  padding: var(--space-6);
-
-  @container panel (max-width: 480px) {
-    padding: var(--space-5) var(--space-4);
-  }
+  padding: var(--space-5);
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
@@ -57,6 +52,35 @@
   }
 }
 
+.ajustes__icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-navy);
+  color: var(--color-surface);
+}
+
+.ajustes__icono--peligro {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.ajustes__icono-svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+// Los textos ocupan el alto libre: el pie queda siempre abajo, alineado entre tarjetas.
+.ajustes__textos {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 .ajustes__tile-titulo {
   font-size: 1.1rem;
   font-weight: 600;
@@ -65,7 +89,22 @@
 
 .ajustes__tile-detalle {
   font-size: 0.9rem;
+  line-height: 1.4;
   color: var(--color-text-muted);
+}
+
+.ajustes__pie {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.ajustes__pie-flecha {
+  width: 0.95rem;
+  height: 0.95rem;
 }
 
 // El tile de sesión no navega: no reacciona al hover de enlace.
@@ -78,23 +117,58 @@
   }
 }
 
+// Cerrar sesión: botón claro, a todo el ancho, en rojo (dueño 2026-10-20).
 .ajustes__logout {
-  align-self: flex-start;
-  padding: 0;
-  border: none;
-  background: none;
+  height: 44px;
+  border: 1.5px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
   color: var(--color-danger);
+  font: inherit;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
 
   &:hover {
-    text-decoration: underline;
+    background: var(--color-danger-bg);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ajustes__tile {
+  .ajustes__tile,
+  .ajustes__logout {
     transition: none;
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .ajustes {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .ajustes {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .ajustes__bento {
+    gap: var(--space-3);
+  }
+
+  .ajustes__tile {
+    gap: var(--space-3);
+    padding: var(--space-3);
   }
 }

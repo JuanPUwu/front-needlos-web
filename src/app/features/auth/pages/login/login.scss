@@ -103,6 +103,11 @@
     border-color: var(--color-border);
     box-shadow: 0 0 0 4px var(--focus-ring);
   }
+
+  // Obligatorio sin llenar: la caja se pinta de rojo (dueño 2026-10-20).
+  &:has(.ng-touched.ng-invalid) {
+    border-color: var(--color-danger);
+  }
 }
 
 .login-field__input {

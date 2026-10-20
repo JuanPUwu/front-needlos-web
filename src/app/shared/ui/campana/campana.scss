@@ -54,6 +54,30 @@
   height: 1.3rem;
 }
 
+// En la barra superior: el mismo contenedor que el botón del menú hamburguesa.
+:host(.cmp--barra) .cmp__boton {
+  width: 44px;
+  height: 44px;
+  background: var(--color-surface);
+  box-shadow: none;
+  color: var(--color-text);
+
+  &.cmp__boton--avisos {
+    background: var(--color-accent);
+    color: var(--color-surface);
+  }
+}
+
+// Desde la barra superior la bandeja se abre a lo ancho, bajo la barra (68 px).
+:host(.cmp--barra) .cmp__panel {
+  position: fixed;
+  top: calc(68px + var(--space-2));
+  right: var(--space-4);
+  left: var(--space-4);
+  width: auto;
+  max-height: calc(100dvh - 68px - var(--space-2) - var(--space-4));
+}
+
 // Contador de no leídas: rojo para que resalte sobre el botón azul.
 .cmp__cuenta {
   position: absolute;
@@ -83,7 +107,7 @@
   z-index: 60;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
   width: min(400px, calc(100vw - 2 * var(--space-4)));
   max-height: min(560px, calc(100dvh - 120px));
   padding: var(--space-4);
@@ -133,7 +157,7 @@
 .cmp__lista {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-4);
   min-height: 0;
   padding: 0;
   overflow: hidden auto;
@@ -145,9 +169,9 @@
 
   display: flex;
   align-items: flex-start;
-  gap: var(--space-3);
+  gap: var(--space-4);
   width: 100%;
-  padding: var(--space-3);
+  padding: var(--space-4);
   border: none;
   border-radius: var(--radius-md);
   background: var(--color-bg);
@@ -216,10 +240,9 @@
 }
 
 .cmp__vacio {
-  padding: var(--space-6) 0;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-align: center;
+  // Lista vacía: app-vacio centrado en el espacio libre (dueño 2026-10-20).
+  flex: 1;
+  display: flex;
 }
 
 // ── Esqueleto: el mismo marcado con los textos en piezas grises ─
@@ -275,5 +298,22 @@
 
   .cmp--salir {
     animation-duration: 1ms;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .cmp__panel {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .cmp__lista {
+    gap: var(--space-3);
+  }
+
+  .cmp__item {
+    gap: var(--space-3);
+    padding: var(--space-3);
   }
 }

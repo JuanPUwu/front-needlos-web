@@ -76,13 +76,19 @@
     />
   </div>
 } @else if (movimientos().length === 0 && !error()) {
-  <p class="rm-vacio">
-    {{
-      hayFiltros()
-        ? 'Ningún movimiento coincide con los filtros.'
-        : 'Sin movimientos en este periodo.'
-    }}
-  </p>
+  @if (hayFiltros()) {
+    <app-vacio
+      icono="carrete"
+      titulo="No encontramos movimientos"
+      mensaje="Ningún movimiento coincide con los filtros."
+    />
+  } @else {
+    <app-vacio
+      icono="caja"
+      titulo="Sin movimientos"
+      mensaje="No hay movimientos en este periodo."
+    />
+  }
 } @else {
   <div class="rm-marco">
     <table class="rm" [class.rm--cargando]="cargando()">

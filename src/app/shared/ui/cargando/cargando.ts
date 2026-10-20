@@ -1,14 +1,16 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Costura } from '../costura/costura';
 
 /**
- * Indicador de carga (círculo girando + texto) para lo que se está consultando: una lista,
+ * Indicador de carga (aguja cosiendo + texto) para lo que se está consultando: una lista,
  * un pedido… Ocupa un alto mínimo para que el contenido no "salte" al llegar.
  */
 @Component({
   selector: 'app-cargando',
+  imports: [Costura],
   template: `
     <div class="cargando" role="status" [class.cargando--compacto]="compacto()">
-      <span class="cargando__circulo" aria-hidden="true"></span>
+      <app-costura class="cargando__costura" />
       <span class="cargando__texto">{{ texto() }}</span>
     </div>
   `,

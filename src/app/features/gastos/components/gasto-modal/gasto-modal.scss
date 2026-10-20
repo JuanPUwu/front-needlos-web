@@ -178,10 +178,6 @@
     border-color: var(--color-border);
     box-shadow: 0 0 0 4px var(--focus-ring);
   }
-
-  &.ng-touched.ng-invalid {
-    border-color: var(--color-danger);
-  }
 }
 
 .gm-ayuda {
@@ -328,5 +324,50 @@
 
   .gm-boton {
     transition: none;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .gm-caja {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .gm-cuerpo {
+    gap: var(--space-3);
+  }
+
+  .gm-seccion {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .gm-fila {
+    gap: var(--space-3);
+  }
+
+  .gm-campo {
+    gap: var(--space-3);
+  }
+
+  .gm-campo__input {
+    padding: 0 var(--space-3);
+  }
+
+  .gm-acciones {
+    gap: var(--space-3);
+  }
+
+  .gm-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .gm-cambio {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .gm-cambio__detalle {
+    padding-left: var(--space-3);
   }
 }

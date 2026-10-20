@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Actividad } from '../../../core/ui/actividad';
+import { Costura } from '../costura/costura';
 
 /**
  * Mientras se procesa una acción (guardar, crear, iniciar sesión…), cubre toda la pantalla
@@ -8,11 +9,12 @@ import { Actividad } from '../../../core/ui/actividad';
  */
 @Component({
   selector: 'app-bloqueo',
+  imports: [Costura],
   template: `
     @if (actividad.ocupado()) {
       <div class="bloqueo" role="status" aria-live="assertive" aria-busy="true">
         <div class="bloqueo__caja">
-          <span class="bloqueo__circulo" aria-hidden="true"></span>
+          <app-costura class="bloqueo__costura" />
           <span class="bloqueo__texto">Procesando...</span>
         </div>
       </div>

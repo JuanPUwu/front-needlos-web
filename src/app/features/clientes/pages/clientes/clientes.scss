@@ -122,11 +122,6 @@
   container-name: clienteslista;
 }
 
-.clientes-bloque__ayuda {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-}
-
 // ── Formulario ──────────────────────────────────────────────
 .clientes-form {
   // Ocupa el alto que queda en la tarjeta (sin encogerse): el botón queda al pie
@@ -299,10 +294,23 @@
   flex: 1;
 }
 
-.clientes-buscador {
-  max-width: 340px;
+// Buscador y botón de recargar juntos (dueño 2026-10-20).
+.clientes-buscar {
+  flex: 0 1 400px;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
 
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  // En columna (cabecera angosta), sin base de 400 px: si no, se vuelve 400 px de alto.
   @container clienteslista (max-width: 520px) {
+    flex: none;
     max-width: none;
   }
 }
@@ -465,5 +473,101 @@
 
   .clientes-boton:active:not(:disabled) {
     transform: none;
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .clientes-page,
+  .clientes-contenedor {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// Teléfono: "Limpiar filtros" ocupa toda la fila (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .clientes-filtros__limpiar {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .clientes-page {
+    padding: var(--space-3);
+  }
+
+  .clientes-contenedor {
+    gap: var(--space-3);
+  }
+
+  .clientes-bento {
+    gap: var(--space-3);
+  }
+
+  .clientes-stat {
+    padding: var(--space-3);
+  }
+
+  .clientes-bloque {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .clientes-form {
+    gap: var(--space-3);
+  }
+
+  .clientes-fila {
+    gap: var(--space-3);
+  }
+
+  .clientes-field {
+    gap: var(--space-3);
+  }
+
+  .clientes-field__input {
+    padding: 0 var(--space-3);
+  }
+
+  .clientes-form__acciones {
+    gap: var(--space-3);
+  }
+
+  .clientes-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .clientes-boton--secundario {
+    padding: 0 var(--space-3);
+  }
+
+  .clientes-boton--peligro {
+    padding: 0 var(--space-3);
+  }
+
+  .clientes-lista-cabecera {
+    gap: var(--space-3);
+  }
+
+  .clientes-buscar {
+    gap: var(--space-3);
+  }
+
+  .clientes-filtros {
+    gap: var(--space-3);
+  }
+
+  .clientes-item {
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-2);
+  }
+
+  .clientes-paginacion {
+    gap: var(--space-3);
   }
 }

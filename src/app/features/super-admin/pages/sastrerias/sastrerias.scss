@@ -125,7 +125,7 @@
   @container sastreriaslista (max-width: 640px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    .sadmin-control:first-child {
+    .sadmin-buscar {
       grid-column: 1 / -1;
     }
   }
@@ -191,13 +191,6 @@
   color: var(--color-text-muted);
 }
 
-.sadmin-vacio {
-  padding: var(--space-6) 0;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
 // ── Esqueleto: el mismo número en gris ──────────────────────
 // Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
 .sadmin-cifra--esqueleto .sadmin-cifra__valor,
@@ -229,5 +222,73 @@
   .sadmin-cifra--esqueleto .sadmin-cifra__valor,
   .sadmin-cuenta--esqueleto {
     animation: none;
+  }
+}
+
+// Buscador y botón de recargar en la misma celda (dueño 2026-10-20).
+.sadmin-buscar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .sadmin {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// Teléfono: "Limpiar filtros" ocupa toda la fila (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .sadmin-limpiar {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .sadmin {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .sadmin-cifras {
+    gap: var(--space-3);
+  }
+
+  .sadmin-cifra {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .sadmin-bloque {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .sadmin-filtros {
+    gap: var(--space-3);
+  }
+
+  .sadmin-limpiar {
+    padding: 0 var(--space-3);
+  }
+
+  .sadmin-pagina {
+    padding: 0 var(--space-3);
+  }
+
+  .sadmin-buscar {
+    gap: var(--space-3);
   }
 }

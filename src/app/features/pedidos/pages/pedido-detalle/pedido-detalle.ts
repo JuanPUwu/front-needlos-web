@@ -2,7 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
+  Injector,
   OnInit,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -82,6 +85,8 @@ export class PedidoDetalle implements OnInit {
   private readonly confirmacion = inject(Confirmacion);
   private readonly notificaciones = inject(Notificaciones);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly pedidoId = input.required<string>();
   /** El pedido cambió (estado, abono, anulación): el listado debe recargarse. */
@@ -293,10 +298,18 @@ export class PedidoDetalle implements OnInit {
     const monto = aNumero(this.formAbono.controls.monto.value);
     if (!p || this.formAbono.invalid || monto === null || monto <= 0) {
       this.formAbono.markAllAsTouched();
+      // Qué falta, con un aviso que hay que aceptar, como en el formulario (dueño 2026-10-20).
+      if (this.formAbono.controls.monto.hasError('required')) {
+        this.avisar('Falta información', 'Para registrar el abono falta el monto.', '#monto');
+      } else {
+        this.avisar('Monto no válido', 'El monto del abono no es válido.', '#monto');
+      }
       return;
     }
     if (monto > p.saldo) {
-      this.error.set('El abono no puede superar el saldo pendiente.');
+      const motivo = 'El abono no puede superar el saldo pendiente.';
+      this.error.set(motivo);
+      this.avisar('Monto mayor que el saldo', motivo, '#monto');
       return;
     }
     const metodo = this.formAbono.controls.metodo.value;
@@ -314,6 +327,7 @@ export class PedidoDetalle implements OnInit {
   pedirAnularAbono(abono: Abono): void {
     this.anulandoAbono.set(abono.id);
     this.formAnularAbono.reset({ motivo: 'DEVOLUCION', razon: '' });
+    this.llevarA('.pd-anular-abono', true);
   }
 
   cancelarAnularAbono(): void {
@@ -323,6 +337,7 @@ export class PedidoDetalle implements OnInit {
   anularAbono(abono: Abono): void {
     if (this.formAnularAbono.invalid) {
       this.formAnularAbono.markAllAsTouched();
+      this.avisar('Falta información', 'Para anular el abono falta la razón.', '.pd-anular-abono');
       return;
     }
     const { motivo, razon } = this.formAnularAbono.getRawValue();
@@ -343,6 +358,7 @@ export class PedidoDetalle implements OnInit {
   pedirAnular(): void {
     this.anulando.set(true);
     this.formAnular.reset();
+    this.llevarA('.pd-confirmar', true);
   }
 
   cancelarAnular(): void {
@@ -352,6 +368,7 @@ export class PedidoDetalle implements OnInit {
   anular(): void {
     if (this.formAnular.invalid) {
       this.formAnular.markAllAsTouched();
+      this.avisar('Falta información', 'Para anular el pedido falta la razón.', '.pd-confirmar');
       return;
     }
     const razon = this.formAnular.controls.razon.value.trim();
@@ -363,6 +380,37 @@ export class PedidoDetalle implements OnInit {
         this.notificaciones.exito('Pedido anulado.');
       },
     );
+  }
+
+  /**
+   * Aviso en el centro de la pantalla que hay que aceptar (dueño 2026-10-20: no una
+   * notificación); al aceptarlo, si el popup se desplaza, lleva al dato que falta.
+   */
+  private avisar(titulo: string, mensaje: string, selector: string): void {
+    void this.confirmacion.avisar({ titulo, mensaje }).then(() => this.llevarA(selector));
+  }
+
+  /**
+   * Solo cuando el popup se desplaza (teléfono o pantallas bajas): lleva lo indicado a la mitad
+   * de la pantalla, para ahorrarle el desplazamiento a la persona (dueño 2026-10-20). Con
+   * `trasMostrar`, espera a que el bloque recién abierto aparezca.
+   */
+  private llevarA(selector: string, trasMostrar = false): void {
+    const ir = () => {
+      const destino = this.host.nativeElement.querySelector<HTMLElement>(selector);
+      const caja = this.host.nativeElement.closest<HTMLElement>('[role="dialog"]');
+      if (!destino || !caja || caja.scrollHeight <= caja.clientHeight) {
+        return;
+      }
+      const suave = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const objetivo = destino.closest<HTMLElement>('.pd-seccion') ?? destino;
+      objetivo.scrollIntoView({ block: 'center', behavior: suave ? 'smooth' : 'auto' });
+    };
+    if (trasMostrar) {
+      afterNextRender(ir, { injector: this.injector });
+    } else {
+      ir();
+    }
   }
 
   private ejecutar(

@@ -143,7 +143,14 @@
                 <span class="sm-accion__meta">Por {{ a.superAdmin }}</span>
               </li>
             } @empty {
-              <li class="sm-vacio">Aún no hay acciones sobre esta sastrería.</li>
+              <li class="sm-vacio">
+                <app-vacio
+                  icono="historial"
+                  titulo="Sin acciones"
+                  mensaje="Aún no hay acciones sobre esta sastrería."
+                  [compacto]="true"
+                />
+              </li>
             }
           </ol>
         } @else {

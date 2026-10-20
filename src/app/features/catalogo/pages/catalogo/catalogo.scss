@@ -110,11 +110,6 @@
   container-name: catalogolista;
 }
 
-.catalogo-bloque__ayuda {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-}
-
 // ── Formulario ──────────────────────────────────────────────
 .catalogo-form {
   // Ocupa el alto que queda en la tarjeta (sin encogerse): el botón queda al pie
@@ -258,12 +253,22 @@
 // ── Lista ───────────────────────────────────────────────────
 // ── Filtros ─────────────────────────────────────────────────
 .catalogo-filtros {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 180px) auto;
+  // Todo en una fila que ocupa el ancho completo (sin columnas vacías).
+  display: flex;
   align-items: center;
   gap: var(--space-4);
 
+  .catalogo-filtros__buscar {
+    flex: 2 1 0;
+  }
+
+  > select {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
   @container catalogolista (max-width: 480px) {
+    display: grid;
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -271,7 +276,8 @@
 .catalogo-filtros__control {
   width: 100%;
   min-width: 0;
-  height: 38px;
+  // Misma altura que el botón de recargar y los filtros de las demás secciones.
+  height: 44px;
   padding: 0 var(--space-3);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-md);
@@ -363,5 +369,106 @@
 
   .catalogo-boton:active:not(:disabled) {
     transform: none;
+  }
+}
+
+// Buscador y botón de recargar en la misma celda (dueño 2026-10-20).
+.catalogo-filtros__buscar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .catalogo-page,
+  .catalogo-contenedor {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// Teléfono: "Limpiar filtros" ocupa toda la fila (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .catalogo-filtros__limpiar {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .catalogo-page {
+    padding: var(--space-3);
+  }
+
+  .catalogo-contenedor {
+    gap: var(--space-3);
+  }
+
+  .catalogo-bento {
+    gap: var(--space-3);
+  }
+
+  .catalogo-stats {
+    gap: var(--space-3);
+  }
+
+  .catalogo-stat {
+    padding: var(--space-3);
+  }
+
+  .catalogo-bloque {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .catalogo-form {
+    gap: var(--space-3);
+  }
+
+  .catalogo-field {
+    gap: var(--space-3);
+  }
+
+  .catalogo-field__input {
+    padding: 0 var(--space-3);
+  }
+
+  .catalogo-form__acciones {
+    gap: var(--space-3);
+  }
+
+  .catalogo-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .catalogo-boton--secundario {
+    padding: 0 var(--space-3);
+  }
+
+  .catalogo-boton--peligro {
+    padding: 0 var(--space-3);
+  }
+
+  .catalogo-filtros {
+    gap: var(--space-3);
+  }
+
+  .catalogo-item {
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+  }
+
+  .catalogo-filtros__buscar {
+    gap: var(--space-3);
   }
 }

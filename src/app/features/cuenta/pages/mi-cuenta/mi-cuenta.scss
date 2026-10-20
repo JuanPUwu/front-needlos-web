@@ -254,3 +254,65 @@
     transform: none;
   }
 }
+
+// Recargar y "Cerrar las demás", juntos a la derecha del título de la tarjeta.
+.cuenta-sesiones-acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .cuenta,
+  .cuenta__contenedor {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .cuenta {
+    padding: var(--space-3);
+  }
+
+  .cuenta__contenedor {
+    gap: var(--space-3);
+  }
+
+  .cuenta__bento {
+    gap: var(--space-3);
+  }
+
+  .cuenta-bloque {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .cuenta-form {
+    gap: var(--space-3);
+  }
+
+  .cuenta-field {
+    gap: var(--space-3);
+  }
+
+  .cuenta-field__input {
+    padding: 0 var(--space-3);
+  }
+
+  .cuenta-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .cuenta-boton--secundario {
+    padding: 0 var(--space-3);
+  }
+
+  .cuenta-sesion {
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+  }
+}

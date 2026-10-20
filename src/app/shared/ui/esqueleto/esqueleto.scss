@@ -126,3 +126,18 @@
     animation: none;
   }
 }
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .esk {
+    gap: var(--space-3);
+  }
+
+  .esk__fila {
+    gap: var(--space-3);
+  }
+
+  .esk__campo {
+    gap: var(--space-3);
+  }
+}

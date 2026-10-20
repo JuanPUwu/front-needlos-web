@@ -206,10 +206,6 @@
     box-shadow: 0 0 0 4px var(--focus-ring);
   }
 
-  &.ng-touched.ng-invalid {
-    border-color: var(--color-danger);
-  }
-
   &:disabled {
     background: var(--color-bg);
     color: var(--color-text);
@@ -530,5 +526,58 @@
 
   .mm-hueso {
     animation: none;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .mm-caja {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .mm-cuerpo {
+    gap: var(--space-3);
+  }
+
+  .mm-columna {
+    gap: var(--space-3);
+  }
+
+  .mm-chip {
+    padding: 0 var(--space-3);
+  }
+
+  .mm-seccion {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .mm-fila {
+    gap: var(--space-3);
+  }
+
+  .mm-campo {
+    gap: var(--space-3);
+  }
+
+  .mm-campo__input {
+    padding: 0 var(--space-3);
+  }
+
+  .mm-tipos {
+    gap: var(--space-3);
+  }
+
+  .mm-acciones {
+    gap: var(--space-3);
+  }
+
+  .mm-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .mm-mov {
+    padding: var(--space-3) var(--space-3);
   }
 }

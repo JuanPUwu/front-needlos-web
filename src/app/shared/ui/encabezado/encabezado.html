@@ -1,4 +1,4 @@
-<header class="encabezado" [class.encabezado--seccion]="!enDialogo()">
+<header class="encabezado">
   <!-- Volver: a la izquierda, antes del ícono y el título (dueño 2026-10-20). -->
   @if (volverRuta(); as ruta) {
     <a
@@ -29,5 +29,22 @@
 
   <div class="encabezado__acciones">
     <ng-content />
+    <!-- Recargar (dueño 2026-10-20): trae lo último sin perder lo que se ve. -->
+    @if (recargable()) {
+      <button
+        class="encabezado__recargar"
+        type="button"
+        [class.encabezado__recargar--girando]="recargando()"
+        [disabled]="recargando()"
+        [attr.aria-label]="recargando() ? 'Recargando…' : 'Recargar'"
+        [title]="recargando() ? 'Recargando…' : 'Recargar'"
+        (click)="recargar.emit()"
+      >
+        <app-icono class="encabezado__recargar-icono" nombre="recargar" />
+      </button>
+    }
+    @if (conCampana()) {
+      <app-campana class="encabezado__campana" />
+    }
   </div>
 </header>

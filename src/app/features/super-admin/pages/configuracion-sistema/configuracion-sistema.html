@@ -1,5 +1,8 @@
 <main class="scfg">
   <app-encabezado
+    [recargable]="true"
+    [recargando]="cargando()"
+    (recargar)="recargar()"
     titulo="Configuración"
     [subtitulo]="
       config() && !puedeEditar()

@@ -24,7 +24,14 @@
           </span>
         </li>
       } @empty {
-        <li class="ip-vacio">Nadie finalizó ni entregó prendas en este periodo.</li>
+        <li class="ip-vacio">
+          <app-vacio
+            icono="equipo"
+            titulo="Sin actividad"
+            mensaje="Nadie finalizó ni entregó prendas en este periodo."
+            [compacto]="true"
+          />
+        </li>
       }
     </ul>
     <p class="ip-ayuda">Piezas, contadas para la persona asignada a cada prenda.</p>

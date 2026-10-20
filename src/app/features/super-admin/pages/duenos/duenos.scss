@@ -60,7 +60,7 @@
   @container duenoslista (max-width: 640px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    .sdue-control:first-child {
+    .sdue-buscar {
       grid-column: 1 / -1;
     }
   }
@@ -126,13 +126,6 @@
   color: var(--color-text-muted);
 }
 
-.sdue-vacio {
-  padding: var(--space-6) 0;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
 // ── Esqueleto del contador ──────────────────────────────────
 // Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
 .sdue-cuenta--esqueleto {
@@ -157,5 +150,65 @@
 @media (prefers-reduced-motion: reduce) {
   .sdue-cuenta--esqueleto {
     animation: none;
+  }
+}
+
+// Buscador y botón de recargar en la misma celda (dueño 2026-10-20).
+.sdue-buscar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .sdue {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// Teléfono: "Limpiar filtros" ocupa toda la fila (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .sdue-limpiar {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .sdue {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .sdue-bloque {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .sdue-filtros {
+    gap: var(--space-3);
+  }
+
+  .sdue-limpiar {
+    padding: 0 var(--space-3);
+  }
+
+  .sdue-pagina {
+    padding: 0 var(--space-3);
+  }
+
+  .sdue-buscar {
+    gap: var(--space-3);
   }
 }

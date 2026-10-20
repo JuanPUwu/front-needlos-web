@@ -23,11 +23,23 @@ import {
 } from '../../../../shared/validators/contrasena.validators';
 import { SesionActiva } from '../../models/cuenta.model';
 import { CuentaService } from '../../services/cuenta.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 /** Mi cuenta: cambiar contrasena y ver/cerrar las sesiones abiertas. */
 @Component({
   selector: 'app-mi-cuenta',
-  imports: [TituloBloque, Esqueleto, Encabezado, ReactiveFormsModule, FechaHoraPipe],
+  imports: [
+    Vacio,
+    BotonRecargar,
+    TituloBloque,
+    Esqueleto,
+    Encabezado,
+    ReactiveFormsModule,
+    FechaHoraPipe,
+  ],
   templateUrl: './mi-cuenta.html',
   styleUrl: './mi-cuenta.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,16 +70,41 @@ export class MiCuenta implements OnInit {
   // ── Sesiones ────────────────────────────────────────────────────
   readonly sesiones = signal<SesionActiva[]>([]);
   readonly cargandoSesiones = signal(true);
+  /** Ya cargaron una vez: recargar no vuelve al esqueleto. */
+  readonly listoSesiones = signal(false);
   readonly errorSesiones = signal<string | null>(null);
   readonly cerrandoId = signal<string | null>(null);
 
+  constructor() {
+    recargaAutomatica(() => this.recargar());
+  }
+
   ngOnInit(): void {
+    this.cargarSesiones();
+  }
+
+  /** Trae las sesiones al día sin perder lo que se ve. */
+  recargar(): void {
     this.cargarSesiones();
   }
 
   cambiarContrasena(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.form,
+        'cambiar la contraseña',
+        {
+          contrasenaActual: 'la contraseña actual',
+          contrasenaNueva: 'la contraseña nueva',
+          confirmacion: 'la confirmación',
+        },
+        this.form.hasError('noCoinciden') ? ['que las dos contraseñas coincidan'] : [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     if (this.guardando()) {
@@ -154,6 +191,7 @@ export class MiCuenta implements OnInit {
       .subscribe({
         next: (sesiones) => {
           this.sesiones.set(sesiones);
+          this.listoSesiones.set(true);
           this.cargandoSesiones.set(false);
         },
         error: (err: unknown) => {

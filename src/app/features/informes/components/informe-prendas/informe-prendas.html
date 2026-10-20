@@ -15,7 +15,14 @@
             </span>
           </li>
         } @empty {
-          <li class="ipc-vacio">Sin pedidos en este periodo.</li>
+          <li class="ipc-vacio">
+            <app-vacio
+              icono="percha"
+              titulo="Sin pedidos"
+              mensaje="No hay pedidos en este periodo."
+              [compacto]="true"
+            />
+          </li>
         }
       </ol>
     </section>
@@ -43,7 +50,14 @@
             </button>
           </li>
         } @empty {
-          <li class="ipc-vacio">Sin pedidos en este periodo.</li>
+          <li class="ipc-vacio">
+            <app-vacio
+              icono="percha"
+              titulo="Sin pedidos"
+              mensaje="No hay pedidos en este periodo."
+              [compacto]="true"
+            />
+          </li>
         }
       </ol>
     </section>

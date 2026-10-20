@@ -49,7 +49,10 @@ describe('GastoModal', () => {
       imports: [GastoModal],
       providers: [
         { provide: GastoService, useValue: service },
-        { provide: Confirmacion, useValue: { pedir: confirmar } },
+        {
+          provide: Confirmacion,
+          useValue: { pedir: confirmar, avisar: vi.fn().mockResolvedValue(undefined) },
+        },
       ],
     });
   });

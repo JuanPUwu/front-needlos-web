@@ -89,10 +89,18 @@
   // El círculo deja un respiro igual por todos lados dentro de su celda.
   --calendario-dia: min(34px, calc(100cqw / 7 - 6px));
 
+  // Círculo 1:1 (dueño 2026-10-20). En pantallas táctiles la regla global da a todo botón
+  // min-height: 44px (styles/_base.scss) y el día quedaba más alto que ancho: ovalado. Aquí no
+  // aplica; la zona táctil es la celda entera (1/7 del ancho).
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: var(--calendario-dia);
   height: var(--calendario-dia);
+  min-height: 0;
   max-width: 100%;
   vertical-align: middle;
+  appearance: none;
   padding: 0;
   line-height: 1;
   border: none;

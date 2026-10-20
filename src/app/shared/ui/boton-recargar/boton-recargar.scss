@@ -1,0 +1,60 @@
+// Botón de recargar: gris, cuadrado, no destaca. Solo tokens globales.
+
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.br {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-color) var(--ease-out),
+    color var(--dur-color) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+    color: var(--color-navy);
+  }
+
+  &:disabled {
+    cursor: progress;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.br__icono {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+// Mientras recarga gira como los demás indicadores de carga (excepción a los 100 ms).
+.br--girando .br__icono {
+  animation: br-girar 0.8s linear infinite;
+}
+
+@keyframes br-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br,
+  .br--girando .br__icono {
+    transition: none;
+    animation: none;
+  }
+}

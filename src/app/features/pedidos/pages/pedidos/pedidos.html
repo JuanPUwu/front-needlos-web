@@ -47,6 +47,7 @@
           <button class="pedidos-buscar-boton" type="button" (click)="buscarAhora(buscador.value)">
             Buscar
           </button>
+          <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
           <button
             class="pedidos-herramienta"
             type="button"
@@ -199,13 +200,20 @@
       @if (cargando() && pedidos().length === 0) {
         <app-esqueleto forma="tabla" [filas]="6" [alto]="63" texto="Cargando pedidos..." />
       } @else if (pedidos().length === 0) {
-        <p class="pedidos-bloque__ayuda">
-          {{
-            hayFiltros() || filtros().estado !== ''
-              ? 'Ningún pedido coincide con lo elegido.'
-              : 'Aún no hay pedidos. Crea el primero.'
-          }}
-        </p>
+        <!-- Vacío: ícono de lo que no se encuentra y mensaje, centrados (dueño 2026-10-20). -->
+        @if (hayFiltros() || filtros().estado !== '') {
+          <app-vacio
+            icono="carrete"
+            titulo="No encontramos pedidos"
+            mensaje="Ningún pedido coincide con lo elegido. Prueba con otra búsqueda, otro estado u otros filtros."
+          />
+        } @else {
+          <app-vacio
+            icono="pedidos"
+            titulo="Aún no hay pedidos"
+            mensaje="Crea el primero con el botón +."
+          />
+        }
       } @else {
         <app-pedidos-tabla [pedidos]="pedidos()" [cargando]="cargando()" (abrir)="abrir($event)" />
 

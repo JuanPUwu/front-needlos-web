@@ -65,7 +65,16 @@ describe('Equipo', () => {
       providers: [
         provideRouter([]),
         { provide: EmpleadoService, useValue: service },
-        { provide: AuthService, useValue: { rutaInicial: () => '/inicio', roles: () => [] } },
+        {
+          provide: AuthService,
+          useValue: {
+            rutaInicial: () => '/inicio',
+            roles: () => [],
+            autenticado: () => false,
+            soporte: () => false,
+            sesion: () => null,
+          },
+        },
       ],
     });
     componente = TestBed.createComponent(Equipo).componentInstance;

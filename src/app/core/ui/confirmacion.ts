@@ -1,5 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 
+/** Qué tan serio es: define el símbolo y el color del popup. */
+export type TipoAviso = 'advertencia' | 'peligro' | 'info';
+
 export interface OpcionesConfirmacion {
   titulo: string;
   mensaje: string;
@@ -10,15 +13,33 @@ export interface OpcionesConfirmacion {
   peligro?: boolean;
 }
 
-interface Pendiente extends OpcionesConfirmacion {
+export interface OpcionesAviso {
+  titulo: string;
+  mensaje: string;
+  tipo?: TipoAviso;
+  /** Texto del botón (por defecto "Aceptar"). */
+  aceptar?: string;
+}
+
+interface Pendiente {
+  titulo: string;
+  mensaje: string;
+  aceptar: string;
+  cancelar: string;
+  peligro: boolean;
+  tipo: TipoAviso;
+  /** Aviso: un solo botón ("Aceptar"), sin cancelar. */
+  soloAceptar: boolean;
   responder: (ok: boolean) => void;
 }
 
 /**
- * Confirmación antes de acciones críticas o sin vuelta atrás (Reglas §12.2): eliminar,
- * desactivar, entregar, cancelar una invitación, limpiar un formulario… Uso:
- * `if (await confirmacion.pedir({...})) { ... }`. Se muestra en un popup propio
- * (`app-confirmacion`, en la raíz de la app).
+ * Popups en el centro de la pantalla (una sola instancia, `app-confirmacion`, en la raíz):
+ * - `pedir`: confirmación antes de acciones críticas o sin vuelta atrás (Reglas §12.2):
+ *   `if (await confirmacion.pedir({...})) { ... }`.
+ * - `avisar`: mensaje que hay que aceptar ("Para crear el pedido falta…"), con el símbolo
+ *   de advertencia, peligro o información según lo que es (dueño 2026-10-20). No es una
+ *   notificación: no se va solo ni queda en la bandeja.
  */
 @Injectable({ providedIn: 'root' })
 export class Confirmacion {
@@ -26,20 +47,45 @@ export class Confirmacion {
   readonly actual = this._actual.asReadonly();
 
   pedir(opciones: OpcionesConfirmacion): Promise<boolean> {
-    // Si hubiera otra abierta, se da por cancelada.
+    return this.abrir({
+      titulo: opciones.titulo,
+      mensaje: opciones.mensaje,
+      aceptar: opciones.aceptar,
+      cancelar: opciones.cancelar ?? 'Cancelar',
+      peligro: !!opciones.peligro,
+      tipo: opciones.peligro ? 'peligro' : 'advertencia',
+      soloAceptar: false,
+    });
+  }
+
+  async avisar(opciones: OpcionesAviso): Promise<void> {
+    const tipo = opciones.tipo ?? 'advertencia';
+    await this.abrir({
+      titulo: opciones.titulo,
+      mensaje: opciones.mensaje,
+      aceptar: opciones.aceptar ?? 'Aceptar',
+      cancelar: '',
+      peligro: tipo === 'peligro',
+      tipo,
+      soloAceptar: true,
+    });
+  }
+
+  responder(ok: boolean): void {
+    this._actual()?.responder(ok);
+  }
+
+  private abrir(datos: Omit<Pendiente, 'responder'>): Promise<boolean> {
+    // Si hubiera otro abierto, se da por cancelado.
     this._actual()?.responder(false);
     return new Promise((resolver) => {
       this._actual.set({
-        ...opciones,
+        ...datos,
         responder: (ok) => {
           this._actual.set(null);
           resolver(ok);
         },
       });
     });
-  }
-
-  responder(ok: boolean): void {
-    this._actual()?.responder(ok);
   }
 }

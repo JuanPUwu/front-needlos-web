@@ -59,7 +59,10 @@ describe('MaterialModal', () => {
       imports: [MaterialModal],
       providers: [
         { provide: MaterialService, useValue: service },
-        { provide: Confirmacion, useValue: { pedir: confirmar } },
+        {
+          provide: Confirmacion,
+          useValue: { pedir: confirmar, avisar: vi.fn().mockResolvedValue(undefined) },
+        },
       ],
     });
   });

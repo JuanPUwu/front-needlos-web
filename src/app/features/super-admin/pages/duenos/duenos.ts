@@ -25,6 +25,9 @@ import {
   OrdenDuenos,
 } from '../../models/plataforma.model';
 import { PlataformaService } from '../../services/plataforma.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const TAMANO_PAGINA = 20;
 
@@ -34,7 +37,7 @@ const TAMANO_PAGINA = 20;
  */
 @Component({
   selector: 'app-super-admin-duenos',
-  imports: [Encabezado, TituloBloque, DuenosTabla],
+  imports: [Vacio, BotonRecargar, Encabezado, TituloBloque, DuenosTabla],
   templateUrl: './duenos.html',
   styleUrl: './duenos.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,6 +64,10 @@ export class SuperAdminDuenos implements OnInit {
   readonly hayFiltros = computed(() => !!this.filtros().buscar || !!this.filtros().correo);
   readonly enEsqueleto = computed(() => this.cargando() && this.duenos().length === 0);
 
+  constructor() {
+    recargaAutomatica(() => this.recargar());
+  }
+
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
     this.filtros.set(filtrosDesdeUrl(params, FILTROS_DUENOS_INICIALES));
@@ -72,6 +79,11 @@ export class SuperAdminDuenos implements OnInit {
         }
       });
     this.cargar(Math.max(Number(params.get('pagina')) || 1, 1) - 1);
+  }
+
+  /** Trae lo último sin perder lo que se ve. */
+  recargar(): void {
+    this.cargar(this.pagina());
   }
 
   alBuscar(texto: string): void {

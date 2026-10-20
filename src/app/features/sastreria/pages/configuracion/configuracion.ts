@@ -1,4 +1,5 @@
 import { EstadoSastreria } from '../../../../core/auth/estado-sastreria';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { FechaHoraPipe } from '../../../../shared/pipes/fecha-hora.pipe';
 import {
   ChangeDetectionStrategy,
@@ -23,6 +24,7 @@ import { TicketComponent, TicketDatos } from '../../../../shared/ui/ticket/ticke
 import { hoyIso } from '../../../../shared/util/fechas';
 import { Sastreria } from '../../models/sastreria.model';
 import { SastreriaService } from '../../services/sastreria.service';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 /** Al menos un caracter visible (el backend rechaza textos solo con espacios). */
 const CON_TEXTO = /\S/;
@@ -50,6 +52,7 @@ export class ConfiguracionSastreria implements OnInit {
   private readonly estadoSastreria = inject(EstadoSastreria);
   private readonly service = inject(SastreriaService);
   private readonly notificaciones = inject(Notificaciones);
+  private readonly confirmacion = inject(Confirmacion);
   private readonly destroyRef = inject(DestroyRef);
 
   /** Plan y vencimiento (prueba o licencia). */
@@ -138,9 +141,53 @@ export class ConfiguracionSastreria implements OnInit {
     this.cargar();
   }
 
+  /** Recargar: si hay algo escrito sin guardar, pregunta antes de reemplazarlo. */
+  async recargar(): Promise<void> {
+    const s = this.sastreria();
+    const guardado = s && {
+      nombre: s.nombre,
+      nit: s.nit ?? '',
+      direccion: s.direccion ?? '',
+      telefono: s.telefono ?? '',
+      horaInicioCaja: s.horaInicioCaja ?? '05:00',
+      horaFinCaja: s.horaFinCaja ?? '23:00',
+    };
+    const hayCambios =
+      !!guardado && JSON.stringify(this.form.getRawValue()) !== JSON.stringify(guardado);
+    if (hayCambios) {
+      const ok = await this.confirmacion.pedir({
+        titulo: '¿Descartar lo escrito?',
+        mensaje: 'Se cargarán los datos guardados y se perderá lo que cambiaste.',
+        aceptar: 'Sí, recargar',
+        peligro: true,
+      });
+      if (!ok) {
+        return;
+      }
+    }
+    this.cargar();
+  }
+
   guardar(): void {
     if (this.form.invalid || this.horarioInvalido()) {
       this.form.markAllAsTouched();
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.form,
+        'guardar la configuración',
+        {
+          nombre: 'el nombre',
+          nit: 'el NIT',
+          direccion: 'la dirección',
+          telefono: 'el teléfono',
+          horaInicioCaja: 'la hora de inicio del resumen',
+          horaFinCaja: 'la hora de fin del resumen',
+        },
+        this.horarioInvalido() ? ['que el horario del resumen empiece antes de terminar'] : [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     if (this.guardando()) {

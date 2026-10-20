@@ -19,6 +19,7 @@ import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque'
 import { ConfiguracionSistema } from '../../models/plataforma.model';
 import { EstadoSuperAdmin } from '../../services/estado-super-admin';
 import { PlataformaService } from '../../services/plataforma.service';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 /** Límites de cada valor (iguales a los del backend). */
 export const LIMITES_CONFIGURACION = {
@@ -51,6 +52,7 @@ export class SuperAdminConfiguracion implements OnInit {
   readonly config = signal<ConfiguracionSistema | null>(null);
   readonly error = signal<string | null>(null);
   readonly guardando = signal(false);
+  readonly cargando = signal(false);
 
   readonly puedeEditar = computed(() => this.config()?.puedeEditar ?? false);
   /** Botones visibles: si puedo editar o, mientras carga, si soy el principal (misma forma). */
@@ -100,13 +102,39 @@ export class SuperAdminConfiguracion implements OnInit {
   }
 
   ngOnInit(): void {
+    this.cargar();
+  }
+
+  /** Recargar: si hay algo escrito sin guardar, pregunta antes de reemplazarlo. */
+  async recargar(): Promise<void> {
+    if (this.hayCambios()) {
+      const ok = await this.confirmacion.pedir({
+        titulo: '¿Descartar lo escrito?',
+        mensaje: 'Se cargará la configuración guardada y se perderá lo que cambiaste.',
+        aceptar: 'Sí, recargar',
+        peligro: true,
+      });
+      if (!ok) {
+        return;
+      }
+    }
+    this.cargar();
+  }
+
+  private cargar(): void {
+    this.cargando.set(true);
     this.service
       .configuracion()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (c) => this.aplicar(c),
-        error: (err: unknown) =>
-          this.error.set(mensajeDeError(err, 'No se pudo cargar la configuración.')),
+        next: (c) => {
+          this.cargando.set(false);
+          this.aplicar(c);
+        },
+        error: (err: unknown) => {
+          this.cargando.set(false);
+          this.error.set(mensajeDeError(err, 'No se pudo cargar la configuración.'));
+        },
       });
   }
 
@@ -120,6 +148,16 @@ export class SuperAdminConfiguracion implements OnInit {
   async guardar(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.form,
+        'guardar la configuración',
+        { diasPrueba: 'los días de prueba', diasAviso: 'los días de aviso' },
+        [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     if (!this.hayCambios() || this.guardando()) {

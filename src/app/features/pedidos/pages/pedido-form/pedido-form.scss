@@ -94,7 +94,7 @@
 .pf-avisos {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: calc(var(--space-4) + 8px);
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -161,6 +161,11 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   container-type: inline-size;
+
+  // Sección obligatoria sin llenar (p. ej. la lista sin prendas): borde rojo (dueño 2026-10-20).
+  &--error {
+    border-color: var(--color-danger);
+  }
   container-name: pfseccion;
 }
 
@@ -199,8 +204,13 @@
 .pf-fila--detalle {
   grid-template-columns: minmax(0, 1fr) auto;
 
+  // Angosto: los botones bajan bajo "Detalles" y ocupan todo el ancho (dueño 2026-10-20).
   @container pfseccion (max-width: 480px) {
     grid-template-columns: minmax(0, 1fr);
+
+    .pf-boton {
+      flex: 1;
+    }
   }
 }
 
@@ -263,10 +273,6 @@
     color: var(--color-text-muted);
   }
 
-  &.ng-touched.ng-invalid {
-    border-color: var(--color-danger);
-  }
-
   // Error de negocio (p. ej. abono mayor que el total), aunque el control sea válido.
   &.pf-campo__input--error {
     border-color: var(--color-danger);
@@ -317,6 +323,11 @@
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-md);
+
+  // Fecha obligatoria sin elegir: se pinta como un campo (dueño 2026-10-20).
+  &--error {
+    border-color: var(--color-danger);
+  }
 }
 
 .pf-resumen {
@@ -395,11 +406,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
-.pf-designado__nombre {
   font-size: 0.95rem;
   color: var(--color-text);
 }
@@ -432,7 +438,9 @@
   font-size: 1rem;
   color: var(--color-text);
 
+  // El monto nunca se parte en dos líneas.
   strong {
+    white-space: nowrap;
     font-variant-numeric: tabular-nums;
   }
 }
@@ -540,5 +548,95 @@
 
   .pf-boton:active:not(:disabled) {
     transform: none;
+  }
+}
+
+// Teléfono: lo que no cabe lado a lado va uno debajo del otro.
+@container panel (max-width: 560px) {
+  // Calendario arriba; días, piezas, descuento y designado debajo.
+  .pf-entrega {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  // Cobro: Subtotal y Abonado.
+  .pf-cobro .pf-resumen__par {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .pf {
+    gap: var(--space-3);
+  }
+
+  .pf-form {
+    gap: var(--space-3);
+  }
+
+  .pf-col {
+    gap: var(--space-3);
+  }
+
+  .pf-acciones-fila {
+    gap: var(--space-3);
+  }
+
+  .pf-aviso {
+    padding: 0 var(--space-3);
+    width: 100%;
+  }
+
+  .pf-seccion {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .pf-fila {
+    gap: var(--space-3);
+  }
+
+  .pf-campo {
+    gap: var(--space-3);
+  }
+
+  .pf-campo__input {
+    padding: 0 var(--space-3);
+  }
+
+  .pf-items {
+    gap: var(--space-3);
+  }
+
+  .pf-cobro {
+    gap: var(--space-3);
+  }
+
+  .pf-entrega {
+    gap: var(--space-3);
+  }
+
+  .pf-calendario {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .pf-resumen {
+    gap: var(--space-3);
+  }
+
+  .pf-designado__persona {
+    gap: var(--space-3);
+  }
+
+  .pf-resumen__par {
+    gap: var(--space-3);
+  }
+
+  .pf-dato {
+    padding: 0 var(--space-3);
+  }
+
+  .pf-boton {
+    padding: 0 var(--space-3);
   }
 }

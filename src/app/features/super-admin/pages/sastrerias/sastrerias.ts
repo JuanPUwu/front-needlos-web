@@ -31,6 +31,9 @@ import {
   SastreriaPlataforma,
 } from '../../models/plataforma.model';
 import { PlataformaService } from '../../services/plataforma.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const TAMANO_PAGINA = 20;
 
@@ -41,7 +44,7 @@ const TAMANO_PAGINA = 20;
  */
 @Component({
   selector: 'app-super-admin-sastrerias',
-  imports: [Encabezado, TituloBloque, SastreriasTabla, SastreriaModal],
+  imports: [Vacio, BotonRecargar, Encabezado, TituloBloque, SastreriasTabla, SastreriaModal],
   templateUrl: './sastrerias.html',
   styleUrl: './sastrerias.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -88,6 +91,10 @@ export class SuperAdminSastrerias implements OnInit {
     ];
   });
 
+  constructor() {
+    recargaAutomatica(() => this.recargar(), { puede: () => !this.abierta() });
+  }
+
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
     this.filtros.set(filtrosDesdeUrl(params, FILTROS_SASTRERIAS_INICIALES));
@@ -103,6 +110,12 @@ export class SuperAdminSastrerias implements OnInit {
       });
     this.cargarResumen();
     this.cargar(Math.max(Number(params.get('pagina')) || 1, 1) - 1);
+  }
+
+  /** Trae lo último (cifras y la misma página) sin perder lo que se ve. */
+  recargar(): void {
+    this.cargarResumen();
+    this.cargar(this.pagina());
   }
 
   alBuscar(texto: string): void {

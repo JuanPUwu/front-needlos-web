@@ -110,10 +110,6 @@
     background: var(--color-bg);
     color: var(--color-text);
   }
-
-  &.ng-touched.ng-invalid {
-    border-color: var(--color-danger);
-  }
 }
 
 .scfg-campo__ayuda,
@@ -239,5 +235,55 @@
   .scfg--esqueleto .scfg-campo__input,
   .scfg--esqueleto .scfg-ultimo {
     animation: none;
+  }
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .scfg {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .scfg {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .scfg-bento {
+    gap: var(--space-3);
+  }
+
+  .scfg-seccion {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .scfg-campos {
+    gap: var(--space-3);
+  }
+
+  .scfg-campo {
+    gap: var(--space-3);
+  }
+
+  .scfg-campo__input {
+    padding: 0 var(--space-3);
+  }
+
+  .scfg-acciones {
+    gap: var(--space-3);
+  }
+
+  .scfg-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .scfg-item {
+    padding: var(--space-3) var(--space-3);
   }
 }

@@ -21,39 +21,17 @@
   min-height: 0;
 }
 
-.cargando__circulo {
-  width: 28px;
-  height: 28px;
-  border: 3px solid var(--focus-ring);
-  border-top-color: var(--color-accent);
-  border-radius: 50%;
-  animation: cargando-girar 0.8s linear infinite;
-}
-
-.cargando--compacto .cargando__circulo {
-  width: 18px;
-  height: 18px;
-  border-width: 2px;
+.cargando--compacto .cargando__costura {
+  width: 30px;
+  height: 20px;
 }
 
 .cargando__texto {
   font-size: 0.9rem;
 }
 
-@keyframes cargando-girar {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @keyframes cargando-aparecer {
   from {
     opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cargando__circulo {
-    animation-duration: 2s;
   }
 }

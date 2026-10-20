@@ -25,6 +25,10 @@ import { mensajeDeError } from '../../../../core/http/api-error';
 import { coincide } from '../../../../shared/util/texto';
 import { Empleado, Invitacion } from '../../models/empleado.model';
 import { EmpleadoService } from '../../services/empleado.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 /** Al menos un caracter visible (el backend rechaza textos solo con espacios). */
 const CON_TEXTO = /\S/;
@@ -35,7 +39,7 @@ export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
 /** Gestión del equipo: invitar por correo, miembros e invitaciones pendientes. */
 @Component({
   selector: 'app-equipo',
-  imports: [TituloBloque, Esqueleto, Encabezado, ReactiveFormsModule],
+  imports: [Vacio, BotonRecargar, TituloBloque, Esqueleto, Encabezado, ReactiveFormsModule],
   templateUrl: './equipo.html',
   styleUrl: './equipo.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,6 +57,8 @@ export class Equipo implements OnInit {
   readonly empleados = signal<Empleado[]>([]);
   readonly invitaciones = signal<Invitacion[]>([]);
   readonly cargando = signal(true);
+  /** Ya cargó una vez: recargar no vuelve al esqueleto (conserva lo que se ve). */
+  readonly listo = signal(false);
   readonly error = signal<string | null>(null);
 
   readonly editandoId = signal<string | null>(null);
@@ -123,6 +129,7 @@ export class Equipo implements OnInit {
   });
 
   constructor() {
+    recargaAutomatica(() => this.recargar());
     // Filtros en la URL: una recarga deja la lista igual.
     effect(() => {
       const queryParams = {
@@ -153,6 +160,11 @@ export class Equipo implements OnInit {
       this.permisosElegidos.set(new Set(guardado.permisos));
       this.form.markAsDirty();
     }
+    this.cargar();
+  }
+
+  /** Trae lo último sin perder lo que se ve. */
+  recargar(): void {
     this.cargar();
   }
 
@@ -197,6 +209,23 @@ export class Equipo implements OnInit {
   enviar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.form,
+        this.editando() ? 'guardar el miembro' : 'enviar la invitación',
+        {
+          nombre: 'el nombre',
+          apellido: 'el apellido',
+          email: 'el correo',
+          telefono: 'el teléfono',
+          numeroDocumento: 'el documento',
+          rol: 'el rol',
+        },
+        [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     if (this.guardando()) {
@@ -397,6 +426,7 @@ export class Equipo implements OnInit {
       .subscribe({
         next: ({ miembros, invitaciones }) => {
           this.empleados.set(miembros);
+          this.listo.set(true);
           this.invitaciones.set(invitaciones);
           this.cargando.set(false);
         },

@@ -25,6 +25,10 @@ import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
 import { coincide } from '../../../../shared/util/texto';
 import { GuardarTipoPrendaRequest, TipoPrenda } from '../../models/tipo-prenda.model';
 import { TipoPrendaService } from '../../services/tipo-prenda.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 /** Al menos un caracter visible (el backend rechaza textos solo con espacios). */
 const CON_TEXTO = /\S/;
@@ -39,7 +43,15 @@ export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
  */
 @Component({
   selector: 'app-catalogo',
-  imports: [TituloBloque, Esqueleto, Encabezado, ReactiveFormsModule, MonedaPipe],
+  imports: [
+    Vacio,
+    BotonRecargar,
+    TituloBloque,
+    Esqueleto,
+    Encabezado,
+    ReactiveFormsModule,
+    MonedaPipe,
+  ],
   templateUrl: './catalogo.html',
   styleUrl: './catalogo.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,6 +68,8 @@ export class Catalogo implements OnInit {
 
   readonly tipos = signal<TipoPrenda[]>([]);
   readonly cargando = signal(true);
+  /** Ya cargó una vez: recargar no vuelve al esqueleto (conserva lo que se ve). */
+  readonly listo = signal(false);
   readonly error = signal<string | null>(null);
 
   readonly editando = signal<TipoPrenda | null>(null);
@@ -99,6 +113,7 @@ export class Catalogo implements OnInit {
   );
 
   constructor() {
+    recargaAutomatica(() => this.recargar());
     // Filtros en la URL: una recarga deja la lista igual.
     effect(() => {
       const queryParams = {
@@ -126,6 +141,11 @@ export class Catalogo implements OnInit {
     this.cargar();
   }
 
+  /** Trae lo último sin perder lo que se ve. */
+  recargar(): void {
+    this.cargar();
+  }
+
   alBuscar(texto: string): void {
     this.buscar.set(texto.trim());
   }
@@ -142,6 +162,16 @@ export class Catalogo implements OnInit {
   enviar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.form,
+        this.editando() ? 'guardar el tipo de prenda' : 'crear el tipo de prenda',
+        { nombre: 'el nombre', precioBase: 'el precio base' },
+        [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     if (this.guardando()) {
@@ -262,6 +292,7 @@ export class Catalogo implements OnInit {
       .subscribe({
         next: (lista) => {
           this.tipos.set(lista);
+          this.listo.set(true);
           this.cargando.set(false);
         },
         error: (err: unknown) => {

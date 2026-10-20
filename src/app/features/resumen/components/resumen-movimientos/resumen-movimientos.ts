@@ -14,6 +14,7 @@ import {
   OrdenMovimientos,
   TipoMovimiento,
 } from '../../models/resumen.model';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 /**
  * Movimientos del resumen (abonos, devoluciones y gastos), presentacional: la página los pide
@@ -22,7 +23,7 @@ import {
  */
 @Component({
   selector: 'app-resumen-movimientos',
-  imports: [TituloBloque, MonedaPipe, FechaPipe, FechaHoraPipe, Esqueleto, Icono],
+  imports: [Vacio, TituloBloque, MonedaPipe, FechaPipe, FechaHoraPipe, Esqueleto, Icono],
   templateUrl: './resumen-movimientos.html',
   styleUrl: './resumen-movimientos.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

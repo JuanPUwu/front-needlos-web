@@ -101,21 +101,24 @@
           [error]="errorSesiones()"
         >
           @if (sesiones().length > 1) {
-            <button
-              class="cuenta-boton cuenta-boton--secundario"
-              type="button"
-              [disabled]="cerrandoId() !== null"
-              (click)="cerrarOtras()"
-            >
-              Cerrar las demás
-            </button>
+            <div class="cuenta-sesiones-acciones">
+              <app-boton-recargar [recargando]="cargandoSesiones()" (recargar)="recargar()" />
+              <button
+                class="cuenta-boton cuenta-boton--secundario"
+                type="button"
+                [disabled]="cerrandoId() !== null"
+                (click)="cerrarOtras()"
+              >
+                Cerrar las demás
+              </button>
+            </div>
           }
         </app-titulo-bloque>
 
-        @if (cargandoSesiones()) {
+        @if (cargandoSesiones() && !listoSesiones()) {
           <app-esqueleto forma="lista" [filas]="4" [alto]="72" texto="Cargando sesiones..." />
         } @else if (sesiones().length === 0) {
-          <p class="cuenta-bloque__ayuda">No hay sesiones abiertas.</p>
+          <app-vacio icono="usuario" titulo="Sin sesiones abiertas" />
         } @else {
           <ul class="cuenta-sesiones">
             @for (s of sesiones(); track s.id) {

@@ -314,10 +314,9 @@
 }
 
 .sm-vacio {
-  padding: var(--space-4) 0;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-align: center;
+  // Lista vacía: app-vacio centrado en el espacio libre (dueño 2026-10-20).
+  flex: 1;
+  display: flex;
 }
 
 // ── Esqueleto: el mismo marcado con los textos en piezas grises ─
@@ -384,5 +383,50 @@
   .sm--esqueleto dt,
   .sm-hueso {
     animation: none;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .sm-caja {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .sm-cuerpo {
+    gap: var(--space-3);
+  }
+
+  .sm-columna {
+    gap: var(--space-3);
+  }
+
+  .sm-chip {
+    padding: 0 var(--space-3);
+  }
+
+  .sm-seccion {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .sm-dato {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .sm-meses {
+    gap: var(--space-3);
+  }
+
+  .sm-acceso {
+    gap: var(--space-3);
+  }
+
+  .sm-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .sm-accion {
+    padding: var(--space-3) var(--space-3);
   }
 }

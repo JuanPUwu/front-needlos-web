@@ -141,8 +141,13 @@
 .pd-fila--detalle {
   grid-template-columns: minmax(0, 1fr) auto;
 
+  // Angosto: los botones bajan bajo "Último abono" y ocupan todo el ancho (dueño 2026-10-20).
   @container pdseccion (max-width: 480px) {
     grid-template-columns: minmax(0, 1fr);
+
+    .pd-boton {
+      flex: 1;
+    }
   }
 }
 
@@ -203,10 +208,6 @@
   &:disabled {
     background: var(--color-bg);
     color: var(--color-text-muted);
-  }
-
-  &.ng-touched.ng-invalid {
-    border-color: var(--color-danger);
   }
 }
 
@@ -322,11 +323,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
-.pd-designado__nombre {
   font-size: 0.95rem;
   color: var(--color-text);
 }
@@ -359,7 +355,9 @@
   font-size: 1rem;
   color: var(--color-text);
 
+  // El monto nunca se parte en dos líneas.
   strong {
+    white-space: nowrap;
     font-variant-numeric: tabular-nums;
   }
 }
@@ -384,6 +382,7 @@
 // ── Botones, notas y ayuda ──────────────────────────────────
 .pd-boton {
   display: inline-flex;
+  text-decoration: none;
   align-items: center;
   justify-content: center;
   height: 44px;
@@ -645,11 +644,6 @@
   flex-wrap: wrap;
 }
 
-// Botones propios del detalle (mismas bases que .pd-boton).
-.pd-boton {
-  text-decoration: none;
-}
-
 .pd-boton--chico {
   height: 32px;
   padding: 0 var(--space-3);
@@ -683,4 +677,108 @@
   padding: 0 var(--space-4);
   border-radius: var(--radius-md);
   font-size: 0.9rem;
+}
+
+// Teléfono: lo que no cabe lado a lado va uno debajo del otro.
+@container panel (max-width: 560px) {
+  // Calendario arriba; días, piezas, descuento y designado debajo.
+  .pd-entrega {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  // Cobro: Subtotal y Abonado.
+  .pd-cobro .pd-resumen__par {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  // Confirmar anulación (pedido o abono): los botones ocupan todo el ancho (dueño 2026-10-20).
+  .pd-confirmar__acciones .pd-boton {
+    flex: 1;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .pd {
+    gap: var(--space-3);
+  }
+
+  .pd-form {
+    gap: var(--space-3);
+  }
+
+  .pd-col {
+    gap: var(--space-3);
+  }
+
+  .pd-acciones-fila {
+    gap: var(--space-3);
+  }
+
+  .pd-seccion {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .pd-fila {
+    gap: var(--space-3);
+  }
+
+  .pd-campo {
+    gap: var(--space-3);
+  }
+
+  .pd-campo__input {
+    padding: 0 var(--space-3);
+  }
+
+  .pd-cobro {
+    gap: var(--space-3);
+  }
+
+  .pd-entrega {
+    gap: var(--space-3);
+  }
+
+  .pd-calendario {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .pd-resumen {
+    gap: var(--space-3);
+  }
+
+  .pd-designado__persona {
+    gap: var(--space-3);
+  }
+
+  .pd-resumen__par {
+    gap: var(--space-3);
+  }
+
+  .pd-dato {
+    padding: 0 var(--space-3);
+  }
+
+  .pd-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .pd-items {
+    gap: var(--space-3);
+  }
+
+  .pd-item {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .pd-confirmar {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .pd-chips .pd-chip {
+    padding: 0 var(--space-3);
+    width: 100%;
+  }
 }

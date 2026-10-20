@@ -50,7 +50,9 @@
             </button>
           </li>
         } @empty {
-          <li class="ic-vacio">Nadie debe nada.</li>
+          <li class="ic-vacio">
+            <app-vacio icono="gastos" titulo="Nadie debe nada" [compacto]="true" />
+          </li>
         }
       </ul>
 
@@ -83,7 +85,14 @@
             </button>
           </li>
         } @empty {
-          <li class="ic-vacio">Nada por entregar en los próximos días.</li>
+          <li class="ic-vacio">
+            <app-vacio
+              icono="entregado"
+              titulo="Nada por entregar"
+              mensaje="No hay entregas en los próximos días."
+              [compacto]="true"
+            />
+          </li>
         }
       </ul>
     </div>

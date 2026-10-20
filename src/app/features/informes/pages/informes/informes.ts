@@ -28,6 +28,10 @@ import { InformeProductividad } from '../../components/informe-productividad/inf
 import { InformeVentas } from '../../components/informe-ventas/informe-ventas';
 import { Cartera, PrendasClientes, Productividad, Ventas } from '../../models/informe.model';
 import { InformeService } from '../../services/informe.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Confirmacion } from '../../../../core/ui/confirmacion';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 /** "Hasta" no puede ser anterior a "Desde". */
 function rangoValido(grupo: AbstractControl): ValidationErrors | null {
@@ -51,6 +55,7 @@ const CARGANDO = { datos: null, error: null };
 @Component({
   selector: 'app-informes',
   imports: [
+    BotonRecargar,
     Encabezado,
     FechaPipe,
     ReactiveFormsModule,
@@ -65,9 +70,13 @@ const CARGANDO = { datos: null, error: null };
 })
 export class Informes implements OnInit {
   private readonly service = inject(InformeService);
+  private readonly confirmacion = inject(Confirmacion);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+
+  /** Peticiones de una recarga en curso (el botón gira mientras haya alguna). */
+  readonly recargando = signal(0);
 
   readonly periodos = PERIODOS;
   readonly periodo = signal<Periodo>('hoy');
@@ -90,6 +99,10 @@ export class Informes implements OnInit {
       : fechasDePeriodo(this.periodo() as Exclude<Periodo, 'rango'>),
   );
 
+  constructor() {
+    recargaAutomatica(() => this.recargar());
+  }
+
   ngOnInit(): void {
     const q = this.route.snapshot.queryParamMap;
     const periodo = (q.get('periodo') as Periodo | null) ?? 'hoy';
@@ -106,6 +119,11 @@ export class Informes implements OnInit {
     this.cargar();
   }
 
+  /** Trae lo último sin vaciar las tarjetas. */
+  recargar(): void {
+    this.cargar(true);
+  }
+
   elegir(periodo: Periodo): void {
     this.periodo.set(periodo);
     if (periodo === 'rango') {
@@ -119,6 +137,16 @@ export class Informes implements OnInit {
   verRango(): void {
     if (this.rango.invalid) {
       this.rango.markAllAsTouched();
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.rango,
+        'ver el rango',
+        { desde: 'la fecha desde', hasta: 'la fecha hasta' },
+        this.rango.hasError('rangoInvertido') ? ['que "Hasta" no sea anterior a "Desde"'] : [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     const { desde, hasta } = this.rango.getRawValue();
@@ -147,7 +175,7 @@ export class Informes implements OnInit {
     this.router.navigate(['/pedidos'], { queryParams: filtros });
   }
 
-  private cargar(): void {
+  private cargar(silencioso = false): void {
     const { desde, hasta } = this.fechas();
     const periodo = this.periodo();
     // La URL refleja lo que se ve (una recarga deja el mismo periodo); Hoy no deja parámetros.
@@ -161,16 +189,23 @@ export class Informes implements OnInit {
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
-    this.pedir(this.service.ventas(desde, hasta), this.ventas, 'No se pudieron cargar las ventas.');
+    this.pedir(
+      this.service.ventas(desde, hasta),
+      this.ventas,
+      'No se pudieron cargar las ventas.',
+      silencioso,
+    );
     this.pedir(
       this.service.productividad(desde, hasta),
       this.productividad,
       'No se pudo cargar la productividad.',
+      silencioso,
     );
     this.pedir(
       this.service.prendasYClientes(desde, hasta),
       this.prendas,
       'No se pudieron cargar las prendas y los clientes.',
+      silencioso,
     );
   }
 
@@ -178,11 +213,18 @@ export class Informes implements OnInit {
     peticion: Observable<T>,
     destino: ReturnType<typeof signal<Estado<T>>>,
     mensaje: string,
+    silencioso = false,
   ): void {
-    destino.set(CARGANDO);
+    // Al recargar se conserva lo que se ve hasta que llega lo nuevo.
+    if (silencioso) {
+      this.recargando.update((n) => n + 1);
+    } else {
+      destino.set(CARGANDO);
+    }
     peticion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (datos) => destino.set({ datos, error: null }),
       error: (err: unknown) => destino.set({ datos: null, error: mensajeDeError(err, mensaje) }),
+      complete: () => silencioso && this.recargando.update((n) => n - 1),
     });
   }
 }

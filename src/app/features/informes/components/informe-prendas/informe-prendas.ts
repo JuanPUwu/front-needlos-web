@@ -3,6 +3,7 @@ import { Params } from '@angular/router';
 import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
 import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { ClienteFrecuente, PrendasClientes } from '../../models/informe.model';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 /** Mientras carga: renglones de ejemplo (miden igual que los reales). */
 const ESQUELETO: PrendasClientes = {
@@ -23,7 +24,7 @@ const ESQUELETO: PrendasClientes = {
  */
 @Component({
   selector: 'app-informe-prendas',
-  imports: [TituloBloque, MonedaPipe],
+  imports: [Vacio, TituloBloque, MonedaPipe],
   templateUrl: './informe-prendas.html',
   styleUrl: './informe-prendas.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

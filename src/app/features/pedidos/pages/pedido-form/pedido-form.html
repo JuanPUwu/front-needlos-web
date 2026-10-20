@@ -22,16 +22,19 @@
     </button>
   </app-encabezado>
 
-  <!-- En teléfono los avisos bajan bajo el encabezado (el título necesita el ancho). -->
-  <div class="pf-avisos-movil">
-    <ng-container [ngTemplateOutlet]="avisos" />
-  </div>
+  <!-- En teléfono los avisos bajan bajo el encabezado (el título necesita el ancho). Solo si
+       hay alguno: un elemento vacío sumaría una separación de más entre las tarjetas. -->
+  @if (hayAvisos()) {
+    <div class="pf-avisos-movil">
+      <ng-container [ngTemplateOutlet]="avisos" />
+    </div>
+  }
 
   <!--
     Avisos fijos del cliente: en el encabezado, fuera de las tarjetas (no cambian su alto).
   -->
   <ng-template #avisos>
-    @if (!editando() && telefonoConsultado() && !buscandoCliente()) {
+    @if (hayAvisos()) {
       <div class="pf-avisos" role="status">
         @if (clienteEncontrado(); as c) {
           <span class="pf-aviso pf-aviso--ok" [title]="'Para corregir sus datos, usa Clientes.'">
@@ -206,7 +209,12 @@
                 <span class="pf-campo__error">Elige un día</span>
               }
             </div>
-            <div class="pf-calendario">
+            <div
+              class="pf-calendario"
+              [class.pf-calendario--error]="
+                form.controls.fechaEntrega.touched && form.controls.fechaEntrega.invalid
+              "
+            >
               <app-calendario
                 [valor]="form.controls.fechaEntrega.value"
                 [minimo]="hoy"
@@ -296,7 +304,11 @@
 
       <div class="pf-col pf-col--prendas">
         <!-- ── Lista de prendas ──────────────────────────────────── -->
-        <section class="pf-seccion pf-lista" aria-label="Prendas del pedido">
+        <section
+          class="pf-seccion pf-lista"
+          aria-label="Prendas del pedido"
+          [class.pf-seccion--error]="sinPrendas()"
+        >
           <h3 class="pf-seccion__titulo">Prendas</h3>
           @if (filas.length === 0) {
             <p class="pf-ayuda" [class.pf-ayuda--error]="sinPrendas()">

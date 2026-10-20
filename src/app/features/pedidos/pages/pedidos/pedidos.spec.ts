@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { PermisosService } from '../../../../core/auth/permisos';
 import { ClienteService } from '../../../clientes/services/cliente.service';
@@ -128,5 +128,19 @@ describe('Pedidos', () => {
       0,
       20,
     );
+  });
+
+  it('al crear un pedido el popup se cierra solo (no abre el detalle) y la lista se recarga', () => {
+    const c = crear({ nuevo: '1' });
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    service.listar.mockClear();
+    c.alCrear({ id: 'p9', numero: '#9-1' } as never);
+    expect(navegar).toHaveBeenLastCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: expect.objectContaining({ nuevo: null, pedido: null }),
+      }),
+    );
+    expect(service.listar).toHaveBeenCalled();
   });
 });

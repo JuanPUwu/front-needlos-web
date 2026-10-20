@@ -12,15 +12,18 @@
     </app-titulo-bloque>
 
     <div class="sdue-filtros" role="group" aria-label="Filtros">
-      <input
-        #buscador
-        class="sdue-control"
-        type="search"
-        placeholder="Buscar por nombre, correo, teléfono o sastrería"
-        aria-label="Buscar dueños"
-        [value]="filtros().buscar"
-        (input)="alBuscar(buscador.value)"
-      />
+      <div class="sdue-buscar">
+        <input
+          #buscador
+          class="sdue-control"
+          type="search"
+          placeholder="Buscar por nombre, correo, teléfono o sastrería"
+          aria-label="Buscar dueños"
+          [value]="filtros().buscar"
+          (input)="alBuscar(buscador.value)"
+        />
+        <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
+      </div>
       <select
         #correoSel
         class="sdue-control"
@@ -55,9 +58,15 @@
     @if (enEsqueleto()) {
       <app-duenos-tabla [duenos]="esqueletoFilas" [esqueleto]="true" />
     } @else if (duenos().length === 0 && !error()) {
-      <p class="sdue-vacio">
-        {{ hayFiltros() ? 'Ningún dueño coincide con lo elegido.' : 'Aún no hay dueños.' }}
-      </p>
+      @if (hayFiltros()) {
+        <app-vacio
+          icono="carrete"
+          titulo="No encontramos dueños"
+          mensaje="Ningún dueño coincide con lo elegido."
+        />
+      } @else {
+        <app-vacio icono="usuario" titulo="Aún no hay dueños" />
+      }
     } @else if (duenos().length > 0) {
       <app-duenos-tabla [duenos]="duenos()" [cargando]="cargando()" />
       @if (totalPaginas() > 1) {

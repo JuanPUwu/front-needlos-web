@@ -4,6 +4,7 @@ import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
 import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { etiquetaMetodo } from '../../../pedidos/models/pedido.model';
 import { Ventas } from '../../models/informe.model';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 /** Mientras carga: la misma estructura en $0 con tres renglones de ejemplo (mide igual). */
 const ESQUELETO: Ventas = {
@@ -28,7 +29,7 @@ const ESQUELETO: Ventas = {
  */
 @Component({
   selector: 'app-informe-ventas',
-  imports: [TituloBloque, MonedaPipe, FechaPipe],
+  imports: [Vacio, TituloBloque, MonedaPipe, FechaPipe],
   templateUrl: './informe-ventas.html',
   styleUrl: './informe-ventas.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

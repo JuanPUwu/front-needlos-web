@@ -12,15 +12,18 @@
     </app-titulo-bloque>
 
     <div class="sreg-filtros" role="group" aria-label="Filtros">
-      <input
-        #buscador
-        class="sreg-control sreg-control--buscar"
-        type="search"
-        placeholder="Buscar por sastrería, detalle o SuperAdmin"
-        aria-label="Buscar en el registro"
-        [value]="filtros().buscar"
-        (input)="alBuscar(buscador.value)"
-      />
+      <div class="sreg-buscar">
+        <input
+          #buscador
+          class="sreg-control sreg-control--buscar"
+          type="search"
+          placeholder="Buscar por sastrería, detalle o SuperAdmin"
+          aria-label="Buscar en el registro"
+          [value]="filtros().buscar"
+          (input)="alBuscar(buscador.value)"
+        />
+        <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
+      </div>
       <select
         #tipoSel
         class="sreg-control"
@@ -80,7 +83,15 @@
         </li>
       } @empty {
         <li class="sreg-vacio">
-          {{ hayFiltros() ? 'Ninguna acción coincide con lo elegido.' : 'Aún no hay acciones.' }}
+          @if (hayFiltros()) {
+            <app-vacio
+              icono="carrete"
+              titulo="No encontramos acciones"
+              mensaje="Ninguna acción coincide con lo elegido."
+            />
+          } @else {
+            <app-vacio icono="historial" titulo="Aún no hay acciones" />
+          }
         </li>
       }
     </ol>

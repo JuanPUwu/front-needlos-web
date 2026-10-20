@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { Productividad } from '../../models/informe.model';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 /** Mientras carga: tres renglones de ejemplo (miden igual que los reales). */
 const ESQUELETO: Productividad = {
@@ -20,7 +21,7 @@ const ESQUELETO: Productividad = {
  */
 @Component({
   selector: 'app-informe-productividad',
-  imports: [TituloBloque],
+  imports: [Vacio, TituloBloque],
   templateUrl: './informe-productividad.html',
   styleUrl: './informe-productividad.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

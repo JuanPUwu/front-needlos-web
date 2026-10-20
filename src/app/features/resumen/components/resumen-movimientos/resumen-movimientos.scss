@@ -93,13 +93,6 @@
   }
 }
 
-.rm-vacio {
-  padding: var(--space-6) 0;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
 .rm-marco {
   flex: 1;
   min-height: 0;
@@ -382,5 +375,38 @@
   .rm,
   .rm__celda {
     transition: none;
+  }
+}
+
+// Teléfono: "Limpiar filtros" ocupa toda la fila (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .rm-limpiar {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  :host {
+    gap: var(--space-3);
+  }
+
+  .rm-filtros {
+    gap: var(--space-3);
+  }
+
+  .rm-limpiar {
+    padding: 0 var(--space-3);
+  }
+
+  .rm-pagina {
+    padding: 0 var(--space-3);
+  }
+
+  .rm__fila {
+    gap: var(--space-1) var(--space-3);
+    padding: var(--space-3) var(--space-3);
   }
 }

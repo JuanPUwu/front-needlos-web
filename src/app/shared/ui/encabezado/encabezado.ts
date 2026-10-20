@@ -3,11 +3,15 @@ import {
   Component,
   ElementRef,
   afterNextRender,
+  computed,
   inject,
   input,
+  output,
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Bandeja } from '../../../core/notificaciones/bandeja';
+import { Campana } from '../campana/campana';
 import { Icono, NombreIcono } from '../icono/icono';
 
 /**
@@ -19,7 +23,7 @@ import { Icono, NombreIcono } from '../icono/icono';
  */
 @Component({
   selector: 'app-encabezado',
-  imports: [RouterLink, Icono],
+  imports: [RouterLink, Icono, Campana],
   templateUrl: './encabezado.html',
   styleUrl: './encabezado.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,12 +38,19 @@ export class Encabezado {
   /** id del título (un popup lo usa en aria-labelledby). */
   readonly idTitulo = input<string | null>(null);
   readonly error = input<string | null>(null);
+  /** Muestra el botón de recargar (las secciones con datos del servidor). */
+  readonly recargable = input(false);
+  /** Mientras recarga: el ícono gira y el botón no se puede volver a tocar. */
+  readonly recargando = input(false);
+  readonly recargar = output<void>();
 
   /**
-   * Dentro de un popup no hay campana encima: no se reserva su espacio. En una sección sí
-   * (`--reserva-campana`, la define el marco), para que la campana nunca tape una acción.
+   * La campana de notificaciones es la última acción del encabezado de una sección (Manual
+   * §19.1). En un popup no va. Mientras no se sabe dónde está (primer render), no se muestra.
    */
-  readonly enDialogo = signal(false);
+  private readonly enDialogo = signal<boolean | null>(null);
+  private readonly bandeja = inject(Bandeja);
+  readonly conCampana = computed(() => this.enDialogo() === false && this.bandeja.activa());
 
   constructor() {
     const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;

@@ -376,7 +376,12 @@
               <span class="mm-mov__meta">19/10/2026 23:22 · Equipo</span>
             </div>
           } @else if (historial().length === 0) {
-            <p class="mm-ayuda">Aún no hay entradas ni salidas.</p>
+            <app-vacio
+              icono="historial"
+              titulo="Sin movimientos"
+              mensaje="Aún no hay entradas ni salidas."
+              [compacto]="true"
+            />
           } @else if (material(); as m) {
             <ol class="mm-movimientos" [class.mm-movimientos--cargando]="cargandoHistorial()">
               @for (h of historial(); track h.id) {

@@ -13,7 +13,7 @@
       <div class="catalogo-stats">
         <div class="catalogo-stat">
           <span class="catalogo-stat__num">
-            @if (cargando()) {
+            @if (cargando() && !listo()) {
               <app-esqueleto forma="numero" texto="Cargando..." />
             } @else {
               {{ activos() }}
@@ -23,7 +23,7 @@
         </div>
         <div class="catalogo-stat">
           <span class="catalogo-stat__num">
-            @if (cargando()) {
+            @if (cargando() && !listo()) {
               <app-esqueleto forma="numero" texto="Cargando..." />
             } @else {
               {{ inactivos() }}
@@ -99,15 +99,18 @@
         <app-titulo-bloque titulo="Tipos de prenda" idTitulo="titulo-lista" [error]="error()" />
 
         <div class="catalogo-filtros" role="group" aria-label="Filtros">
-          <input
-            #buscador
-            class="catalogo-filtros__control catalogo-filtros__buscador"
-            type="search"
-            placeholder="Buscar por nombre"
-            aria-label="Buscar tipos de prenda"
-            [value]="buscar()"
-            (input)="alBuscar(buscador.value)"
-          />
+          <div class="catalogo-filtros__buscar">
+            <input
+              #buscador
+              class="catalogo-filtros__control catalogo-filtros__buscador"
+              type="search"
+              placeholder="Buscar por nombre"
+              aria-label="Buscar tipos de prenda"
+              [value]="buscar()"
+              (input)="alBuscar(buscador.value)"
+            />
+            <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
+          </div>
           <select
             #estadoSel
             class="catalogo-filtros__control"
@@ -120,7 +123,7 @@
           </select>
           @if (hayFiltros()) {
             <button
-              class="catalogo-boton catalogo-boton--secundario"
+              class="catalogo-boton catalogo-boton--secundario catalogo-filtros__limpiar"
               type="button"
               (click)="limpiarFiltros()"
             >
@@ -129,12 +132,20 @@
           }
         </div>
 
-        @if (cargando()) {
+        @if (cargando() && !listo()) {
           <app-esqueleto forma="lista" [filas]="6" [alto]="72" texto="Cargando catálogo..." />
         } @else if (tipos().length === 0) {
-          <p class="catalogo-bloque__ayuda">Aún no hay tipos de prenda. Agrega el primero.</p>
+          <app-vacio
+            icono="percha"
+            titulo="Aún no hay tipos de prenda"
+            mensaje="Agrega el primero en el formulario."
+          />
         } @else if (visibles().length === 0) {
-          <p class="catalogo-bloque__ayuda">Ningún tipo de prenda coincide con los filtros.</p>
+          <app-vacio
+            icono="carrete"
+            titulo="No encontramos tipos de prenda"
+            mensaje="Ninguno coincide con los filtros. Prueba con otra búsqueda u otros filtros."
+          />
         } @else {
           <ul class="catalogo-lista">
             @for (t of visibles(); track t.id) {

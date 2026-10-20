@@ -195,3 +195,46 @@
     animation: none;
   }
 }
+
+// Teléfono: igual que el formulario, calendario arriba y resumen debajo (mide igual).
+@container panel (max-width: 560px) {
+  .esq__entrega {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .esq {
+    gap: var(--space-3);
+  }
+
+  .esq__col {
+    gap: var(--space-3);
+  }
+
+  .esq__tarjeta {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .esq__fila {
+    gap: var(--space-3);
+  }
+
+  .esq__campo {
+    gap: var(--space-3);
+  }
+
+  .esq__resumen {
+    gap: var(--space-3);
+  }
+
+  .esq__acciones {
+    gap: var(--space-3);
+  }
+
+  .esq__calendario {
+    padding: var(--space-3) var(--space-3);
+  }
+}

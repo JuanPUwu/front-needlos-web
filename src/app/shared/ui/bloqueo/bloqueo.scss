@@ -16,6 +16,8 @@
 
 .bloqueo__caja {
   display: flex;
+  // Aguja arriba, texto debajo (dueño 2026-10-20).
+  flex-direction: column;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
@@ -26,13 +28,9 @@
   animation: bloqueo-caja var(--dur-entrar) var(--ease-out) 300ms forwards;
 }
 
-.bloqueo__circulo {
-  width: 24px;
-  height: 24px;
-  border: 3px solid var(--focus-ring);
-  border-top-color: var(--color-accent);
-  border-radius: 50%;
-  animation: bloqueo-girar 0.8s linear infinite;
+.bloqueo__costura {
+  width: 60px;
+  height: 40px;
 }
 
 .bloqueo__texto {
@@ -50,17 +48,5 @@
 @keyframes bloqueo-caja {
   to {
     opacity: 1;
-  }
-}
-
-@keyframes bloqueo-girar {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bloqueo__circulo {
-    animation-duration: 2s;
   }
 }

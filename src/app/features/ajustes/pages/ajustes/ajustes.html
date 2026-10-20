@@ -5,26 +5,56 @@
     icono="ajustes"
   />
 
+  <!-- Tarjetas del mismo alto que llenan el ancho; la acción de cada una va al pie (dueño 2026-10-20). -->
   <div class="ajustes__bento">
     @if (esAdmin()) {
       <a class="ajustes__tile" routerLink="/sastreria">
-        <span class="ajustes__tile-titulo">Mi sastrería</span>
-        <span class="ajustes__tile-detalle">Nombre y datos del negocio para el ticket.</span>
+        <span class="ajustes__icono" aria-hidden="true">
+          <app-icono class="ajustes__icono-svg" nombre="tienda" />
+        </span>
+        <span class="ajustes__textos">
+          <span class="ajustes__tile-titulo">Mi sastrería</span>
+          <span class="ajustes__tile-detalle">Nombre y datos del negocio para el ticket.</span>
+        </span>
+        <span class="ajustes__pie">
+          Abrir <app-icono class="ajustes__pie-flecha" nombre="flecha-derecha" />
+        </span>
       </a>
       <a class="ajustes__tile" routerLink="/catalogo">
-        <span class="ajustes__tile-titulo">Catálogo de prendas</span>
-        <span class="ajustes__tile-detalle">Tipos de prenda que ofreces y su precio base.</span>
+        <span class="ajustes__icono" aria-hidden="true">
+          <app-icono class="ajustes__icono-svg" nombre="percha" />
+        </span>
+        <span class="ajustes__textos">
+          <span class="ajustes__tile-titulo">Catálogo de prendas</span>
+          <span class="ajustes__tile-detalle">Tipos de prenda que ofreces y su precio base.</span>
+        </span>
+        <span class="ajustes__pie">
+          Abrir <app-icono class="ajustes__pie-flecha" nombre="flecha-derecha" />
+        </span>
       </a>
     }
 
     <a class="ajustes__tile" routerLink="/mi-cuenta">
-      <span class="ajustes__tile-titulo">Mi cuenta</span>
-      <span class="ajustes__tile-detalle">Cambiar contraseña y gestionar sesiones.</span>
+      <span class="ajustes__icono" aria-hidden="true">
+        <app-icono class="ajustes__icono-svg" nombre="usuario" />
+      </span>
+      <span class="ajustes__textos">
+        <span class="ajustes__tile-titulo">Mi cuenta</span>
+        <span class="ajustes__tile-detalle">Cambiar contraseña y gestionar sesiones.</span>
+      </span>
+      <span class="ajustes__pie">
+        Abrir <app-icono class="ajustes__pie-flecha" nombre="flecha-derecha" />
+      </span>
     </a>
 
     <div class="ajustes__tile ajustes__tile--sesion">
-      <span class="ajustes__tile-titulo">Sesión</span>
-      <span class="ajustes__tile-detalle">Cierra tu sesión en este dispositivo.</span>
+      <span class="ajustes__icono ajustes__icono--peligro" aria-hidden="true">
+        <app-icono class="ajustes__icono-svg" nombre="salir" />
+      </span>
+      <span class="ajustes__textos">
+        <span class="ajustes__tile-titulo">Sesión</span>
+        <span class="ajustes__tile-detalle">Cierra tu sesión en este dispositivo.</span>
+      </span>
       <button class="ajustes__logout" type="button" (click)="cerrarSesion()">Cerrar sesión</button>
     </div>
   </div>

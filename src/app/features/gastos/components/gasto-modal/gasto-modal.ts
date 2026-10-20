@@ -32,6 +32,7 @@ import { PATRON_MONTO, aNumero, aTexto } from '../../../../shared/util/montos';
 import { METODOS_PAGO, MetodoPago, etiquetaMetodo } from '../../../pedidos/models/pedido.model';
 import { CambioGasto, ETIQUETA_ACCION, Gasto } from '../../models/gasto.model';
 import { GastoService } from '../../services/gasto.service';
+import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 const CON_TEXTO = /\S/;
 
@@ -152,6 +153,18 @@ export class GastoModal implements OnInit, OnDestroy {
     const monto = aNumero(this.form.controls.monto.value);
     if (this.form.invalid || monto === null || monto <= 0) {
       this.form.markAllAsTouched();
+      // Qué falta, en un aviso que hay que aceptar (dueño 2026-10-20).
+      const aviso = avisoFaltantes(
+        this.form,
+        this.gastoId() ? 'guardar el gasto' : 'registrar el gasto',
+        { razon: 'la razón', monto: 'el monto', metodo: 'el método de pago', fecha: 'la fecha' },
+        this.form.controls.monto.valid && (monto === null || monto <= 0)
+          ? ['que el monto sea mayor que 0']
+          : [],
+      );
+      if (aviso) {
+        void this.confirmacion.avisar(aviso);
+      }
       return;
     }
     if (this.guardando()) {

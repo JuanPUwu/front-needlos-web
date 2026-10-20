@@ -11,7 +11,7 @@
       <div class="equipo-stats">
         <div class="equipo-stat">
           <span class="equipo-stat__num">
-            @if (cargando()) {
+            @if (cargando() && !listo()) {
               <app-esqueleto forma="numero" texto="Cargando..." />
             } @else {
               {{ total() }}
@@ -21,7 +21,7 @@
         </div>
         <div class="equipo-stat">
           <span class="equipo-stat__num">
-            @if (cargando()) {
+            @if (cargando() && !listo()) {
               <app-esqueleto forma="numero" texto="Cargando..." />
             } @else {
               {{ admins() }}
@@ -31,7 +31,7 @@
         </div>
         <div class="equipo-stat">
           <span class="equipo-stat__num">
-            @if (cargando()) {
+            @if (cargando() && !listo()) {
               <app-esqueleto forma="numero" texto="Cargando..." />
             } @else {
               {{ pendientes() }}
@@ -191,15 +191,18 @@
         <app-titulo-bloque titulo="Miembros" idTitulo="titulo-lista" [error]="error()" />
 
         <div class="equipo-filtros" role="group" aria-label="Filtros">
-          <input
-            #buscador
-            class="equipo-filtros__control equipo-filtros__buscador"
-            type="search"
-            placeholder="Buscar por nombre o correo"
-            aria-label="Buscar en el equipo"
-            [value]="buscar()"
-            (input)="alBuscar(buscador.value)"
-          />
+          <div class="equipo-filtros__buscar">
+            <input
+              #buscador
+              class="equipo-filtros__control equipo-filtros__buscador"
+              type="search"
+              placeholder="Buscar por nombre o correo"
+              aria-label="Buscar en el equipo"
+              [value]="buscar()"
+              (input)="alBuscar(buscador.value)"
+            />
+            <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
+          </div>
           <select
             #rolSel
             class="equipo-filtros__control"
@@ -222,7 +225,7 @@
           </select>
           @if (hayFiltros()) {
             <button
-              class="equipo-boton equipo-boton--secundario"
+              class="equipo-boton equipo-boton--secundario equipo-filtros__limpiar"
               type="button"
               (click)="limpiarFiltros()"
             >
@@ -231,14 +234,22 @@
           }
         </div>
 
-        @if (cargando()) {
+        @if (cargando() && !listo()) {
           <app-esqueleto forma="lista" [filas]="5" [alto]="72" texto="Cargando equipo..." />
         } @else {
           <div class="equipo-lista-scroll">
             @if (empleados().length === 0) {
-              <p class="equipo-bloque__ayuda">Aún no hay miembros. Invita al primero arriba.</p>
+              <app-vacio
+                icono="equipo"
+                titulo="Aún no hay miembros"
+                mensaje="Invita al primero en el formulario."
+              />
             } @else if (miembrosVisibles().length === 0) {
-              <p class="equipo-bloque__ayuda">Ningún miembro coincide con los filtros.</p>
+              <app-vacio
+                icono="carrete"
+                titulo="No encontramos miembros"
+                mensaje="Ninguno coincide con los filtros. Prueba con otra búsqueda u otros filtros."
+              />
             } @else {
               <ul class="equipo-lista">
                 @for (emp of miembrosVisibles(); track emp.accesoId) {

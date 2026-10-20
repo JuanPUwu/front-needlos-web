@@ -41,7 +41,10 @@ describe('SuperAdminConfiguracion', () => {
       imports: [SuperAdminConfiguracion],
       providers: [
         { provide: PlataformaService, useValue: service },
-        { provide: Confirmacion, useValue: { pedir: confirmar } },
+        {
+          provide: Confirmacion,
+          useValue: { pedir: confirmar, avisar: vi.fn().mockResolvedValue(undefined) },
+        },
         { provide: Notificaciones, useValue: { exito: vi.fn() } },
         { provide: EstadoSuperAdmin, useValue: { principal: signal(true) } },
       ],

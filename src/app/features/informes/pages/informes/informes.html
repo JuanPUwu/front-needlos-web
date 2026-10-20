@@ -8,20 +8,24 @@
 
     <!-- ── Periodo (como en el Resumen) ────────────────────────── -->
     <section class="informes-periodo" aria-label="Periodo">
-      <div class="informes-pestanas" role="tablist" aria-label="Periodo">
-        @for (p of periodos; track p.valor) {
-          <button
-            class="informes-pestana"
-            type="button"
-            role="tab"
-            [attr.aria-selected]="periodo() === p.valor"
-            (click)="elegir(p.valor)"
-          >
-            {{ p.etiqueta }}
-          </button>
-        }
+      <div class="informes-periodo__fila">
+        <div class="informes-pestanas" role="tablist" aria-label="Periodo">
+          @for (p of periodos; track p.valor) {
+            <button
+              class="informes-pestana"
+              type="button"
+              role="tab"
+              [attr.aria-selected]="periodo() === p.valor"
+              (click)="elegir(p.valor)"
+            >
+              {{ p.etiqueta }}
+            </button>
+          }
+        </div>
+        <app-boton-recargar [recargando]="recargando() > 0" (recargar)="recargar()" />
       </div>
-      @if (fechas().desde) {
+      <!-- Con "Hoy" no se repite la fecha (dueño 2026-10-20). -->
+      @if (fechas().desde && periodo() !== 'hoy') {
         <p class="informes-fechas">
           @if (fechas().desde === fechas().hasta) {
             {{ fechas().desde | fecha }}

@@ -30,15 +30,18 @@
     </app-titulo-bloque>
 
     <div class="sadmin-filtros" role="group" aria-label="Filtros">
-      <input
-        #buscador
-        class="sadmin-control"
-        type="search"
-        placeholder="Buscar por nombre o correo del admin"
-        aria-label="Buscar sastrerías"
-        [value]="filtros().buscar"
-        (input)="alBuscar(buscador.value)"
-      />
+      <div class="sadmin-buscar">
+        <input
+          #buscador
+          class="sadmin-control"
+          type="search"
+          placeholder="Buscar por nombre o correo del admin"
+          aria-label="Buscar sastrerías"
+          [value]="filtros().buscar"
+          (input)="alBuscar(buscador.value)"
+        />
+        <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
+      </div>
       <select
         #estadoSel
         class="sadmin-control"
@@ -73,9 +76,15 @@
     @if (enEsqueleto()) {
       <app-sastrerias-tabla [sastrerias]="esqueletoFilas" [esqueleto]="true" />
     } @else if (sastrerias().length === 0 && !error()) {
-      <p class="sadmin-vacio">
-        {{ hayFiltros() ? 'Ninguna sastrería coincide con lo elegido.' : 'Aún no hay sastrerías.' }}
-      </p>
+      @if (hayFiltros()) {
+        <app-vacio
+          icono="carrete"
+          titulo="No encontramos sastrerías"
+          mensaje="Ninguna sastrería coincide con lo elegido."
+        />
+      } @else {
+        <app-vacio icono="tienda" titulo="Aún no hay sastrerías" />
+      }
     } @else if (sastrerias().length > 0) {
       <app-sastrerias-tabla
         [sastrerias]="sastrerias()"

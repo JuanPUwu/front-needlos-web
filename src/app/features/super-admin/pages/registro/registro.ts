@@ -24,6 +24,9 @@ import {
   FiltrosRegistro,
 } from '../../models/plataforma.model';
 import { PlataformaService } from '../../services/plataforma.service';
+import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const TAMANO_PAGINA = 20;
 
@@ -44,7 +47,7 @@ const ESQUELETO: AccionPlataforma[] = Array.from({ length: 6 }, (_, i) => ({
  */
 @Component({
   selector: 'app-super-admin-registro',
-  imports: [Encabezado, TituloBloque, FechaHoraPipe],
+  imports: [Vacio, BotonRecargar, Encabezado, TituloBloque, FechaHoraPipe],
   templateUrl: './registro.html',
   styleUrl: './registro.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -74,6 +77,10 @@ export class SuperAdminRegistro implements OnInit {
     return !!(f.buscar || f.accion || f.desde || f.hasta);
   });
 
+  constructor() {
+    recargaAutomatica(() => this.recargar());
+  }
+
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
     this.filtros.set(filtrosDesdeUrl(params, FILTROS_REGISTRO_INICIALES));
@@ -85,6 +92,11 @@ export class SuperAdminRegistro implements OnInit {
         }
       });
     this.cargar(Math.max(Number(params.get('pagina')) || 1, 1) - 1);
+  }
+
+  /** Trae lo último sin perder lo que se ve. */
+  recargar(): void {
+    this.cargar(this.pagina());
   }
 
   alBuscar(texto: string): void {

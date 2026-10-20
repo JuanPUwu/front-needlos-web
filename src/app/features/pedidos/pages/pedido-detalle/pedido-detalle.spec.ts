@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { PermisosService } from '../../../../core/auth/permisos';
+import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { EmpleadoService } from '../../../equipo/services/empleado.service';
 import { Pedido, Prenda } from '../../models/pedido.model';
@@ -68,6 +69,10 @@ describe('PedidoDetalle', () => {
         { provide: PedidoService, useValue: service },
         { provide: EmpleadoService, useValue: { asignables: () => of([]) } },
         { provide: PermisosService, useValue: { puede: () => true, admin: () => true } },
+        {
+          provide: Notificaciones,
+          useValue: { error: vi.fn(), exito: vi.fn(), info: vi.fn() },
+        },
       ],
     });
     const fixture = TestBed.createComponent(PedidoDetalle);
@@ -112,5 +117,20 @@ describe('PedidoDetalle', () => {
       expect.any(String),
     );
     expect(componente.pedido()?.pagado).toBe(true);
+  });
+
+  it('si falta el monto o la razón, avisa qué falta en un popup y no lo envía', () => {
+    const avisar = vi.spyOn(TestBed.inject(Confirmacion), 'avisar').mockResolvedValue();
+    componente.registrarAbono();
+    expect(avisar).toHaveBeenCalledWith(
+      expect.objectContaining({ mensaje: 'Para registrar el abono falta el monto.' }),
+    );
+    expect(service['registrarAbono']).not.toHaveBeenCalled();
+
+    componente.pedirAnular();
+    componente.anular();
+    expect(avisar).toHaveBeenCalledWith(
+      expect.objectContaining({ mensaje: 'Para anular el pedido falta la razón.' }),
+    );
   });
 });

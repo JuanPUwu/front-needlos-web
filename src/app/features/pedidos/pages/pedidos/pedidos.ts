@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subject, debounceTime } from 'rxjs';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 import { Casilla } from '../../../../shared/ui/casilla/casilla';
 import { PedidosTabla } from '../../components/pedidos-tabla/pedidos-tabla';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
@@ -37,6 +38,8 @@ import {
 import { EstadoBarra } from '../../components/estado-barra/estado-barra';
 import { PedidoModal } from '../../components/pedido-modal/pedido-modal';
 import { PedidoService } from '../../services/pedido.service';
+import { INTERVALO_LISTAS_MS, recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
 
 const TAMANO_PAGINA = 20;
 /** Valor especial del filtro de sastre: "mis prendas" (mi accesoId). */
@@ -63,6 +66,8 @@ const ORDENES: { valor: OrdenPedidos; etiqueta: string }[] = [
 @Component({
   selector: 'app-pedidos',
   imports: [
+    BotonRecargar,
+    Vacio,
     Esqueleto,
     Encabezado,
     MonedaPipe,
@@ -147,6 +152,13 @@ export class Pedidos implements OnInit {
     );
   });
 
+  constructor() {
+    recargaAutomatica(() => this.recargar(), {
+      cadaMs: INTERVALO_LISTAS_MS,
+      puede: () => !this.pedidoAbierto() && !this.creando(),
+    });
+  }
+
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
     const filtros = filtrosDesdeUrl(params, VISTA_INICIAL);
@@ -209,13 +221,12 @@ export class Pedidos implements OnInit {
     this.navegar({ nuevo: '1', pedido: null, modo: null }, false);
   }
 
-  /** Pedido creado: se cierra "nuevo" y se abre su detalle; la lista se actualiza. */
+  /** Pedido creado: el popup se cierra solo (dueño 2026-10-20) y la lista se actualiza. */
   alCrear(pedido: Pedido): void {
     this.notificaciones.exito(`Pedido ${pedido.numero} creado.`);
     this.cargarResumen();
-    // Una sola navegación: recargar la lista y pasar del formulario al detalle del pedido nuevo
-    // (dos seguidas se pisarían).
-    this.cargar(this.pagina(), { nuevo: null, pedido: pedido.id, modo: null });
+    // Una sola navegación: recargar la lista y cerrar el formulario (dos seguidas se pisarían).
+    this.cargar(this.pagina(), { nuevo: null, pedido: null, modo: null });
   }
 
   elegirEstado(valor: EstadoPedido | ''): void {
