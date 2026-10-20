@@ -1,0 +1,246 @@
+// Registro de acciones (sección del SuperAdmin). Solo tokens globales; espaciado con gap.
+// Llena el área sin desplazarse: la lista se desplaza dentro de su tarjeta.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.sreg {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.sreg-bloque {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: sregbloque / inline-size;
+
+  // Teléfono: la página se desplaza; la lista no se recorta.
+  @container panel (max-width: 560px) {
+    flex: none;
+    overflow: visible;
+  }
+}
+
+.sreg-cuenta {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Filtros ─────────────────────────────────────────────────
+.sreg-filtros {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: var(--space-4);
+
+  @container sregbloque (max-width: 760px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    .sreg-control--buscar {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.sreg-control {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.sreg-limpiar,
+.sreg-pagina {
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ── Lista ───────────────────────────────────────────────────
+.sreg-lista {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+  transition: opacity var(--dur-color) var(--ease-out);
+}
+
+.sreg-lista--cargando {
+  opacity: 0.6;
+}
+
+.sreg-item {
+  --tono: var(--estado-proceso);
+
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--tono);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+
+  &[data-accion='LICENCIA_OTORGADA'],
+  &[data-accion='SASTRERIA_ACTIVADA'] {
+    --tono: var(--estado-finalizado);
+  }
+
+  &[data-accion='SASTRERIA_DESACTIVADA'],
+  &[data-accion='SUPERADMIN_ELIMINADO'] {
+    --tono: var(--estado-anulado);
+  }
+
+  &[data-accion='CONFIGURACION_CAMBIADA'] {
+    --tono: var(--estado-entregado);
+  }
+}
+
+.sreg-item__fila {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.sreg-item__nombre {
+  color: var(--tono);
+}
+
+.sreg-item__sastreria {
+  font-weight: 600;
+  color: var(--color-navy);
+}
+
+.sreg-item__detalle {
+  color: var(--color-text);
+}
+
+.sreg-item__meta {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.sreg-vacio {
+  padding: var(--space-6) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.sreg-paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.sreg-paginacion__texto {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// ── Esqueleto: el mismo marcado con los textos en piezas grises ─
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
+.sreg--esqueleto .sreg-item {
+  --tono: color-mix(in srgb, var(--color-bg), var(--color-navy) 10%);
+}
+
+.sreg--esqueleto .sreg-item > *:not(.sreg-item__fila),
+.sreg--esqueleto .sreg-item__fila > *,
+.sreg-cuenta--esqueleto {
+  width: fit-content;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+    color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
+  background-size: 200% 100%;
+  color: transparent;
+  animation: sreg-brillo 1.4s linear infinite;
+}
+
+@keyframes sreg-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sreg-lista {
+    transition: none;
+  }
+
+  .sreg--esqueleto .sreg-item > *:not(.sreg-item__fila),
+  .sreg--esqueleto .sreg-item__fila > *,
+  .sreg-cuenta--esqueleto {
+    animation: none;
+  }
+}

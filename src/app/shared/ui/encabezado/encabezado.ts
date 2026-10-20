@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  afterNextRender,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Icono, NombreIcono } from '../icono/icono';
 
@@ -26,4 +34,15 @@ export class Encabezado {
   /** id del título (un popup lo usa en aria-labelledby). */
   readonly idTitulo = input<string | null>(null);
   readonly error = input<string | null>(null);
+
+  /**
+   * Dentro de un popup no hay campana encima: no se reserva su espacio. En una sección sí
+   * (`--reserva-campana`, la define el marco), para que la campana nunca tape una acción.
+   */
+  readonly enDialogo = signal(false);
+
+  constructor() {
+    const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    afterNextRender(() => this.enDialogo.set(!!host.closest('[role="dialog"]')));
+  }
 }

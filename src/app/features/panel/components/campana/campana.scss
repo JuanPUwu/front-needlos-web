@@ -1,0 +1,279 @@
+// Campana y bandeja de notificaciones. Solo tokens globales; espaciado con gap.
+
+:host {
+  position: relative;
+  display: inline-flex;
+}
+
+.cmp__boton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  // Misma forma que el botón "+" de las secciones (dueño 2026-10-20).
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  // Sin avisos no destaca: gris.
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-color) var(--ease-out),
+    color var(--dur-color) var(--ease-out);
+
+  &:hover,
+  &--activo {
+    background: var(--focus-ring);
+    color: var(--color-navy);
+  }
+
+  // Con notificaciones sin leer: azul de la app.
+  &--avisos {
+    border-color: transparent;
+    background: var(--color-accent);
+    color: var(--color-surface);
+
+    &:hover,
+    &.cmp__boton--activo {
+      background: var(--color-accent-hover);
+      color: var(--color-surface);
+    }
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cmp__icono {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+// Contador de no leídas: rojo para que resalte sobre el botón azul.
+.cmp__cuenta {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 var(--space-1);
+  border: 2px solid var(--color-surface);
+  border-radius: 10px;
+  background: var(--color-danger);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Panel ───────────────────────────────────────────────────
+.cmp__panel {
+  // Se abre hacia abajo, alineada a la derecha de la campana (sobre los popups 50).
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: min(400px, calc(100vw - 2 * var(--space-4)));
+  max-height: min(560px, calc(100dvh - 120px));
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.cmp__cabeza {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  // En pantallas angostas el enlace baja a su propia línea en vez de partirse.
+  flex-wrap: wrap;
+}
+
+.cmp__titulo {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.cmp__todas {
+  flex-shrink: 0;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+.cmp__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+}
+
+.cmp__item {
+  --tono: var(--color-accent);
+
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font: inherit;
+  text-align: left;
+  color: var(--color-text);
+  cursor: default;
+
+  &[data-tono='ALERTA'] {
+    --tono: var(--color-warning);
+  }
+
+  &[data-tono='ERROR'] {
+    --tono: var(--color-danger);
+  }
+
+  &--enlace {
+    cursor: pointer;
+
+    &:hover {
+      background: var(--focus-ring);
+    }
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// Punto de "sin leer" del color del aviso; leída, sin punto.
+.cmp__punto {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 0.45em;
+  border-radius: 50%;
+  background: transparent;
+
+  .cmp__item--nueva & {
+    background: var(--tono);
+  }
+}
+
+.cmp__texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.cmp__item-titulo {
+  font-size: 0.9rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+
+  .cmp__item--nueva & {
+    font-weight: 600;
+  }
+}
+
+.cmp__fecha {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.cmp__vacio {
+  padding: var(--space-6) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+// ── Esqueleto: el mismo marcado con los textos en piezas grises ─
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
+.cmp--esqueleto {
+  .cmp__item-titulo,
+  .cmp__fecha {
+    width: fit-content;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+      color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
+    background-size: 200% 100%;
+    color: transparent;
+    animation: cmp-brillo 1.4s linear infinite;
+  }
+}
+
+@keyframes cmp-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+// ── Aparece y se va con un fundido (≤ 100 ms) ──────────────
+.cmp--entrar {
+  animation: cmp-fundido var(--dur-popup) var(--ease-out);
+}
+
+.cmp--salir {
+  animation: cmp-fundido var(--dur-salir) var(--ease-in) reverse forwards;
+}
+
+@keyframes cmp-fundido {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmp__boton {
+    transition: none;
+  }
+
+  .cmp--entrar,
+  .cmp--esqueleto .cmp__item-titulo,
+  .cmp--esqueleto .cmp__fecha {
+    animation: none;
+  }
+
+  .cmp--salir {
+    animation-duration: 1ms;
+  }
+}

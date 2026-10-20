@@ -72,9 +72,9 @@ describe('Pedidos', () => {
     c.elegirEstado('FINALIZADO');
     expect(c.filtros().estado).toBe('FINALIZADO');
 
-    c.atajo('vencidos');
+    c.alCambiarVencidos(true);
     expect(service.listar).toHaveBeenLastCalledWith(
-      expect.objectContaining({ vencidos: true, estado: '' }),
+      expect.objectContaining({ vencidos: true, estado: 'FINALIZADO' }),
       0,
       20,
     );

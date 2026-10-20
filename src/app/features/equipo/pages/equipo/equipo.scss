@@ -40,6 +40,8 @@
   // Apila (una columna) cuando el CONTENIDO (no el viewport) se estrecha.
   // Se apila solo en teléfono; en tablet y computador la sección no se desplaza.
   @container panel (max-width: 560px) {
+    // Teléfono: la sección crece con su contenido y la página se desplaza (Reglas §12.2).
+    flex: none;
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     grid-template-areas:
@@ -106,6 +108,11 @@
   // tarjeta, no del contenido completo.
   container-type: inline-size;
   container-name: formcard;
+
+  // Teléfono: el formulario se ve completo, sin desplazarse por dentro.
+  @container panel (max-width: 560px) {
+    overflow-y: visible;
+  }
 }
 
 // La lista ocupa toda la columna derecha; su contenido scrollea dentro.
@@ -127,9 +134,17 @@
 
 // ── Formulario ──────────────────────────────────────────────
 .equipo-form {
+  // Ocupa el alto que queda en la tarjeta (sin encogerse): el botón queda al pie
+  // (dueño 2026-10-20).
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+
+  &__acciones {
+    // Alineación al pie (no es espaciado entre elementos).
+    margin-top: auto;
+  }
 }
 
 .equipo-fila {

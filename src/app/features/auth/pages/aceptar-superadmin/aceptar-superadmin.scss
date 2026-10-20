@@ -1,0 +1,220 @@
+// Estilos propios de "aceptar invitación de SuperAdmin". Solo tokens globales; espaciado con gap.
+
+.asa-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+
+  @media (max-width: 480px) {
+    padding: var(--space-3);
+  }
+  background: var(--color-bg);
+}
+
+.asa-card {
+  width: 100%;
+  max-width: 500px;
+  padding: var(--space-10) var(--space-6) var(--space-6);
+
+  @media (max-width: 480px) {
+    padding: var(--space-7) var(--space-4) var(--space-5);
+  }
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.asa-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  text-align: center;
+}
+
+.asa-card__logo {
+  width: 100%;
+  height: 5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.asa-card__titulo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.asa-card__subtitle,
+.asa-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.asa-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.asa-field__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.asa-field__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+// Asterisco rojo de campo obligatorio.
+.asa-field__req {
+  color: var(--color-danger);
+}
+
+.asa-field__control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 46px;
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--dur-color) var(--ease-out),
+    box-shadow var(--dur-color) var(--ease-out);
+
+  &:focus-within {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.asa-field__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.asa-field__toggle {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.asa-field__ayuda {
+  margin-left: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.asa-field__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.asa-banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.asa-banner--error {
+  color: var(--color-danger);
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.asa-banner--exito {
+  color: #1b7a34;
+  background: rgba(52, 200, 74, 0.12);
+}
+
+.asa-submit {
+  height: 48px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.asa-submit--enlace {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asa-field__control,
+  .asa-submit {
+    transition: none;
+  }
+
+  .asa-submit:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+// Error en lugar del subtítulo (Reglas §12.2): misma zona, sin agregar filas; si es largo se
+// recorta y el texto completo va en `title`.
+.asa-card__error {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
+  font-weight: 500;
+  color: var(--color-danger);
+}

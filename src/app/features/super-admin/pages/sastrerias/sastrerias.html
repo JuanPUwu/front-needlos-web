@@ -1,0 +1,120 @@
+<main class="sadmin">
+  <app-encabezado
+    titulo="Sastrerías"
+    subtitulo="Todas las sastrerías de NeedlOS: su plan, su uso y sus licencias."
+    icono="tienda"
+    [error]="error()"
+  />
+
+  <!-- ── Cifras (solo datos de uso). Mientras cargan, el mismo número en gris. ── -->
+  <section class="sadmin-cifras" aria-label="Cifras">
+    @for (c of cifras(); track c.etiqueta) {
+      <div
+        class="sadmin-cifra"
+        [class.sadmin-cifra--esqueleto]="c.valor === undefined"
+        [attr.data-tono]="c.tono"
+        [attr.aria-busy]="c.valor === undefined"
+      >
+        <span class="sadmin-cifra__etiqueta">{{ c.etiqueta }}</span>
+        <strong class="sadmin-cifra__valor">{{ c.valor ?? 0 }}</strong>
+      </div>
+    }
+  </section>
+
+  <!-- ── Listado ─────────────────────────────────────────────── -->
+  <section class="sadmin-bloque" aria-labelledby="t-sastrerias">
+    <app-titulo-bloque titulo="Listado" idTitulo="t-sastrerias">
+      <span class="sadmin-cuenta" [class.sadmin-cuenta--esqueleto]="enEsqueleto()">{{
+        total()
+      }}</span>
+    </app-titulo-bloque>
+
+    <div class="sadmin-filtros" role="group" aria-label="Filtros">
+      <input
+        #buscador
+        class="sadmin-control"
+        type="search"
+        placeholder="Buscar por nombre o correo del admin"
+        aria-label="Buscar sastrerías"
+        [value]="filtros().buscar"
+        (input)="alBuscar(buscador.value)"
+      />
+      <select
+        #estadoSel
+        class="sadmin-control"
+        aria-label="Estado"
+        (change)="alCambiarEstado(estadoSel.value)"
+      >
+        @for (e of estados; track e.valor) {
+          <option [value]="e.valor" [selected]="e.valor === filtros().estado">
+            {{ e.etiqueta }}
+          </option>
+        }
+      </select>
+      <select
+        #ordenSel
+        class="sadmin-control"
+        aria-label="Orden"
+        (change)="alCambiarOrden(ordenSel.value)"
+      >
+        @for (o of ordenes; track o.valor) {
+          <option [value]="o.valor" [selected]="o.valor === filtros().orden">
+            {{ o.etiqueta }}
+          </option>
+        }
+      </select>
+      @if (hayFiltros()) {
+        <button class="sadmin-limpiar" type="button" (click)="limpiarFiltros()">
+          Limpiar filtros
+        </button>
+      }
+    </div>
+
+    @if (enEsqueleto()) {
+      <app-sastrerias-tabla [sastrerias]="esqueletoFilas" [esqueleto]="true" />
+    } @else if (sastrerias().length === 0 && !error()) {
+      <p class="sadmin-vacio">
+        {{ hayFiltros() ? 'Ninguna sastrería coincide con lo elegido.' : 'Aún no hay sastrerías.' }}
+      </p>
+    } @else if (sastrerias().length > 0) {
+      <app-sastrerias-tabla
+        [sastrerias]="sastrerias()"
+        [cargando]="cargando()"
+        (abrir)="abrir($event)"
+      />
+      @if (totalPaginas() > 1) {
+        <nav class="sadmin-paginacion" aria-label="Paginación">
+          <button
+            class="sadmin-pagina"
+            type="button"
+            [disabled]="pagina() === 0"
+            (click)="irAPagina(pagina() - 1)"
+          >
+            Anterior
+          </button>
+          <span class="sadmin-paginacion__texto">
+            Página {{ pagina() + 1 }} de {{ totalPaginas() }}
+          </span>
+          <button
+            class="sadmin-pagina"
+            type="button"
+            [disabled]="pagina() + 1 >= totalPaginas()"
+            (click)="irAPagina(pagina() + 1)"
+          >
+            Siguiente
+          </button>
+        </nav>
+      }
+    }
+  </section>
+</main>
+
+@for (id of popup(); track id) {
+  <app-sastreria-modal
+    animate.enter="sm-entrar"
+    animate.leave="sm-salir"
+    [sastreriaId]="id"
+    (cambiado)="alCambiar($event)"
+    (cerrado)="cerrarPopup()"
+  />
+}

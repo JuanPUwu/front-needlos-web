@@ -20,6 +20,11 @@
   }
 }
 
+// En una sección, la derecha queda libre para la campana del marco (arriba a la derecha).
+.encabezado--seccion {
+  padding-right: calc(var(--space-5) + var(--reserva-campana, 0px) + var(--space-4));
+}
+
 // Error de la sección: cápsula roja de 44 px en la línea del título, recortada con "…" (el
 // texto completo va en `title`). En teléfono baja a su propia fila, a todo el ancho.
 .encabezado__error {
@@ -86,6 +91,7 @@
 }
 
 .encabezado__volver {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);

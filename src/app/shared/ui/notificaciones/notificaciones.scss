@@ -29,8 +29,9 @@
   color: var(--color-text);
   pointer-events: auto;
 
+  // Éxito con el azul de la app (dueño 2026-10-20), no verde.
   &[data-tipo='exito'] {
-    --tono: var(--color-success);
+    --tono: var(--color-accent);
   }
 
   &[data-tipo='error'] {

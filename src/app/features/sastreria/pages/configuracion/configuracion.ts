@@ -1,11 +1,15 @@
+import { EstadoSastreria } from '../../../../core/auth/estado-sastreria';
+import { FechaHoraPipe } from '../../../../shared/pipes/fecha-hora.pipe';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -29,16 +33,27 @@ const CON_TEXTO = /\S/;
  */
 @Component({
   selector: 'app-configuracion-sastreria',
-  imports: [TituloBloque, Esqueleto, Encabezado, ReactiveFormsModule, TicketComponent],
+  imports: [
+    TituloBloque,
+    Esqueleto,
+    Encabezado,
+    ReactiveFormsModule,
+    TicketComponent,
+    FechaHoraPipe,
+  ],
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfiguracionSastreria implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly estadoSastreria = inject(EstadoSastreria);
   private readonly service = inject(SastreriaService);
   private readonly notificaciones = inject(Notificaciones);
   private readonly destroyRef = inject(DestroyRef);
+
+  /** Plan y vencimiento (prueba o licencia). */
+  readonly estadoPlan = this.estadoSastreria.estado;
 
   readonly sastreria = signal<Sastreria | null>(null);
   readonly cargando = signal(true);
@@ -109,6 +124,15 @@ export class ConfiguracionSastreria implements OnInit {
       emitido: new Date().toISOString(),
     };
   });
+
+  constructor() {
+    // Al abrir Mi sastrería el admin ya ve la visita de soporte: el aviso del panel se apaga.
+    effect(() => {
+      if (this.estadoPlan()?.visitaSoporteSinVer) {
+        untracked(() => this.estadoSastreria.marcarSoporteVisto());
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.cargar();

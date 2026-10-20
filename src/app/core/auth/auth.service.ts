@@ -32,6 +32,8 @@ export class AuthService {
   readonly sesion = this._sesion.asReadonly();
   readonly autenticado = computed(() => this._sesion() !== null);
   readonly roles = computed<Rol[]>(() => this._sesion()?.roles ?? []);
+  /** Un SuperAdmin dentro de una sastrería en modo soporte (solo lectura). */
+  readonly soporte = computed(() => this.roles().includes('SOPORTE'));
 
   private readonly _seleccionPendiente = signal<SeleccionPendiente | null>(null);
   readonly seleccionPendiente = this._seleccionPendiente.asReadonly();
@@ -44,7 +46,7 @@ export class AuthService {
 
   /** Ruta de entrada segun el tipo de sesion (SUPER_ADMIN no tiene sastreria). */
   rutaInicial(): string {
-    return this._sesion()?.sastreria ? '/pedidos' : '/super-admin';
+    return this._sesion()?.sastreria ? '/pedidos' : '/super-admin/sastrerias';
   }
 
   // ── Inicio de sesion ────────────────────────────────────────────
@@ -104,13 +106,41 @@ export class AuthService {
     return this.http.post<void>(`${this.base}/reenviar-codigo`, { email });
   }
 
+  // ── Modo soporte (Manual §16) ────────────────────────────────────
+
+  /**
+   * Entra a una sastrería con la sesión de soporte que abrió el SuperAdmin. Esa sesión vive solo
+   * en memoria (sin cookie): al recargar o vencer, se vuelve a la sesión propia del SuperAdmin.
+   */
+  entrarEnSoporte(sesion: SesionResponse): void {
+    this._sesion.set(sesion);
+    this.router.navigateByUrl('/pedidos');
+  }
+
+  /** Cierra la sesión de soporte y vuelve al panel del SuperAdmin con su propia sesión. */
+  salirDeSoporte(): void {
+    this.http
+      .post(`${this.base}/soporte/terminar`, null)
+      .pipe(catchError(() => of(null)))
+      .subscribe(() => {
+        this.renovar().subscribe({ error: () => this.salir() });
+      });
+  }
+
   // ── Renovacion y cierre ─────────────────────────────────────────
 
   /** Renueva la sesion con la cookie del refresh. Comparte la peticion si ya hay una en curso. */
   renovar(): Observable<SesionResponse> {
     if (!this.renovacionEnCurso) {
       this.renovacionEnCurso = this.http.post<SesionResponse>(`${this.base}/refresh`, null).pipe(
-        tap((sesion) => this._sesion.set(sesion)),
+        tap((sesion) => {
+          // La sesión de soporte no se renueva: vuelve la del SuperAdmin, a su panel.
+          const eraSoporte = this.soporte();
+          this._sesion.set(sesion);
+          if (eraSoporte && !this.soporte()) {
+            this.router.navigateByUrl(this.rutaInicial());
+          }
+        }),
         finalize(() => (this.renovacionEnCurso = null)),
         shareReplay({ bufferSize: 1, refCount: false }),
       );

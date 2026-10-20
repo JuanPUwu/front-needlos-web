@@ -1,0 +1,388 @@
+// Popup de una sastrería (SuperAdmin): medidas del formulario base (Reglas §12.3).
+// Solo tokens globales.
+
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+
+  @media (max-width: 560px) {
+    padding: 0;
+  }
+}
+
+.sm-fondo {
+  position: absolute;
+  inset: 0;
+  background: var(--color-velo);
+}
+
+// La caja es el contenedor "panel": el contenido se adapta al ancho del popup.
+.sm-caja {
+  position: relative;
+  width: min(1120px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: panel / inline-size;
+  outline: none;
+
+  @media (max-width: 560px) {
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+.sm-cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+
+  @container panel (max-width: 860px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sm-columna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.sm-chip {
+  --tono: var(--estado-proceso);
+  --tono-bg: var(--estado-proceso-bg);
+
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--tono-bg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--tono);
+  white-space: nowrap;
+
+  &[data-estado='LICENCIADA'] {
+    --tono: var(--estado-finalizado);
+    --tono-bg: var(--estado-finalizado-bg);
+  }
+
+  &[data-estado='POR_VENCER'] {
+    --tono: var(--estado-entregado);
+    --tono-bg: var(--estado-entregado-bg);
+  }
+
+  &[data-estado='VENCIDA'] {
+    --tono: var(--estado-anulado);
+    --tono-bg: var(--estado-anulado-bg);
+  }
+
+  &[data-estado='DESACTIVADA'] {
+    --tono: var(--color-text-muted);
+    --tono-bg: var(--color-surface);
+  }
+}
+
+.sm-cerrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.sm-cerrar__icono {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+// ── Tarjetas ────────────────────────────────────────────────
+.sm-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: smseccion / inline-size;
+}
+
+.sm-datos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+
+  @container smseccion (max-width: 460px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sm-dato {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+
+  dt {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.sm-dato--ancho {
+  grid-column: 1 / -1;
+}
+
+.sm-meses {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container smseccion (max-width: 420px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sm-acceso {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container smseccion (max-width: 420px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sm-ayuda {
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+// ── Botones ─────────────────────────────────────────────────
+.sm-boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.sm-boton--borde {
+  padding: 0 var(--space-3);
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-accent);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+.sm-boton--peligro {
+  border: 1.5px solid var(--color-danger);
+  background: var(--color-surface);
+  color: var(--color-danger);
+
+  &:hover:not(:disabled) {
+    background: var(--color-danger-bg);
+  }
+}
+
+// ── Registro ────────────────────────────────────────────────
+.sm-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: 520px;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+}
+
+.sm-accion {
+  --tono: var(--estado-proceso);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--tono);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+
+  &[data-accion='LICENCIA_OTORGADA'],
+  &[data-accion='SASTRERIA_ACTIVADA'] {
+    --tono: var(--estado-finalizado);
+  }
+
+  &[data-accion='SASTRERIA_DESACTIVADA'] {
+    --tono: var(--estado-anulado);
+  }
+}
+
+.sm-accion__fila {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.sm-accion__nombre {
+  color: var(--tono);
+}
+
+.sm-accion__detalle {
+  color: var(--color-text);
+}
+
+.sm-accion__meta {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.sm-vacio {
+  padding: var(--space-4) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+// ── Esqueleto: el mismo marcado con los textos en piezas grises ─
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
+.sm--esqueleto dd,
+.sm--esqueleto dt,
+.sm-hueso {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+    color-mix(in srgb, var(--color-bg), var(--color-navy) 6%);
+  background-size: 200% 100%;
+  color: transparent;
+  animation: sm-brillo 1.4s linear infinite;
+}
+
+.sm--esqueleto dd,
+.sm--esqueleto dt {
+  width: fit-content;
+}
+
+.sm-hueso {
+  border-left-color: transparent;
+}
+
+@keyframes sm-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+// ── El popup entero aparece y se va con un fundido (≤ 100 ms) ─
+:host(.sm-entrar) {
+  animation: sm-fundido var(--dur-popup) var(--ease-out);
+}
+
+:host(.sm-salir) {
+  animation: sm-fundido var(--dur-salir) var(--ease-in) reverse forwards;
+}
+
+@keyframes sm-fundido {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host(.sm-entrar) {
+    animation: none;
+  }
+
+  :host(.sm-salir) {
+    animation-duration: 1ms;
+  }
+
+  .sm-boton {
+    transition: none;
+  }
+
+  .sm--esqueleto dd,
+  .sm--esqueleto dt,
+  .sm-hueso {
+    animation: none;
+  }
+}

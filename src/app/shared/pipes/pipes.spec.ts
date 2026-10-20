@@ -41,6 +41,10 @@ describe('FechaHoraPipe', () => {
   it('con "hora" muestra solo la hora', () => {
     expect(pipe.transform('2026-10-20T02:30:00Z', 'hora')).toBe('21:30');
   });
+
+  it('con "fecha" muestra solo la fecha de Colombia (no la UTC)', () => {
+    expect(pipe.transform('2026-10-20T02:30:00Z', 'fecha')).toBe('19/10/2026');
+  });
 });
 
 describe('CantidadPipe', () => {

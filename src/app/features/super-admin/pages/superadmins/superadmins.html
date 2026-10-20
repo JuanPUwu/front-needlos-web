@@ -1,0 +1,153 @@
+<main class="sas">
+  <app-encabezado
+    titulo="SuperAdmins"
+    [subtitulo]="
+      vista().soyPrincipal
+        ? 'Invita por correo a quien te ayude a gestionar las sastrerías.'
+        : 'Solo el SuperAdmin principal invita o elimina SuperAdmins.'
+    "
+    icono="equipo"
+    [error]="error()"
+  />
+
+  @let d = vista();
+  <div
+    class="sas-bento"
+    [class.sas-bento--una]="!d.soyPrincipal"
+    [class.sas--esqueleto]="!datos()"
+    [attr.aria-busy]="!datos()"
+  >
+    <!-- ── SuperAdmins activos (toda la altura) ──────────────────── -->
+    <section class="sas-seccion sas-seccion--alta" aria-labelledby="t-sa">
+      <app-titulo-bloque titulo="Activos" idTitulo="t-sa">
+        <span class="sas-cuenta">{{ d.superAdmins.length }}</span>
+      </app-titulo-bloque>
+      <ul class="sas-lista">
+        @for (sa of d.superAdmins; track sa.id) {
+          <li class="sas-item">
+            <div class="sas-item__texto">
+              <strong class="sas-item__nombre">{{ sa.nombre }} {{ sa.apellido }}</strong>
+              <span class="sas-item__meta">{{ sa.email }}</span>
+            </div>
+            @if (sa.principal) {
+              <span class="sas-chip">Principal</span>
+            } @else if (d.soyPrincipal) {
+              <button
+                class="sas-boton sas-boton--peligro sas-boton--chico"
+                type="button"
+                [disabled]="ocupado()"
+                (click)="eliminar(sa)"
+              >
+                Eliminar
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    @if (d.soyPrincipal) {
+      <div class="sas-columna">
+        <!-- ── Invitar ──────────────────────────────────────────── -->
+        <form class="sas-seccion" [formGroup]="form" (ngSubmit)="invitar()" novalidate>
+          <app-titulo-bloque
+            titulo="Invitar SuperAdmin"
+            idTitulo="t-invitar"
+            [error]="errorInvitar()"
+          />
+          <div class="sas-fila">
+            <div class="sas-campo">
+              <div class="sas-campo__head">
+                <label class="sas-campo__label" for="saNombre"
+                  >Nombre <span class="sas-req">*</span></label
+                >
+                @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+                  <span class="sas-campo__error">Obligatorio</span>
+                }
+              </div>
+              <input
+                class="sas-campo__input"
+                id="saNombre"
+                type="text"
+                formControlName="nombre"
+                maxlength="60"
+                autocomplete="off"
+              />
+            </div>
+            <div class="sas-campo">
+              <div class="sas-campo__head">
+                <label class="sas-campo__label" for="saApellido"
+                  >Apellido <span class="sas-req">*</span></label
+                >
+                @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
+                  <span class="sas-campo__error">Obligatorio</span>
+                }
+              </div>
+              <input
+                class="sas-campo__input"
+                id="saApellido"
+                type="text"
+                formControlName="apellido"
+                maxlength="60"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+          <div class="sas-campo">
+            <div class="sas-campo__head">
+              <label class="sas-campo__label" for="saEmail"
+                >Correo <span class="sas-req">*</span></label
+              >
+              @if (form.controls.email.touched && form.controls.email.invalid) {
+                <span class="sas-campo__error">Escribe un correo válido</span>
+              }
+            </div>
+            <input
+              class="sas-campo__input"
+              id="saEmail"
+              type="email"
+              formControlName="email"
+              maxlength="120"
+              autocomplete="off"
+              placeholder="nombre@correo.com"
+            />
+          </div>
+          <p class="sas-ayuda">
+            Le llega un enlace (vale 48 horas) para crear su contraseña. Solo correos que aún no
+            tienen cuenta en NeedlOS. No podrá invitar ni eliminar SuperAdmins.
+          </p>
+          <button class="sas-boton" type="submit" [disabled]="ocupado() || !datos()">
+            {{ ocupado() ? 'Enviando...' : 'Enviar invitación' }}
+          </button>
+        </form>
+
+        <!-- ── Invitaciones pendientes (solo el principal) ─────────── -->
+        <section class="sas-seccion sas-seccion--alta" aria-labelledby="t-inv">
+          <app-titulo-bloque titulo="Invitaciones pendientes" idTitulo="t-inv" />
+          <ul class="sas-lista">
+            @for (inv of d.invitaciones; track inv.id) {
+              <li class="sas-item">
+                <div class="sas-item__texto">
+                  <strong class="sas-item__nombre">{{ inv.nombre }} {{ inv.apellido }}</strong>
+                  <span class="sas-item__meta"
+                    >{{ inv.email }} · vence {{ inv.expira | fechaHora }}</span
+                  >
+                </div>
+                <button
+                  class="sas-boton sas-boton--borde sas-boton--chico"
+                  type="button"
+                  [disabled]="ocupado()"
+                  (click)="cancelarInvitacion(inv)"
+                >
+                  Cancelar
+                </button>
+              </li>
+            } @empty {
+              <li class="sas-vacio"><span>No hay invitaciones pendientes.</span></li>
+            }
+          </ul>
+        </section>
+      </div>
+    }
+  </div>
+</main>

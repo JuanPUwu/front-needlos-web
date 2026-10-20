@@ -65,18 +65,6 @@
           <span class="pedidos-cuenta" role="status">
             <strong>{{ total() }}</strong> {{ total() === 1 ? 'resultado' : 'resultados' }}
           </span>
-          <!-- Avisos rápidos (vencidos / para hoy), a la derecha de los resultados. -->
-          @if (resumen(); as r) {
-            @if (r.vencidos > 0) {
-              <button
-                class="pedidos-aviso-rapido pedidos-aviso-rapido--alerta"
-                type="button"
-                (click)="atajo('vencidos')"
-              >
-                {{ r.vencidos }} {{ r.vencidos === 1 ? 'vencido' : 'vencidos' }}
-              </button>
-            }
-          }
         </div>
       </div>
 
@@ -171,8 +159,13 @@
               [marcada]="esParaHoy()"
               (cambio)="alCambiarParaHoy($event)"
             />
+            <!-- El conteo va en el filtro, nunca como botón aparte (dueño 2026-10-20). -->
             <app-casilla
-              etiqueta="Vencidos"
+              [etiqueta]="
+                (resumen()?.vencidos ?? 0) > 0
+                  ? 'Vencidos (' + resumen()!.vencidos + ')'
+                  : 'Vencidos'
+              "
               [marcada]="filtros().vencidos"
               (cambio)="alCambiarVencidos($event)"
             />

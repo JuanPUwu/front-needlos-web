@@ -2,6 +2,24 @@
   <!-- Barra superior: solo en tablets/móvil -->
   <header class="panel__topbar">
     <app-logo class="panel__topbar-logo" variant="dark" />
+    @if (soporte()) {
+      <button
+        class="panel__plan panel__plan--barra"
+        type="button"
+        data-tono="soporte"
+        title="Modo soporte: solo lectura. Toca para volver al panel de SuperAdmin."
+        (click)="salirDeSoporte()"
+      >
+        Soporte · Salir
+      </button>
+    } @else if (avisoPlan(); as a) {
+      <span class="panel__plan panel__plan--barra" [attr.data-tono]="a.tono" [title]="a.detalle">
+        {{ a.texto }}
+      </span>
+    }
+    @if (bandejaActiva()) {
+      <app-campana />
+    }
     <button
       class="panel__hamburguesa"
       type="button"
@@ -21,7 +39,7 @@
     <app-logo class="panel__logo" variant="dark" />
     <div class="panel__separador"></div>
 
-    @for (seccion of secciones; track seccion.etiqueta) {
+    @for (seccion of secciones(); track seccion.etiqueta) {
       @if (esVisible(seccion)) {
         <a
           class="panel__item"
@@ -35,7 +53,50 @@
       }
     }
 
+    <!-- Perfil (dueño 2026-10-20): tras la última sección, encima del separador; lleva a Mi cuenta. -->
+    <a
+      class="panel__perfil"
+      routerLink="/mi-cuenta"
+      routerLinkActive="panel__perfil--activo"
+      [title]="'Mi cuenta · ' + usuario()"
+      (click)="cerrarMenu()"
+    >
+      <app-icono class="panel__item-icono" nombre="usuario" />
+      <span class="panel__perfil-texto">
+        <strong class="panel__perfil-nombre">{{ usuario() }}</strong>
+        <span class="panel__perfil-sastreria">{{ contexto() }}</span>
+      </span>
+    </a>
+
     <div class="panel__separador panel__separador--final"></div>
+    @if (soporte()) {
+      <!-- Modo soporte (Manual §16): el SuperAdmin ve todo sin cambiar nada; aquí sale. -->
+      <button
+        class="panel__plan"
+        type="button"
+        data-tono="soporte"
+        title="Estás viendo esta sastrería como soporte: no se puede cambiar nada."
+        (click)="salirDeSoporte()"
+      >
+        Modo soporte · Salir
+      </button>
+    } @else if (avisoPlan(); as a) {
+      <!-- Aviso del plan: lo ve todo el equipo si venció; el admin, si faltan 7 días o menos. -->
+      @if (esAdmin()) {
+        <a
+          class="panel__plan"
+          routerLink="/sastreria"
+          [attr.data-tono]="a.tono"
+          [title]="a.detalle"
+          (click)="cerrarMenu()"
+          >{{ a.texto }}</a
+        >
+      } @else {
+        <span class="panel__plan" role="status" [attr.data-tono]="a.tono" [title]="a.detalle">{{
+          a.texto
+        }}</span>
+      }
+    }
     <a
       class="panel__item"
       routerLink="/ajustes"
@@ -59,4 +120,10 @@
   <section class="panel__contenido">
     <router-outlet />
   </section>
+
+  <!-- Bandeja de notificaciones: arriba a la derecha, en el espacio que le reservan los
+       encabezados de las secciones (dueño 2026-10-20). En tablet/teléfono va en la barra superior. -->
+  @if (bandejaActiva()) {
+    <app-campana class="panel__campana" />
+  }
 </main>

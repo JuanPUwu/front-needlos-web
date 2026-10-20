@@ -1,0 +1,59 @@
+<table
+  class="dt"
+  [class.dt--cargando]="cargando() && !esqueleto()"
+  [class.dt--esqueleto]="esqueleto()"
+  [attr.aria-busy]="esqueleto()"
+>
+  <colgroup>
+    <col class="dt__col--dueno" />
+    <col class="dt__col--telefono" />
+    <col class="dt__col--sastrerias" />
+    <col class="dt__col--registro" />
+    <col class="dt__col--acceso" />
+    <col class="dt__col--correo" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th scope="col">Dueño</th>
+      <th scope="col">Teléfono</th>
+      <th scope="col">Sastrerías</th>
+      <th scope="col">Registro</th>
+      <th scope="col">Último acceso</th>
+      <th scope="col">Correo</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (d of duenos(); track d.id) {
+      <tr class="dt__fila" [attr.data-verificada]="d.verificada">
+        <td
+          class="dt__celda dt__celda--dueno"
+          [title]="d.nombre + ' ' + d.apellido + ' · ' + d.email"
+        >
+          <strong>{{ d.nombre }} {{ d.apellido }}</strong>
+          <span class="dt__sub">{{ d.email }}</span>
+        </td>
+        <td class="dt__celda dt__celda--telefono" data-titulo="Teléfono">
+          <span class="dt__valor">{{ d.telefono ?? '—' }}</span>
+        </td>
+        <td
+          class="dt__celda dt__celda--sastrerias"
+          data-titulo="Sastrerías"
+          [title]="d.sastrerias.join(', ')"
+        >
+          <span class="dt__valor">{{ d.sastrerias.join(', ') }}</span>
+        </td>
+        <td class="dt__celda dt__celda--registro" data-titulo="Registro">
+          <span class="dt__valor">{{ d.registro | fechaHora: 'fecha' }}</span>
+        </td>
+        <td class="dt__celda dt__celda--acceso" data-titulo="Último acceso">
+          <span class="dt__valor">{{
+            d.ultimoAcceso ? (d.ultimoAcceso | fechaHora) : 'Nunca'
+          }}</span>
+        </td>
+        <td class="dt__celda dt__celda--correo">
+          <span class="dt__correo">{{ d.verificada ? 'Verificado' : 'Sin verificar' }}</span>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

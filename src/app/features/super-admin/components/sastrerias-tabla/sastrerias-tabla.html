@@ -1,0 +1,67 @@
+<table
+  class="st"
+  [class.st--cargando]="cargando() && !esqueleto()"
+  [class.st--esqueleto]="esqueleto()"
+  [attr.aria-busy]="esqueleto()"
+>
+  <colgroup>
+    <col class="st__col--nombre" />
+    <col class="st__col--estado" />
+    <col class="st__col--vence" />
+    <col class="st__col--acceso" />
+    <col class="st__col--num" />
+    <col class="st__col--num" />
+    <col class="st__col--abrir" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th scope="col">Sastrería</th>
+      <th scope="col">Estado</th>
+      <th scope="col">Vence</th>
+      <th scope="col">Último acceso</th>
+      <th scope="col">Pedidos</th>
+      <th scope="col">Personas</th>
+      <th scope="col">Abrir</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (s of sastrerias(); track s.id) {
+      <tr class="st__fila" [attr.data-estado]="s.estado" (click)="elegir(s)">
+        <td
+          class="st__celda st__celda--nombre"
+          [title]="s.nombre + (s.adminEmail ? ' · ' + s.adminEmail : '')"
+        >
+          <strong>{{ s.nombre }}</strong>
+          <span class="st__sub">{{ s.adminEmail ?? 'Sin admin' }}</span>
+        </td>
+        <td class="st__celda st__celda--estado">
+          <span class="st__estado">{{ etiquetaEstado[s.estado] }}</span>
+        </td>
+        <td class="st__celda st__celda--vence" data-titulo="Vence">
+          <span class="st__valor">{{ s.vence ? (s.vence | fechaHora: 'fecha') : '—' }}</span>
+        </td>
+        <td class="st__celda st__celda--acceso" data-titulo="Último acceso">
+          <span class="st__valor">{{
+            s.ultimoAcceso ? (s.ultimoAcceso | fechaHora) : 'Nunca'
+          }}</span>
+        </td>
+        <td class="st__celda st__celda--pedidos" data-titulo="Pedidos">
+          <span class="st__valor">{{ s.pedidos }}</span>
+        </td>
+        <td class="st__celda st__celda--personas" data-titulo="Personas">
+          <span class="st__valor">{{ s.personas }}</span>
+        </td>
+        <td class="st__celda st__celda--abrir">
+          <button
+            class="st__abrir"
+            type="button"
+            [attr.aria-label]="'Abrir ' + s.nombre"
+            title="Abrir"
+            [disabled]="esqueleto()"
+            (click)="$event.stopPropagation(); elegir(s)"
+          ></button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

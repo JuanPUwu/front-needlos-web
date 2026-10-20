@@ -1,0 +1,94 @@
+<main class="asa-page">
+  <section class="asa-card">
+    <header class="asa-card__header">
+      <app-logo class="asa-card__logo" variant="dark" />
+    </header>
+
+    @switch (estado()) {
+      @case ('cargando') {
+        <app-esqueleto forma="campos" [filas]="2" texto="Cargando invitación..." />
+      }
+      @case ('invalida') {
+        <p class="asa-banner asa-banner--error" role="alert">
+          La invitación no es válida o ya venció. Pídele una nueva al SuperAdmin principal.
+        </p>
+        <a class="asa-submit asa-submit--enlace" routerLink="/login">Ir a iniciar sesión</a>
+      }
+      @case ('aceptada') {
+        <h1 class="asa-card__titulo">¡Ya eres SuperAdmin!</h1>
+        <p class="asa-banner asa-banner--exito" role="status">
+          Inicia sesión con {{ info()?.email }} para entrar al panel de NeedlOS.
+        </p>
+        <a class="asa-submit asa-submit--enlace" routerLink="/login">Iniciar sesión</a>
+      }
+      @default {
+        <h1 class="asa-card__titulo">Te invitaron a ser SuperAdmin de NeedlOS</h1>
+        <p class="asa-card__subtitle">
+          @if (error(); as e) {
+            <span class="asa-card__error" role="alert" [title]="e">{{ e }}</span>
+          } @else {
+            Hola {{ info()?.nombre }}: crea la contraseña para {{ info()?.email }}
+          }
+        </p>
+
+        <form class="asa-form" [formGroup]="form" (ngSubmit)="aceptar()" novalidate>
+          <div class="asa-field">
+            <div class="asa-field__head">
+              <label class="asa-field__label" for="contrasena"
+                >Crea tu contraseña <span class="asa-field__req">*</span></label
+              >
+              @if (form.controls.contrasena.touched && form.controls.contrasena.invalid) {
+                <span class="asa-field__error">No cumple la política</span>
+              }
+            </div>
+            <div class="asa-field__control">
+              <input
+                class="asa-field__input"
+                id="contrasena"
+                [type]="verPassword() ? 'text' : 'password'"
+                formControlName="contrasena"
+                autocomplete="new-password"
+                aria-describedby="politica"
+              />
+              <button
+                class="asa-field__toggle"
+                type="button"
+                (click)="verPassword.set(!verPassword())"
+                [attr.aria-label]="verPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <app-icono [nombre]="verPassword() ? 'ojo-cerrado' : 'ojo'" />
+              </button>
+            </div>
+            <span class="asa-field__ayuda" id="politica"
+              >8 a 72 caracteres, con mayúscula, minúscula, número y carácter especial.</span
+            >
+          </div>
+
+          <div class="asa-field">
+            <div class="asa-field__head">
+              <label class="asa-field__label" for="confirmacion"
+                >Confirma la contraseña <span class="asa-field__req">*</span></label
+              >
+              @if (form.controls.confirmacion.touched && form.hasError('noCoinciden')) {
+                <span class="asa-field__error">No coinciden</span>
+              }
+            </div>
+            <div class="asa-field__control">
+              <input
+                class="asa-field__input"
+                id="confirmacion"
+                [type]="verPassword() ? 'text' : 'password'"
+                formControlName="confirmacion"
+                autocomplete="new-password"
+              />
+            </div>
+          </div>
+
+          <button class="asa-submit" type="submit" [disabled]="cargando()">
+            {{ cargando() ? 'Aceptando...' : 'Crear contraseña y aceptar' }}
+          </button>
+        </form>
+      }
+    }
+  </section>
+</main>

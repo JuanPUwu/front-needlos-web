@@ -7,6 +7,8 @@
 
 .cuenta {
   flex: 1;
+  // Sin esto la sección crece con la lista de sesiones y la página se desplaza.
+  min-height: 0;
   display: flex;
   flex-direction: column;
   padding: var(--space-4);
@@ -32,6 +34,8 @@
 
   // Se apila solo en teléfono; en tablet y computador la sección no se desplaza.
   @container panel (max-width: 560px) {
+    // Teléfono: crece con su contenido y la página se desplaza (Reglas §12.2).
+    flex: none;
     grid-template-rows: auto;
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -72,9 +76,17 @@
 }
 
 .cuenta-form {
+  // Ocupa el alto que queda en la tarjeta (sin encogerse): el botón queda al pie
+  // (dueño 2026-10-20).
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+
+  .cuenta-boton {
+    // Alineación al pie (no es espaciado entre elementos).
+    margin-top: auto;
+  }
 }
 
 // ── Campos ──────────────────────────────────────────────────

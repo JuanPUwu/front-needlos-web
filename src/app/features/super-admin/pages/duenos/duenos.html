@@ -1,0 +1,88 @@
+<main class="sdue">
+  <app-encabezado
+    titulo="Dueños"
+    subtitulo="Quiénes administran cada sastrería y cómo contactarlos."
+    icono="usuario"
+    [error]="error()"
+  />
+
+  <section class="sdue-bloque" aria-labelledby="t-duenos">
+    <app-titulo-bloque titulo="Listado" idTitulo="t-duenos">
+      <span class="sdue-cuenta" [class.sdue-cuenta--esqueleto]="enEsqueleto()">{{ total() }}</span>
+    </app-titulo-bloque>
+
+    <div class="sdue-filtros" role="group" aria-label="Filtros">
+      <input
+        #buscador
+        class="sdue-control"
+        type="search"
+        placeholder="Buscar por nombre, correo, teléfono o sastrería"
+        aria-label="Buscar dueños"
+        [value]="filtros().buscar"
+        (input)="alBuscar(buscador.value)"
+      />
+      <select
+        #correoSel
+        class="sdue-control"
+        aria-label="Correo"
+        (change)="alCambiarCorreo(correoSel.value)"
+      >
+        @for (c of correos; track c.valor) {
+          <option [value]="c.valor" [selected]="c.valor === filtros().correo">
+            {{ c.etiqueta }}
+          </option>
+        }
+      </select>
+      <select
+        #ordenSel
+        class="sdue-control"
+        aria-label="Orden"
+        (change)="alCambiarOrden(ordenSel.value)"
+      >
+        @for (o of ordenes; track o.valor) {
+          <option [value]="o.valor" [selected]="o.valor === filtros().orden">
+            {{ o.etiqueta }}
+          </option>
+        }
+      </select>
+      @if (hayFiltros()) {
+        <button class="sdue-limpiar" type="button" (click)="limpiarFiltros()">
+          Limpiar filtros
+        </button>
+      }
+    </div>
+
+    @if (enEsqueleto()) {
+      <app-duenos-tabla [duenos]="esqueletoFilas" [esqueleto]="true" />
+    } @else if (duenos().length === 0 && !error()) {
+      <p class="sdue-vacio">
+        {{ hayFiltros() ? 'Ningún dueño coincide con lo elegido.' : 'Aún no hay dueños.' }}
+      </p>
+    } @else if (duenos().length > 0) {
+      <app-duenos-tabla [duenos]="duenos()" [cargando]="cargando()" />
+      @if (totalPaginas() > 1) {
+        <nav class="sdue-paginacion" aria-label="Paginación">
+          <button
+            class="sdue-pagina"
+            type="button"
+            [disabled]="pagina() === 0"
+            (click)="irAPagina(pagina() - 1)"
+          >
+            Anterior
+          </button>
+          <span class="sdue-paginacion__texto">
+            Página {{ pagina() + 1 }} de {{ totalPaginas() }}
+          </span>
+          <button
+            class="sdue-pagina"
+            type="button"
+            [disabled]="pagina() + 1 >= totalPaginas()"
+            (click)="irAPagina(pagina() + 1)"
+          >
+            Siguiente
+          </button>
+        </nav>
+      }
+    }
+  </section>
+</main>

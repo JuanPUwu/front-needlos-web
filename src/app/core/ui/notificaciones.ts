@@ -23,6 +23,12 @@ export class Notificaciones {
   private readonly _lista = signal<Notificacion[]>([]);
   readonly lista = this._lista.asReadonly();
 
+  /**
+   * Lo que se muestra también queda en la bandeja (Manual §19). La bandeja se registra aquí al
+   * iniciar (así no hay dependencia circular entre los dos servicios).
+   */
+  alMostrar: ((tipo: TipoNotificacion, mensaje: string) => void) | null = null;
+
   exito(mensaje: string): void {
     this.mostrar('exito', mensaje);
   }
@@ -35,11 +41,19 @@ export class Notificaciones {
     this.mostrar('info', mensaje);
   }
 
+  /** Muestra un aviso que YA está en la bandeja (llegó del servidor): no se vuelve a guardar. */
+  mostrarSinGuardar(tipo: TipoNotificacion, mensaje: string): void {
+    this.mostrar(tipo, mensaje, false);
+  }
+
   cerrar(id: number): void {
     this._lista.update((l) => l.filter((n) => n.id !== id));
   }
 
-  private mostrar(tipo: TipoNotificacion, mensaje: string): void {
+  private mostrar(tipo: TipoNotificacion, mensaje: string, guardar = true): void {
+    if (guardar) {
+      this.alMostrar?.(tipo, mensaje);
+    }
     const id = this.siguienteId++;
     this._lista.update((l) => [...l, { id, tipo, mensaje }].slice(-MAXIMO_VISIBLES));
     setTimeout(() => this.cerrar(id), DURACION_MS[tipo]);

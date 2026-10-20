@@ -1,0 +1,161 @@
+// Dueños de sastrerías (sección del SuperAdmin). Solo tokens globales;
+// espaciado con gap. Llena el área sin desplazarse: el listado se desplaza dentro de su tarjeta.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.sdue {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.sdue-bloque {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-4);
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  // La tabla pasa a tarjetas según el ancho de esta tarjeta.
+  container: duenoslista / inline-size;
+
+  // Teléfono: la página se desplaza; el listado no se recorta.
+  @container panel (max-width: 560px) {
+    flex: none;
+    overflow: visible;
+  }
+}
+
+.sdue-cuenta {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.sdue-filtros {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: var(--space-4);
+
+  @container duenoslista (max-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    .sdue-control:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.sdue-control {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.sdue-limpiar,
+.sdue-pagina {
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.sdue-paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.sdue-paginacion__texto {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.sdue-vacio {
+  padding: var(--space-6) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+// ── Esqueleto del contador ──────────────────────────────────
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
+.sdue-cuenta--esqueleto {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+    color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
+  background-size: 200% 100%;
+  color: transparent;
+  animation: sdue-brillo 1.4s linear infinite;
+}
+
+@keyframes sdue-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sdue-cuenta--esqueleto {
+    animation: none;
+  }
+}

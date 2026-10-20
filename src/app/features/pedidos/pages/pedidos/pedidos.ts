@@ -55,8 +55,8 @@ const ORDENES: { valor: OrdenPedidos; etiqueta: string }[] = [
 ];
 
 /**
- * Pedidos: pestañas por estado (con su cantidad), tabla con búsqueda, avisos rápidos
- * (vencidos, para hoy), panel de filtros plegable y paginación; cada fila abre el
+ * Pedidos: pestañas por estado (con su cantidad), tabla con búsqueda, panel de filtros plegable
+ * (con "Vencidos (N)" y "Para hoy") y paginación; cada fila abre el
  * detalle. Arranca en "En proceso". Acepta `?clienteId=&cliente=` para ver el
  * historial de un cliente (desde Clientes; arranca en "Todo").
  */
@@ -294,15 +294,6 @@ export class Pedidos implements OnInit {
 
   alCambiarSinEntregar(valor: boolean): void {
     this.cambiar({ sinEntregar: valor });
-  }
-
-  /** Aviso rápido "N vencidos": muestra todos los vencidos (reemplaza los filtros). */
-  atajo(tipo: 'vencidos'): void {
-    const base = { ...FILTROS_PEDIDOS_INICIALES, orden: this.filtros().orden };
-    this.quitarCliente(false);
-    if (tipo === 'vencidos') {
-      this.aplicar({ ...base, vencidos: true });
-    }
   }
 
   /** Quita los filtros pero conserva la pestaña y el orden elegidos. */

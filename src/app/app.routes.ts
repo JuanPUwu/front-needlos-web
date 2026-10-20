@@ -1,19 +1,10 @@
 import { inject } from '@angular/core';
 import { RedirectFunction, Router, Routes } from '@angular/router';
-import { NombreIcono } from './shared/ui/icono/icono';
 import { autenticadoGuard, invitadoGuard, rolGuard } from './core/auth/auth.guards';
 
 /** El detalle y la edición de un pedido son un popup sobre el listado (`?pedido=`). */
 const aPopupDePedido: RedirectFunction = ({ params }) =>
   inject(Router).createUrlTree(['/pedidos'], { queryParams: { pedido: params['id'] } });
-
-/** Secciones de negocio aún en construcción (placeholder con su título). */
-const placeholder = (titulo: string, icono: NombreIcono) => ({
-  canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
-  data: { titulo, icono },
-  loadComponent: () =>
-    import('./shared/ui/seccion-pendiente/seccion-pendiente').then((m) => m.SeccionPendiente),
-});
 
 export const routes: Routes = [
   // ── Público ───────────────────────────────────────────────────────
@@ -63,6 +54,14 @@ export const routes: Routes = [
       ),
   },
   {
+    // Sin guard: invitación para ser SuperAdmin (cuenta nueva; define su contraseña).
+    path: 'aceptar-superadmin',
+    loadComponent: () =>
+      import('./features/auth/pages/aceptar-superadmin/aceptar-superadmin').then(
+        (m) => m.AceptarSuperAdmin,
+      ),
+  },
+  {
     // Selector de sastreria (hoy no se usa en el login: se entra directo a la primera).
     // Se conservará para el cambio de sastreria dentro de la app.
     path: 'elegir-sastreria',
@@ -72,13 +71,6 @@ export const routes: Routes = [
         (m) => m.SeleccionarSastreria,
       ),
   },
-  {
-    path: 'super-admin',
-    canActivate: [rolGuard('SUPER_ADMIN')],
-    loadComponent: () =>
-      import('./features/super-admin/pages/dashboard/dashboard').then((m) => m.SuperAdminDashboard),
-  },
-
   {
     // Ticket imprimible: sin barra lateral, para que al imprimir solo salga el ticket.
     path: 'ticket/:id',
@@ -137,7 +129,13 @@ export const routes: Routes = [
           import('./features/resumen/pages/resumen/resumen').then((m) => m.Resumen),
       },
       { path: 'caja', redirectTo: 'resumen' },
-      { path: 'informes', ...placeholder('Informes', 'informes') },
+      {
+        // Informes (F9): solo el SASTRE_ADMIN.
+        path: 'informes',
+        canActivate: [rolGuard('SASTRE_ADMIN')],
+        loadComponent: () =>
+          import('./features/informes/pages/informes/informes').then((m) => m.Informes),
+      },
       {
         path: 'equipo',
         canActivate: [rolGuard('SASTRE_ADMIN')],
@@ -162,6 +160,46 @@ export const routes: Routes = [
         canActivate: [autenticadoGuard],
         loadComponent: () =>
           import('./features/cuenta/pages/mi-cuenta/mi-cuenta').then((m) => m.MiCuenta),
+      },
+      // ── SuperAdmin (Manual §16): mismo marco, con sus propias secciones ──
+      { path: 'super-admin', pathMatch: 'full', redirectTo: 'super-admin/sastrerias' },
+      {
+        path: 'super-admin/sastrerias',
+        canActivate: [rolGuard('SUPER_ADMIN')],
+        loadComponent: () =>
+          import('./features/super-admin/pages/sastrerias/sastrerias').then(
+            (m) => m.SuperAdminSastrerias,
+          ),
+      },
+      {
+        path: 'super-admin/duenos',
+        canActivate: [rolGuard('SUPER_ADMIN')],
+        loadComponent: () =>
+          import('./features/super-admin/pages/duenos/duenos').then((m) => m.SuperAdminDuenos),
+      },
+      {
+        path: 'super-admin/superadmins',
+        canActivate: [rolGuard('SUPER_ADMIN')],
+        loadComponent: () =>
+          import('./features/super-admin/pages/superadmins/superadmins').then(
+            (m) => m.SuperAdminSuperAdmins,
+          ),
+      },
+      {
+        path: 'super-admin/registro',
+        canActivate: [rolGuard('SUPER_ADMIN')],
+        loadComponent: () =>
+          import('./features/super-admin/pages/registro/registro').then(
+            (m) => m.SuperAdminRegistro,
+          ),
+      },
+      {
+        path: 'super-admin/configuracion',
+        canActivate: [rolGuard('SUPER_ADMIN')],
+        loadComponent: () =>
+          import('./features/super-admin/pages/configuracion-sistema/configuracion-sistema').then(
+            (m) => m.SuperAdminConfiguracion,
+          ),
       },
       { path: '', pathMatch: 'full', redirectTo: 'pedidos' },
     ],

@@ -1,0 +1,243 @@
+// Configuración del sistema (sección del SuperAdmin). Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.scfg {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+// Escritorio: las dos tarjetas ocupan todo el alto disponible.
+.scfg-bento {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
+
+  // Tablet/teléfono: una columna, cada tarjeta mide su contenido.
+  @container panel (max-width: 820px) {
+    flex: none;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.scfg-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: scfgseccion / inline-size;
+}
+
+// Los campos toman el alto que sobra: los botones quedan al pie de la tarjeta.
+.scfg-campos {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 0;
+}
+
+// ── Campos ──────────────────────────────────────────────────
+.scfg-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.scfg-campo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.scfg-campo__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.scfg-campo__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.scfg-campo__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+
+  &:disabled {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  &.ng-touched.ng-invalid {
+    border-color: var(--color-danger);
+  }
+}
+
+.scfg-campo__ayuda,
+.scfg-ultimo {
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.scfg-acciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container scfgseccion (max-width: 360px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.scfg-boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.scfg-boton--borde {
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-accent);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+// ── Qué pasa al cambiarla ───────────────────────────────────
+.scfg-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.scfg-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--color-navy);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+}
+
+.scfg-item__titulo {
+  color: var(--color-navy);
+}
+
+.scfg-item__detalle {
+  color: var(--color-text);
+}
+
+// ── Esqueleto: el mismo formulario con los valores en gris ──
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
+.scfg--esqueleto .scfg-campo__input,
+.scfg--esqueleto .scfg-ultimo {
+  border-color: transparent;
+  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+    color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
+  background-size: 200% 100%;
+  color: transparent;
+  animation: scfg-brillo 1.4s linear infinite;
+}
+
+.scfg--esqueleto .scfg-ultimo {
+  width: fit-content;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes scfg-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scfg-boton {
+    transition: none;
+  }
+
+  .scfg--esqueleto .scfg-campo__input,
+  .scfg--esqueleto .scfg-ultimo {
+    animation: none;
+  }
+}

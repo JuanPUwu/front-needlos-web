@@ -1,6 +1,7 @@
 // Modelos de autenticacion, alineados con los DTOs del backend (/api/v1/auth).
 
-export type Rol = 'SASTRE' | 'SASTRE_ADMIN' | 'SUPER_ADMIN';
+/** SOPORTE: un SuperAdmin dentro de una sastrería, en solo lectura (viene con SASTRE_ADMIN). */
+export type Rol = 'SASTRE' | 'SASTRE_ADMIN' | 'SUPER_ADMIN' | 'SOPORTE';
 
 export interface LoginRequest {
   email: string;

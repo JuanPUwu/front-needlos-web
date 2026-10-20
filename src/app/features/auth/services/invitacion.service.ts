@@ -12,6 +12,12 @@ export interface InvitacionInfo {
   requiereContrasena: boolean;
 }
 
+/** Invitación para ser SuperAdmin (endpoint público). */
+export interface InvitacionSuperAdminInfo {
+  email: string;
+  nombre: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class InvitacionService {
   private readonly http = inject(HttpClient);
@@ -23,5 +29,14 @@ export class InvitacionService {
 
   aceptar(token: string, contrasena: string | null): Observable<void> {
     return this.http.post<void>(`${this.base}/${token}/aceptar`, { contrasena });
+  }
+
+  infoSuperAdmin(token: string): Observable<InvitacionSuperAdminInfo> {
+    return this.http.get<InvitacionSuperAdminInfo>(`${this.base}/superadmin/${token}`);
+  }
+
+  /** Crea la cuenta de SuperAdmin con su contraseña. */
+  aceptarSuperAdmin(token: string, contrasena: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/superadmin/${token}/aceptar`, { contrasena });
   }
 }

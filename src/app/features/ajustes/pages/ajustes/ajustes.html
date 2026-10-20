@@ -1,7 +1,7 @@
 <section class="ajustes">
   <app-encabezado
     titulo="Ajustes"
-    subtitulo="Configura tu sastrería y tu cuenta."
+    [subtitulo]="esAdmin() ? 'Configura tu sastrería y tu cuenta.' : 'Tu cuenta y tu sesión.'"
     icono="ajustes"
   />
 

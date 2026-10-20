@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
+import { EstadoSastreria } from './estado-sastreria';
 
 /**
  * Acciones que el SASTRE_ADMIN otorga a cada miembro (alineado con el enum Permiso del
@@ -50,6 +51,7 @@ interface MisPermisos {
 export class PermisosService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
+  private readonly estadoSastreria = inject(EstadoSastreria);
 
   private readonly estado = signal<MisPermisos | null>(null);
 
@@ -71,8 +73,14 @@ export class PermisosService {
     });
   }
 
-  /** El SASTRE_ADMIN los tiene todos siempre (también los permisos nuevos). */
+  /**
+   * El SASTRE_ADMIN los tiene todos siempre (también los permisos nuevos). En solo lectura
+   * (licencia vencida) nadie puede cambiar nada.
+   */
   puede(permiso: Permiso): boolean {
+    if (this.estadoSastreria.soloLectura()) {
+      return false;
+    }
     return this.admin() || this.lista().has(permiso);
   }
 

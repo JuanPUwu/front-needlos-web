@@ -1,0 +1,112 @@
+<main class="sreg">
+  <app-encabezado
+    titulo="Registro"
+    subtitulo="Todo lo que hacen los SuperAdmins: licencias, accesos, soporte y configuración."
+    icono="historial"
+    [error]="error()"
+  />
+
+  <section class="sreg-bloque" aria-labelledby="t-registro">
+    <app-titulo-bloque titulo="Acciones" idTitulo="t-registro">
+      <span class="sreg-cuenta" [class.sreg-cuenta--esqueleto]="enEsqueleto()">{{ total() }}</span>
+    </app-titulo-bloque>
+
+    <div class="sreg-filtros" role="group" aria-label="Filtros">
+      <input
+        #buscador
+        class="sreg-control sreg-control--buscar"
+        type="search"
+        placeholder="Buscar por sastrería, detalle o SuperAdmin"
+        aria-label="Buscar en el registro"
+        [value]="filtros().buscar"
+        (input)="alBuscar(buscador.value)"
+      />
+      <select
+        #tipoSel
+        class="sreg-control"
+        aria-label="Tipo de acción"
+        (change)="alCambiarTipo(tipoSel.value)"
+      >
+        @for (t of tipos; track t.valor) {
+          <option [value]="t.valor" [selected]="t.valor === filtros().accion">
+            {{ t.etiqueta }}
+          </option>
+        }
+      </select>
+      <input
+        #desde
+        class="sreg-control"
+        type="date"
+        aria-label="Desde"
+        title="Desde"
+        [value]="filtros().desde"
+        [max]="filtros().hasta"
+        (change)="alCambiarDesde(desde.value)"
+      />
+      <input
+        #hasta
+        class="sreg-control"
+        type="date"
+        aria-label="Hasta"
+        title="Hasta"
+        [value]="filtros().hasta"
+        [min]="filtros().desde"
+        (change)="alCambiarHasta(hasta.value)"
+      />
+      @if (hayFiltros()) {
+        <button class="sreg-limpiar" type="button" (click)="limpiarFiltros()">
+          Limpiar filtros
+        </button>
+      }
+    </div>
+
+    <ol
+      class="sreg-lista"
+      [class.sreg--esqueleto]="enEsqueleto()"
+      [class.sreg-lista--cargando]="cargando() && !enEsqueleto()"
+      [attr.aria-busy]="cargando()"
+    >
+      @for (a of vista(); track a.id) {
+        <li class="sreg-item" [attr.data-accion]="a.accion">
+          <div class="sreg-item__fila">
+            <strong class="sreg-item__nombre">{{ etiquetaAccion[a.accion] }}</strong>
+            <span class="sreg-item__meta">{{ a.fecha | fechaHora }}</span>
+          </div>
+          @if (a.sastreria) {
+            <span class="sreg-item__sastreria">{{ a.sastreria }}</span>
+          }
+          <span class="sreg-item__detalle">{{ a.detalle }}</span>
+          <span class="sreg-item__meta">Por {{ a.superAdmin }}</span>
+        </li>
+      } @empty {
+        <li class="sreg-vacio">
+          {{ hayFiltros() ? 'Ninguna acción coincide con lo elegido.' : 'Aún no hay acciones.' }}
+        </li>
+      }
+    </ol>
+
+    @if (totalPaginas() > 1) {
+      <nav class="sreg-paginacion" aria-label="Paginación">
+        <button
+          class="sreg-pagina"
+          type="button"
+          [disabled]="pagina() === 0"
+          (click)="irAPagina(pagina() - 1)"
+        >
+          Anterior
+        </button>
+        <span class="sreg-paginacion__texto">
+          Página {{ pagina() + 1 }} de {{ totalPaginas() }}
+        </span>
+        <button
+          class="sreg-pagina"
+          type="button"
+          [disabled]="pagina() + 1 >= totalPaginas()"
+          (click)="irAPagina(pagina() + 1)"
+        >
+          Siguiente
+        </button>
+      </nav>
+    }
+  </section>
+</main>

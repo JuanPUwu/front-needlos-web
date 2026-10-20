@@ -1,4 +1,15 @@
-<header class="encabezado">
+<header class="encabezado" [class.encabezado--seccion]="!enDialogo()">
+  <!-- Volver: a la izquierda, antes del ícono y el título (dueño 2026-10-20). -->
+  @if (volverRuta(); as ruta) {
+    <a
+      class="encabezado__volver"
+      [routerLink]="ruta"
+      [attr.aria-label]="'Volver a ' + volverEtiqueta()"
+    >
+      <span class="encabezado__flecha" aria-hidden="true">←</span>
+      <span class="encabezado__volver-texto">{{ volverEtiqueta() }}</span>
+    </a>
+  }
   @if (icono(); as nombre) {
     <span class="encabezado__icono" aria-hidden="true">
       <app-icono class="encabezado__icono-svg" [nombre]="nombre" />
@@ -18,12 +29,5 @@
 
   <div class="encabezado__acciones">
     <ng-content />
-    <!-- Volver: al final de la cápsula, como una acción más (no agranda el título). -->
-    @if (volverRuta(); as ruta) {
-      <a class="encabezado__volver" [routerLink]="ruta">
-        <span class="encabezado__flecha" aria-hidden="true">←</span>
-        {{ volverEtiqueta() }}
-      </a>
-    }
   </div>
 </header>

@@ -6,7 +6,30 @@
       icono="tienda"
       volverRuta="/ajustes"
       volverEtiqueta="Ajustes"
-    />
+    >
+      <!-- Plan de la sastrería (Manual §16): prueba o licencia y hasta cuándo. -->
+      @if (estadoPlan(); as e) {
+        <span
+          class="sastreria-plan"
+          [attr.data-tono]="e.soloLectura ? 'peligro' : e.porVencer ? 'alerta' : 'normal'"
+        >
+          {{ e.plan === 'DEMO' ? 'Prueba gratis' : 'Licencia' }}
+          @if (e.vence) {
+            · {{ e.soloLectura ? 'venció el' : 'hasta el' }} {{ e.vence | fechaHora: 'fecha' }}
+          }
+        </span>
+        <!-- Última visita del soporte de NeedlOS (solo lectura, queda registrada). -->
+        @if (e.visitaSoporte) {
+          <span
+            class="sastreria-plan"
+            data-tono="info"
+            title="El soporte de NeedlOS entró a tu sastrería en solo lectura: no cambió nada."
+          >
+            Soporte entró el {{ e.visitaSoporte | fechaHora }}
+          </span>
+        }
+      }
+    </app-encabezado>
 
     <div class="sastreria-bento">
       <!-- ── Datos del negocio ─────────────────────────────────── -->
@@ -111,10 +134,6 @@
         <p class="sastreria-bloque__ayuda">
           Así se verá el ticket de tus pedidos (impresora térmica de 80 mm). Los datos del cliente y
           las prendas son de ejemplo.
-          @if (sastreria(); as s) {
-            Plan actual: <strong>{{ s.plan }}</strong
-            >.
-          }
         </p>
         <div class="sastreria-ticket">
           <app-ticket [datos]="vistaPrevia()" [llenar]="true" />

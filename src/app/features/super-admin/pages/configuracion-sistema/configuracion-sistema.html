@@ -1,0 +1,123 @@
+<main class="scfg">
+  <app-encabezado
+    titulo="Configuración"
+    [subtitulo]="
+      config() && !puedeEditar()
+        ? 'Cómo se comporta NeedlOS. Solo el SuperAdmin principal la cambia.'
+        : 'Cómo se comporta NeedlOS para todas las sastrerías.'
+    "
+    icono="filtros"
+    [error]="error()"
+  />
+
+  <div class="scfg-bento">
+    <!-- ── Prueba y avisos (mientras carga: el mismo formulario en gris) ── -->
+    <form
+      class="scfg-seccion"
+      [class.scfg--esqueleto]="!config()"
+      [attr.aria-busy]="!config()"
+      [formGroup]="form"
+      (ngSubmit)="guardar()"
+      novalidate
+    >
+      <app-titulo-bloque titulo="Prueba y avisos" idTitulo="t-config" />
+
+      <div class="scfg-campos">
+        <div class="scfg-campo">
+          <div class="scfg-campo__head">
+            <label class="scfg-campo__label" for="cfgPrueba">Días de prueba</label>
+            @if (form.controls.diasPrueba.touched && form.controls.diasPrueba.invalid) {
+              <span class="scfg-campo__error"
+                >Entre {{ limites.prueba.min }} y {{ limites.prueba.max }}</span
+              >
+            }
+          </div>
+          <input
+            class="scfg-campo__input"
+            id="cfgPrueba"
+            type="number"
+            inputmode="numeric"
+            formControlName="diasPrueba"
+            [min]="limites.prueba.min"
+            [max]="limites.prueba.max"
+          />
+          <span class="scfg-campo__ayuda"
+            >Con todo incluido, desde que la sastrería se registra. Aplica a las que se registren
+            desde ahora.</span
+          >
+        </div>
+
+        <div class="scfg-campo">
+          <div class="scfg-campo__head">
+            <label class="scfg-campo__label" for="cfgAviso">Días de aviso</label>
+            @if (form.controls.diasAviso.touched && form.controls.diasAviso.invalid) {
+              <span class="scfg-campo__error"
+                >Entre {{ limites.aviso.min }} y {{ limites.aviso.max }}</span
+              >
+            }
+          </div>
+          <input
+            class="scfg-campo__input"
+            id="cfgAviso"
+            type="number"
+            inputmode="numeric"
+            formControlName="diasAviso"
+            [min]="limites.aviso.min"
+            [max]="limites.aviso.max"
+          />
+          <span class="scfg-campo__ayuda"
+            >Cuántos días antes del vencimiento se avisa al admin (en la app y por correo) y la
+            sastrería aparece "Por vencer".</span
+          >
+        </div>
+
+        <p class="scfg-ultimo">
+          Último cambio: {{ config()?.actualizadoEn | fechaHora }}
+          {{ config()?.actualizadoPor ? 'por ' + config()?.actualizadoPor : '' }}
+        </p>
+      </div>
+
+      @if (conAcciones()) {
+        <div class="scfg-acciones">
+          <button
+            class="scfg-boton scfg-boton--borde"
+            type="button"
+            [disabled]="!hayCambios() || guardando()"
+            (click)="descartar()"
+          >
+            Descartar
+          </button>
+          <button class="scfg-boton" type="submit" [disabled]="!hayCambios() || guardando()">
+            {{ guardando() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      }
+    </form>
+
+    <!-- ── Qué pasa al cambiarla ─────────────────────────────────── -->
+    <section class="scfg-seccion" aria-labelledby="t-efectos">
+      <app-titulo-bloque titulo="Qué pasa al cambiarla" idTitulo="t-efectos" />
+      <ul class="scfg-lista">
+        <li class="scfg-item">
+          <strong class="scfg-item__titulo">Las pruebas que ya corren no cambian</strong>
+          <span class="scfg-item__detalle"
+            >Los días de prueba solo cuentan para las sastrerías que se registren después.</span
+          >
+        </li>
+        <li class="scfg-item">
+          <strong class="scfg-item__titulo">Los avisos cambian al instante</strong>
+          <span class="scfg-item__detalle"
+            >El aviso en la app, el estado "Por vencer" y el correo diario de las 8:00 usan los días
+            nuevos.</span
+          >
+        </li>
+        <li class="scfg-item">
+          <strong class="scfg-item__titulo">Queda en el registro</strong>
+          <span class="scfg-item__detalle"
+            >Cada cambio guarda quién lo hizo y los valores de antes y de ahora.</span
+          >
+        </li>
+      </ul>
+    </section>
+  </div>
+</main>

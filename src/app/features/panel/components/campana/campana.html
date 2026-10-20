@@ -1,0 +1,70 @@
+<button
+  class="cmp__boton"
+  type="button"
+  [class.cmp__boton--activo]="abierta()"
+  [class.cmp__boton--avisos]="bandeja.noLeidas() > 0"
+  [attr.aria-expanded]="abierta()"
+  aria-controls="bandeja"
+  [attr.aria-label]="
+    bandeja.noLeidas() > 0
+      ? 'Notificaciones: ' + bandeja.noLeidas() + ' sin leer'
+      : 'Notificaciones'
+  "
+  title="Notificaciones"
+  (click)="alternar()"
+>
+  <app-icono class="cmp__icono" nombre="campana" />
+  @if (bandeja.noLeidas() > 0) {
+    <span class="cmp__cuenta" aria-hidden="true">{{
+      bandeja.noLeidas() > 99 ? '99+' : bandeja.noLeidas()
+    }}</span>
+  }
+</button>
+
+@if (abierta()) {
+  <section
+    class="cmp__panel"
+    id="bandeja"
+    aria-labelledby="t-bandeja"
+    animate.enter="cmp--entrar"
+    animate.leave="cmp--salir"
+  >
+    <header class="cmp__cabeza">
+      <h2 class="cmp__titulo" id="t-bandeja">Notificaciones</h2>
+      @if (bandeja.noLeidas() > 0) {
+        <button class="cmp__todas" type="button" (click)="bandeja.marcarTodas()">
+          Marcar todas como leídas
+        </button>
+      }
+    </header>
+
+    @let lista = bandeja.lista();
+    <ul
+      class="cmp__lista"
+      [class.cmp--esqueleto]="lista === null"
+      [attr.aria-busy]="lista === null"
+    >
+      @for (n of lista ?? esqueleto; track n.id) {
+        <li>
+          <button
+            class="cmp__item"
+            type="button"
+            [class.cmp__item--nueva]="!n.leida"
+            [class.cmp__item--enlace]="!!n.enlace"
+            [attr.data-tono]="n.tono"
+            [disabled]="lista === null"
+            (click)="elegir(n)"
+          >
+            <span class="cmp__punto" aria-hidden="true"></span>
+            <span class="cmp__texto">
+              <span class="cmp__item-titulo">{{ n.titulo }}</span>
+              <span class="cmp__fecha">{{ n.fecha | fechaHora }}</span>
+            </span>
+          </button>
+        </li>
+      } @empty {
+        <li class="cmp__vacio">No tienes notificaciones.</li>
+      }
+    </ul>
+  </section>
+}

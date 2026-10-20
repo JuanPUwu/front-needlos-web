@@ -1,0 +1,159 @@
+<div class="sm-fondo" aria-hidden="true" (click)="cerrado.emit()"></div>
+
+<div
+  #caja
+  class="sm-caja"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-sastreria"
+  tabindex="-1"
+>
+  <app-encabezado
+    idTitulo="titulo-sastreria"
+    [titulo]="sastreria()?.nombre ?? 'Sastrería'"
+    [subtitulo]="
+      sastreria()
+        ? (sastreria()!.admin ?? 'Sin admin') +
+          (sastreria()!.adminEmail ? ' · ' + sastreria()!.adminEmail : '')
+        : 'Cargando la sastrería…'
+    "
+    icono="tienda"
+    [error]="error()"
+  >
+    @if (sastreria(); as s) {
+      <span class="sm-chip" [attr.data-estado]="s.estado">{{ etiquetaEstado[s.estado] }}</span>
+    }
+    <button
+      class="sm-cerrar"
+      type="button"
+      aria-label="Cerrar"
+      title="Cerrar"
+      (click)="cerrado.emit()"
+    >
+      <app-icono class="sm-cerrar__icono" nombre="cerrar" />
+    </button>
+  </app-encabezado>
+
+  @if (vista(); as s) {
+    <div class="sm-cuerpo" [class.sm--esqueleto]="!sastreria()" [attr.aria-busy]="!sastreria()">
+      <div class="sm-columna">
+        <!-- ── Uso (solo datos de uso, nunca montos) ─────────────── -->
+        <section class="sm-seccion" aria-labelledby="t-uso">
+          <app-titulo-bloque titulo="Uso" idTitulo="t-uso" />
+          <dl class="sm-datos">
+            <div class="sm-dato">
+              <dt>Plan</dt>
+              <dd>{{ s.plan === 'DEMO' ? 'Prueba' : 'Licencia' }}</dd>
+            </div>
+            <div class="sm-dato">
+              <dt>Vence</dt>
+              <dd>{{ s.vence ? (s.vence | fechaHora: 'fecha') : 'No vence' }}</dd>
+            </div>
+            <div class="sm-dato">
+              <dt>Registro</dt>
+              <dd>{{ s.registro | fechaHora: 'fecha' }}</dd>
+            </div>
+            <div class="sm-dato">
+              <dt>Último acceso</dt>
+              <dd>{{ s.ultimoAcceso ? (s.ultimoAcceso | fechaHora) : 'Nunca' }}</dd>
+            </div>
+            <div class="sm-dato">
+              <dt>Pedidos</dt>
+              <dd>{{ s.pedidos }}</dd>
+            </div>
+            <div class="sm-dato">
+              <dt>Personas</dt>
+              <dd>{{ s.personas }}</dd>
+            </div>
+            <div class="sm-dato sm-dato--ancho">
+              <dt>Teléfono</dt>
+              <dd>{{ s.telefono ?? '—' }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- ── Licencia por meses ─────────────────────────────────── -->
+        <section class="sm-seccion" aria-labelledby="t-licencia">
+          <app-titulo-bloque titulo="Otorgar licencia" idTitulo="t-licencia" />
+          <div class="sm-meses">
+            @for (m of meses; track m) {
+              <button
+                class="sm-boton sm-boton--borde"
+                type="button"
+                [disabled]="!sastreria() || ocupado()"
+                (click)="otorgar(m)"
+              >
+                {{ m }} {{ m === 1 ? 'mes' : 'meses' }}
+              </button>
+            }
+          </div>
+          <p class="sm-ayuda">
+            Si la licencia sigue vigente, los meses se suman a su vencimiento; si venció, cuentan
+            desde hoy.
+          </p>
+        </section>
+
+        <!-- ── Acceso ─────────────────────────────────────────────── -->
+        <section class="sm-seccion" aria-labelledby="t-acceso">
+          <app-titulo-bloque titulo="Acceso" idTitulo="t-acceso" />
+          <p class="sm-ayuda">
+            {{
+              s.activo
+                ? 'Desactivarla impide que alguien de la sastrería entre (se cierran sus sesiones). Sus datos se conservan.'
+                : 'Está desactivada: nadie de la sastrería puede entrar hasta reactivarla.'
+            }}
+          </p>
+          <div class="sm-acceso">
+            <!-- Modo soporte: ver la sastrería como su admin, sin cambiar nada (queda registrado). -->
+            @if (s.activo) {
+              <button
+                class="sm-boton sm-boton--borde"
+                type="button"
+                [disabled]="!sastreria() || ocupado()"
+                (click)="entrarEnSoporte()"
+              >
+                Entrar en modo soporte
+              </button>
+            }
+            <button
+              class="sm-boton"
+              [class.sm-boton--peligro]="s.activo"
+              type="button"
+              [disabled]="!sastreria() || ocupado()"
+              (click)="cambiarActivo()"
+            >
+              {{ s.activo ? 'Desactivar sastrería' : 'Activar sastrería' }}
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- ── Registro de acciones de esta sastrería ──────────────── -->
+      <section class="sm-seccion sm-registro" aria-labelledby="t-registro">
+        <app-titulo-bloque titulo="Registro" idTitulo="t-registro" />
+        @if (acciones(); as lista) {
+          <ol class="sm-acciones">
+            @for (a of lista; track a.id) {
+              <li class="sm-accion" [attr.data-accion]="a.accion">
+                <div class="sm-accion__fila">
+                  <strong class="sm-accion__nombre">{{ etiquetaAccion[a.accion] }}</strong>
+                  <span class="sm-accion__meta">{{ a.fecha | fechaHora }}</span>
+                </div>
+                <span class="sm-accion__detalle">{{ a.detalle }}</span>
+                <span class="sm-accion__meta">Por {{ a.superAdmin }}</span>
+              </li>
+            } @empty {
+              <li class="sm-vacio">Aún no hay acciones sobre esta sastrería.</li>
+            }
+          </ol>
+        } @else {
+          <div class="sm-accion sm-hueso" role="status">
+            <span>Cargando registro...</span>
+            <span>Detalle de la acción</span>
+            <span>Por SuperAdmin</span>
+          </div>
+        }
+      </section>
+    </div>
+  }
+</div>

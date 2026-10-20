@@ -29,7 +29,8 @@ export type NombreIcono =
   | 'mas'
   | 'buscar'
   | 'editar'
-  | 'eliminar';
+  | 'eliminar'
+  | 'campana';
 
 /**
  * Ícono de línea reutilizable (SVG inline). Hereda el color con `currentColor`

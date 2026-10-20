@@ -1,0 +1,333 @@
+// SuperAdmins (sección del SuperAdmin). Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.sas {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+// Activos e invitaciones | invitar. Sin desplazarse: las listas se desplazan dentro.
+.sas-bento {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
+
+  // Tablet/teléfono: una columna; la página se desplaza (Reglas §12.2).
+  @container panel (max-width: 820px) {
+    flex: none;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sas-bento--una {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sas-columna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+}
+
+// ── Tarjetas ────────────────────────────────────────────────
+.sas-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: sasseccion / inline-size;
+}
+
+// Ocupa el alto que queda; su lista se desplaza dentro.
+.sas-seccion--alta {
+  flex: 1;
+  min-height: 0;
+
+  .sas-lista {
+    flex: 1;
+    max-height: none;
+  }
+
+  @container panel (max-width: 820px) {
+    flex: none;
+
+    .sas-lista {
+      max-height: 320px;
+    }
+  }
+}
+
+.sas-cuenta {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  font-variant-numeric: tabular-nums;
+}
+
+.sas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: 320px;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+}
+
+.sas-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 64px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.sas-item__texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.sas-item__nombre,
+.sas-item__meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sas-item__nombre {
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.sas-item__meta {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.sas-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--estado-finalizado-bg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--estado-finalizado);
+  white-space: nowrap;
+}
+
+// Lista vacía: mide lo mismo que una fila.
+.sas-vacio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// ── Formulario ──────────────────────────────────────────────
+.sas-fila {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container sasseccion (max-width: 360px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sas-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.sas-campo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.sas-campo__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.sas-req {
+  color: var(--color-danger);
+}
+
+.sas-campo__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.sas-campo__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+
+  &.ng-touched.ng-invalid {
+    border-color: var(--color-danger);
+  }
+}
+
+.sas-ayuda {
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+// ── Botones ─────────────────────────────────────────────────
+.sas-boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.sas-boton--chico {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 var(--space-4);
+  font-size: 0.85rem;
+}
+
+.sas-boton--borde {
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-accent);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+.sas-boton--peligro {
+  border: 1.5px solid var(--color-danger);
+  background: var(--color-surface);
+  color: var(--color-danger);
+
+  &:hover:not(:disabled) {
+    background: var(--color-danger-bg);
+  }
+}
+
+// ── Esqueleto: el mismo marcado con los textos en piezas grises ─
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
+.sas--esqueleto {
+  .sas-item__nombre,
+  .sas-item__meta,
+  .sas-chip,
+  .sas-cuenta,
+  .sas-vacio > span {
+    width: fit-content;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+      color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
+    background-size: 200% 100%;
+    color: transparent;
+    animation: sas-brillo 1.4s linear infinite;
+  }
+}
+
+@keyframes sas-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sas-boton {
+    transition: none;
+  }
+
+  .sas--esqueleto * {
+    animation: none !important;
+  }
+}

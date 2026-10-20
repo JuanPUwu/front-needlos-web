@@ -244,34 +244,6 @@
   }
 }
 
-// Avisos rápidos (vencidos / para hoy): cápsulas del alto del buscador, a la derecha
-// de los resultados; al tocarlas aplican el filtro.
-.pedidos-aviso-rapido {
-  flex-shrink: 0;
-  height: 44px;
-  padding: 0 var(--space-4);
-  border: none;
-  border-radius: var(--radius-md);
-  white-space: nowrap;
-
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
-  font: inherit;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 3px solid var(--focus-ring);
-    outline-offset: 2px;
-  }
-}
-
-.pedidos-aviso-rapido--alerta {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-}
-
 // ── Filtros (panel plegable) ────────────────────────────────
 .pedidos-filtros {
   display: grid;

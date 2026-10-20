@@ -274,7 +274,9 @@ export class MaterialModal implements OnInit, OnDestroy {
         this.guardando.set(false);
         this.borradorDatos.olvidar();
         if (actual) {
-          this.alActualizar(material);
+          // Lo guardado pasa a ser la referencia: cerrar ya no pide descartar.
+          this.material.set(material);
+          this.llenarDatos(material);
         } else {
           this.datosGuardados = JSON.stringify(this.datos.getRawValue());
         }
