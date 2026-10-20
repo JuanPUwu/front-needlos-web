@@ -11,7 +11,7 @@
     <div class="sastreria-bento">
       <!-- ── Datos del negocio ─────────────────────────────────── -->
       <section class="sastreria-bloque sastreria-bloque--form" aria-labelledby="titulo-datos">
-        <h2 class="sastreria-bloque__titulo" id="titulo-datos">Datos del negocio</h2>
+        <app-titulo-bloque titulo="Datos del negocio" idTitulo="titulo-datos" [error]="error()" />
 
         @if (cargando()) {
           <app-esqueleto forma="campos" [filas]="4" texto="Cargando datos del negocio..." />
@@ -59,9 +59,42 @@
               />
             </div>
 
-            @if (error()) {
-              <p class="sastreria-aviso sastreria-aviso--error" role="alert">{{ error() }}</p>
-            }
+            <!-- Horario del resumen: marca si el día está en curso o cerrado. -->
+            <div class="sastreria-fila">
+              <div class="sastreria-field">
+                <div class="sastreria-field__head">
+                  <label class="sastreria-field__label" for="horaInicioCaja"
+                    >Abre <span class="sastreria-field__req">*</span></label
+                  >
+                  @if (horarioInvalido()) {
+                    <span class="sastreria-field__error">Antes del cierre</span>
+                  }
+                </div>
+                <input
+                  class="sastreria-field__input"
+                  id="horaInicioCaja"
+                  type="time"
+                  formControlName="horaInicioCaja"
+                />
+              </div>
+              <div class="sastreria-field">
+                <div class="sastreria-field__head">
+                  <label class="sastreria-field__label" for="horaFinCaja"
+                    >Cierra <span class="sastreria-field__req">*</span></label
+                  >
+                </div>
+                <input
+                  class="sastreria-field__input"
+                  id="horaFinCaja"
+                  type="time"
+                  formControlName="horaFinCaja"
+                />
+              </div>
+            </div>
+            <p class="sastreria-bloque__ayuda">
+              Horario del resumen: indica si el día está en curso o ya cerró. Lo que se registre
+              fuera de este horario cuenta igual en su día.
+            </p>
 
             <div class="sastreria-form__acciones">
               <button class="sastreria-boton" type="submit" [disabled]="guardando()">
@@ -74,7 +107,7 @@
 
       <!-- ── Vista previa del ticket ───────────────────────────── -->
       <section class="sastreria-bloque sastreria-bloque--resumen" aria-labelledby="titulo-resumen">
-        <h2 class="sastreria-bloque__titulo" id="titulo-resumen">Vista previa del ticket</h2>
+        <app-titulo-bloque titulo="Vista previa del ticket" idTitulo="titulo-resumen" />
         <p class="sastreria-bloque__ayuda">
           Así se verá el ticket de tus pedidos (impresora térmica de 80 mm). Los datos del cliente y
           las prendas son de ejemplo.

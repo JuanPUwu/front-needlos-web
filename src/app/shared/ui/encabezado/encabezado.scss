@@ -14,8 +14,34 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   @container panel (max-width: 560px) {
+    flex-wrap: wrap;
     gap: var(--space-3);
     padding: var(--space-4);
+  }
+}
+
+// Error de la sección: cápsula roja de 44 px en la línea del título, recortada con "…" (el
+// texto completo va en `title`). En teléfono baja a su propia fila, a todo el ancho.
+.encabezado__error {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 45%;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 44px;
+  color: var(--color-danger);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @container panel (max-width: 560px) {
+    order: 1;
+    flex-basis: 100%;
+    max-width: none;
   }
 }
 

@@ -1,0 +1,394 @@
+// Movimientos del resumen. Solo tokens globales.
+
+:host {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  container: movimientos / inline-size;
+}
+
+.rm-cabecera {
+  min-height: 44px;
+}
+
+// Una sola fila de filtros (selects que se encogen) para dejarle el alto a la tabla.
+.rm-filtros {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container movimientos (max-width: 420px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.rm-filtros--limpiar {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+
+  @container movimientos (max-width: 560px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @container movimientos (max-width: 420px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.rm-select {
+  min-width: 0;
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text);
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  // Tarjeta angosta: menos relleno para que quepa el texto de la opción.
+  @container movimientos (max-width: 560px) {
+    padding: 0 var(--space-2);
+  }
+}
+
+.rm-limpiar,
+.rm-pagina {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.rm-vacio {
+  padding: var(--space-6) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.rm-marco {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+// ── Tabla ───────────────────────────────────────────────────
+.rm {
+  width: 100%;
+  table-layout: fixed;
+  transition: opacity var(--dur-color) var(--ease-out);
+  border-collapse: separate;
+  border-spacing: 0 var(--space-3);
+  font-size: 0.95rem;
+
+  th {
+    padding: 0 var(--space-3) var(--space-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  th + th {
+    box-shadow: inset 1px 0 0 var(--color-border-soft);
+  }
+}
+
+.rm--cargando {
+  opacity: 0.6;
+}
+
+// Anchos en proporción que suman 100 % (la tabla nunca se desplaza a lo ancho).
+.rm__col--cuando {
+  width: 17%;
+}
+
+.rm__col--tipo {
+  width: 13%;
+}
+
+.rm__col--detalle {
+  width: 29%;
+}
+
+.rm__col--metodo {
+  width: 13%;
+}
+
+.rm__col--monto {
+  width: 20%;
+}
+
+.rm__col--abrir {
+  width: 8%;
+}
+
+.rm__oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.rm__fila {
+  --fondo: var(--color-bg);
+  --tono: var(--color-success);
+
+  cursor: pointer;
+
+  &[data-tipo='DEVOLUCION'] {
+    --tono: var(--estado-entregado);
+  }
+
+  &[data-tipo='GASTO'] {
+    --tono: var(--color-danger);
+  }
+
+  &:hover {
+    --fondo: var(--focus-ring);
+  }
+
+  .rm__celda {
+    background: var(--fondo);
+    transition: background-color var(--dur-color) var(--ease-out);
+  }
+}
+
+.rm__celda {
+  padding: var(--space-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+
+  &:first-child {
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+  }
+
+  &:last-child {
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+}
+
+.rm__celda--detalle {
+  text-align: left;
+}
+
+.rm__hora {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.rm__pedido {
+  color: var(--color-navy);
+}
+
+.rm__tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--tono);
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tono);
+  }
+}
+
+.rm__celda--monto {
+  font-weight: 700;
+  color: var(--color-danger);
+}
+
+.rm__celda--mas {
+  color: var(--color-success);
+}
+
+.rm__celda--abrir {
+  padding: var(--space-1) 0;
+  text-overflow: clip;
+}
+
+// Botón de la fila: deja abrir el movimiento con el teclado (la fila también responde al clic).
+.rm__abrir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-accent);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+  }
+}
+
+.rm__icono {
+  width: 18px;
+  height: 18px;
+}
+
+// ── Paginación en la fila del título ────────────────────────
+.rm-paginacion {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.rm-paginacion__texto {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.rm-pagina {
+  width: 44px;
+  padding: 0;
+}
+
+.rm-pagina__icono {
+  width: 18px;
+  height: 18px;
+}
+
+.rm-pagina__icono--atras {
+  transform: scaleX(-1);
+}
+
+// ── Tarjetas cuando la tabla no cabe ────────────────────────
+@container movimientos (max-width: 680px) {
+  .rm {
+    display: block;
+    border-spacing: 0;
+
+    colgroup,
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+  }
+
+  .rm__fila {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'detalle monto'
+      'tipo metodo'
+      'cuando abrir';
+    gap: var(--space-1) var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-left: 4px solid var(--tono);
+    border-radius: var(--radius-md);
+    background: var(--fondo);
+
+    .rm__celda {
+      padding: 0;
+      background: none;
+      border-radius: 0;
+      text-align: left;
+    }
+  }
+
+  .rm__celda--detalle {
+    grid-area: detalle;
+    white-space: normal;
+  }
+
+  .rm__celda--monto {
+    grid-area: monto;
+  }
+
+  .rm__celda--tipo {
+    grid-area: tipo;
+  }
+
+  .rm__celda--metodo {
+    grid-area: metodo;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .rm__celda--cuando {
+    grid-area: cuando;
+    align-self: center;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  // En tarjeta, fecha y hora en la misma línea.
+  .rm__hora {
+    display: inline;
+    font-size: inherit;
+  }
+
+  .rm__celda--abrir {
+    grid-area: abrir;
+    justify-self: end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rm-limpiar,
+  .rm-pagina,
+  .rm,
+  .rm__celda {
+    transition: none;
+  }
+}

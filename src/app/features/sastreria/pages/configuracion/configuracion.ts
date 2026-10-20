@@ -13,6 +13,7 @@ import { map, startWith } from 'rxjs';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
+import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { TicketComponent, TicketDatos } from '../../../../shared/ui/ticket/ticket';
 import { hoyIso } from '../../../../shared/util/fechas';
@@ -28,7 +29,7 @@ const CON_TEXTO = /\S/;
  */
 @Component({
   selector: 'app-configuracion-sastreria',
-  imports: [Esqueleto, Encabezado, ReactiveFormsModule, TicketComponent],
+  imports: [TituloBloque, Esqueleto, Encabezado, ReactiveFormsModule, TicketComponent],
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,7 +50,15 @@ export class ConfiguracionSastreria implements OnInit {
     nit: ['', [Validators.maxLength(30)]],
     direccion: ['', [Validators.maxLength(200)]],
     telefono: ['', [Validators.maxLength(20)]],
+    horaInicioCaja: ['05:00', [Validators.required]],
+    horaFinCaja: ['23:00', [Validators.required]],
   });
+
+  /** El horario del resumen debe empezar antes de terminar. */
+  horarioInvalido(): boolean {
+    const v = this.form.getRawValue();
+    return !!v.horaInicioCaja && !!v.horaFinCaja && v.horaInicioCaja >= v.horaFinCaja;
+  }
 
   private readonly valores = toSignal(
     this.form.valueChanges.pipe(
@@ -106,7 +115,7 @@ export class ConfiguracionSastreria implements OnInit {
   }
 
   guardar(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.horarioInvalido()) {
       this.form.markAllAsTouched();
       return;
     }
@@ -123,6 +132,8 @@ export class ConfiguracionSastreria implements OnInit {
         nit: v.nit.trim() || null,
         direccion: v.direccion.trim() || null,
         telefono: v.telefono.trim() || null,
+        horaInicioCaja: v.horaInicioCaja,
+        horaFinCaja: v.horaFinCaja,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -153,6 +164,8 @@ export class ConfiguracionSastreria implements OnInit {
             nit: s.nit ?? '',
             direccion: s.direccion ?? '',
             telefono: s.telefono ?? '',
+            horaInicioCaja: s.horaInicioCaja ?? '05:00',
+            horaFinCaja: s.horaFinCaja ?? '23:00',
           });
           this.cargando.set(false);
         },

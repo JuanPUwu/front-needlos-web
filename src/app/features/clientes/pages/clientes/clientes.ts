@@ -15,6 +15,7 @@ import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
+import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { PermisosService } from '../../../../core/auth/permisos';
 import { filtrosAUrl, filtrosDesdeUrl } from '../../../../core/estado/filtros-url';
@@ -52,7 +53,15 @@ const ORDENES: { valor: OrdenClientes; etiqueta: string }[] = [
  */
 @Component({
   selector: 'app-clientes',
-  imports: [Esqueleto, Encabezado, ReactiveFormsModule, RouterLink, FechaPipe, MonedaPipe],
+  imports: [
+    TituloBloque,
+    Esqueleto,
+    Encabezado,
+    ReactiveFormsModule,
+    RouterLink,
+    FechaPipe,
+    MonedaPipe,
+  ],
   templateUrl: './clientes.html',
   styleUrl: './clientes.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

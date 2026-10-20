@@ -1,0 +1,5 @@
+<h2 class="tb__titulo" [attr.id]="idTitulo()">{{ titulo() }}</h2>
+@if (error(); as e) {
+  <p class="tb__error" role="alert" [title]="e">{{ e }}</p>
+}
+<ng-content />

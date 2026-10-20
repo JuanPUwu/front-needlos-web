@@ -16,6 +16,8 @@ function sastreria(parcial: Partial<Sastreria> = {}): Sastreria {
     plan: 'DEMO',
     licenciaHasta: null,
     activo: true,
+    horaInicioCaja: '05:00',
+    horaFinCaja: '23:00',
     ...parcial,
   };
 }
@@ -51,7 +53,7 @@ describe('ConfiguracionSastreria', () => {
 
   it('guarda enviando los opcionales vacíos como null', () => {
     componente.ngOnInit();
-    componente.form.setValue({
+    componente.form.patchValue({
       nombre: ' El Buen Corte ',
       nit: '',
       direccion: '  ',
@@ -65,12 +67,22 @@ describe('ConfiguracionSastreria', () => {
       nit: null,
       direccion: null,
       telefono: '3001112233',
+      horaInicioCaja: '05:00',
+      horaFinCaja: '23:00',
     });
+  });
+
+  it('no guarda si el horario del resumen empieza después de cerrar', () => {
+    componente.ngOnInit();
+    componente.form.patchValue({ horaInicioCaja: '21:00', horaFinCaja: '20:00' });
+    componente.guardar();
+    expect(componente.horarioInvalido()).toBe(true);
+    expect(service.actualizar).not.toHaveBeenCalled();
   });
 
   it('no guarda si el nombre está vacío', () => {
     componente.ngOnInit();
-    componente.form.setValue({ nombre: '  ', nit: '', direccion: '', telefono: '' });
+    componente.form.patchValue({ nombre: '  ', nit: '', direccion: '', telefono: '' });
 
     componente.guardar();
 

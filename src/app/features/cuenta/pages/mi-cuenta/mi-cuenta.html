@@ -17,7 +17,11 @@
     <div class="cuenta__bento">
       <!-- ── Cambiar contrasena ───────────────────────────────── -->
       <section class="cuenta-bloque cuenta-bloque--contrasena" aria-labelledby="titulo-contrasena">
-        <h2 class="cuenta-bloque__titulo" id="titulo-contrasena">Cambiar contraseña</h2>
+        <app-titulo-bloque
+          titulo="Cambiar contraseña"
+          idTitulo="titulo-contrasena"
+          [error]="errorContrasena()"
+        />
         <p class="cuenta-bloque__ayuda">
           Al cambiarla se cerrarán tus sesiones en los demás dispositivos.
         </p>
@@ -83,10 +87,6 @@
             />
           </div>
 
-          @if (errorContrasena()) {
-            <p class="cuenta-aviso cuenta-aviso--error" role="alert">{{ errorContrasena() }}</p>
-          }
-
           <button class="cuenta-boton" type="submit" [disabled]="guardando()">
             {{ guardando() ? 'Guardando...' : 'Cambiar contraseña' }}
           </button>
@@ -95,8 +95,11 @@
 
       <!-- ── Sesiones abiertas ────────────────────────────────── -->
       <section class="cuenta-bloque cuenta-bloque--sesiones" aria-labelledby="titulo-sesiones">
-        <div class="cuenta-bloque__cabecera">
-          <h2 class="cuenta-bloque__titulo" id="titulo-sesiones">Sesiones abiertas</h2>
+        <app-titulo-bloque
+          titulo="Sesiones abiertas"
+          idTitulo="titulo-sesiones"
+          [error]="errorSesiones()"
+        >
           @if (sesiones().length > 1) {
             <button
               class="cuenta-boton cuenta-boton--secundario"
@@ -107,11 +110,7 @@
               Cerrar las demás
             </button>
           }
-        </div>
-
-        @if (errorSesiones()) {
-          <p class="cuenta-aviso cuenta-aviso--error" role="alert">{{ errorSesiones() }}</p>
-        }
+        </app-titulo-bloque>
 
         @if (cargandoSesiones()) {
           <app-esqueleto forma="lista" [filas]="4" [alto]="72" texto="Cargando sesiones..." />

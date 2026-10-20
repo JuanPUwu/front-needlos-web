@@ -221,6 +221,23 @@ export class PedidoForm implements OnInit {
   });
   readonly abonoInvalido = computed(() => !this.editando() && this.abono() > this.total());
   /** En edición: lo ya abonado no puede quedar por encima del nuevo total. */
+  /**
+   * Lo que impide crear o guardar, en la línea del título (cápsula roja del encabezado): así
+   * no agrega filas que cambien el alto de las tarjetas.
+   */
+  readonly errorAviso = computed(() => {
+    if (this.totalBajoAbonado()) {
+      return 'El total queda por debajo de lo abonado: primero anula abonos en el detalle del pedido.';
+    }
+    if (this.descuentoInvalido()) {
+      return 'El descuento no puede ser mayor que el valor de las prendas.';
+    }
+    if (this.abonoInvalido()) {
+      return 'El abono no puede superar el total.';
+    }
+    return this.error();
+  });
+
   readonly totalBajoAbonado = computed(() => {
     const p = this.editando();
     return p !== null && this.total() < p.abonado;

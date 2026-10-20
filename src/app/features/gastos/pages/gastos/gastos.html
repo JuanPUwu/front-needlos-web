@@ -1,0 +1,185 @@
+<main class="gastos-page">
+  <div class="gastos-contenedor">
+    <app-encabezado
+      titulo="Gastos"
+      subtitulo="Lo que sale de tu negocio: pagos a empleados, insumos, servicios…"
+      icono="gastos"
+      [error]="errorFiltros() ?? error()"
+    >
+      <button
+        class="gastos-nuevo"
+        type="button"
+        aria-label="Registrar gasto"
+        title="Registrar gasto"
+        (click)="nuevoGasto()"
+      >
+        <app-icono class="gastos-nuevo__icono" nombre="mas" />
+      </button>
+    </app-encabezado>
+
+    <!-- ── Búsqueda y filtros (una sola cápsula) ─────────────── -->
+    <section class="gastos-buscar" aria-label="Búsqueda y filtros">
+      <div class="gastos-busqueda">
+        <div class="gastos-buscador-caja">
+          <app-icono class="gastos-buscador-caja__lupa" nombre="buscar" />
+          <input
+            #buscador
+            class="gastos-control gastos-buscador"
+            type="search"
+            placeholder="Buscar por razón"
+            aria-label="Buscar gastos"
+            [value]="filtros().buscar"
+            (input)="alBuscar(buscador.value)"
+            (keydown.enter)="buscarAhora(buscador.value)"
+          />
+        </div>
+        <button class="gastos-buscar-boton" type="button" (click)="buscarAhora(buscador.value)">
+          Buscar
+        </button>
+        <button
+          class="gastos-herramienta"
+          type="button"
+          aria-label="Filtros"
+          title="Filtros"
+          aria-controls="gastos-filtros"
+          [attr.aria-expanded]="filtrosAbiertos()"
+          [class.gastos-herramienta--activa]="filtrosAbiertos()"
+          (click)="alternarFiltros()"
+        >
+          <app-icono class="gastos-herramienta__icono" nombre="filtros" />
+          @if (cantidadFiltros() > 0) {
+            <span class="gastos-herramienta__cuenta">{{ cantidadFiltros() }}</span>
+          }
+        </button>
+        <span class="gastos-cuenta" role="status">
+          <strong>{{ total() }}</strong> {{ total() === 1 ? 'gasto' : 'gastos' }}
+        </span>
+      </div>
+
+      @if (filtrosAbiertos()) {
+        <div class="gastos-filtros" id="gastos-filtros">
+          <div class="gastos-filtro">
+            <label class="gastos-filtro__label" for="gastosMetodo">Método</label>
+            <select
+              #metodoSel
+              class="gastos-control"
+              id="gastosMetodo"
+              (change)="alCambiarMetodo(metodoSel.value)"
+            >
+              <option value="" [selected]="filtros().metodo === ''">Todos</option>
+              @for (m of metodos; track m.valor) {
+                <option [value]="m.valor" [selected]="m.valor === filtros().metodo">
+                  {{ m.etiqueta }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="gastos-filtro">
+            <label class="gastos-filtro__label" for="gastosDesde">Desde</label>
+            <input
+              #desde
+              class="gastos-control"
+              id="gastosDesde"
+              type="date"
+              [value]="filtros().desde"
+              [max]="filtros().hasta"
+              (change)="alCambiarDesde(desde.value)"
+            />
+          </div>
+          <div class="gastos-filtro">
+            <label class="gastos-filtro__label" for="gastosHasta">Hasta</label>
+            <input
+              #hasta
+              class="gastos-control"
+              id="gastosHasta"
+              type="date"
+              [value]="filtros().hasta"
+              [min]="filtros().desde"
+              (change)="alCambiarHasta(hasta.value)"
+            />
+          </div>
+          <div class="gastos-filtro">
+            <label class="gastos-filtro__label" for="gastosOrden">Ordenar por</label>
+            <select
+              #ordenSel
+              class="gastos-control"
+              id="gastosOrden"
+              (change)="alCambiarOrden(ordenSel.value)"
+            >
+              @for (o of ordenes; track o.valor) {
+                <option [value]="o.valor" [selected]="o.valor === filtros().orden">
+                  {{ o.etiqueta }}
+                </option>
+              }
+            </select>
+          </div>
+          @if (hayFiltros()) {
+            <button class="gastos-limpiar" type="button" (click)="limpiarFiltros()">
+              Limpiar filtros
+            </button>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ── Listado ──────────────────────────────────────────── -->
+    <section class="gastos-bloque" aria-label="Gastos">
+      @if (cargando() && gastos().length === 0) {
+        <app-esqueleto forma="tabla" [filas]="6" [alto]="48" texto="Cargando gastos..." />
+      } @else if (gastos().length === 0) {
+        <p class="gastos-vacio">
+          {{
+            hayFiltros()
+              ? 'Ningún gasto coincide con lo elegido.'
+              : 'Aún no hay gastos. Registra el primero con el botón +.'
+          }}
+        </p>
+      } @else {
+        <app-gastos-tabla
+          [gastos]="gastos()"
+          [cargando]="cargando()"
+          (editar)="abrir($event)"
+          (eliminar)="eliminar($event)"
+        />
+        <div class="gastos-pie">
+          <span class="gastos-suma">
+            Suma de esta página: <strong>{{ sumaPagina() | moneda }}</strong>
+          </span>
+          @if (totalPaginas() > 1) {
+            <nav class="gastos-paginacion" aria-label="Paginación">
+              <button
+                class="gastos-pagina"
+                type="button"
+                [disabled]="pagina() === 0"
+                (click)="irAPagina(pagina() - 1)"
+              >
+                Anterior
+              </button>
+              <span class="gastos-paginacion__texto">
+                Página {{ pagina() + 1 }} de {{ totalPaginas() }}
+              </span>
+              <button
+                class="gastos-pagina"
+                type="button"
+                [disabled]="pagina() + 1 >= totalPaginas()"
+                (click)="irAPagina(pagina() + 1)"
+              >
+                Siguiente
+              </button>
+            </nav>
+          }
+        </div>
+      }
+    </section>
+  </div>
+</main>
+
+@if (creando() || gastoAbierto()) {
+  <app-gasto-modal
+    animate.enter="gm-entrar"
+    animate.leave="gm-salir"
+    [gastoId]="gastoAbierto()"
+    (guardado)="alGuardar($event)"
+    (cerrado)="cerrarPopup()"
+  />
+}

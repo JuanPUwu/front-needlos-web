@@ -8,6 +8,7 @@
         : 'Empieza por el teléfono del cliente: si ya existe, sus datos se llenan solos.'
     "
     icono="pedidos"
+    [error]="errorAviso()"
   >
     <ng-container [ngTemplateOutlet]="avisos" />
     <button
@@ -412,24 +413,6 @@
             </button>
           }
         </div>
-
-        @if (totalBajoAbonado()) {
-          <p class="pf-nota pf-nota--error" role="alert">
-            El total queda por debajo de lo ya abonado. Primero registra la devolución anulando
-            abonos en el detalle del pedido.
-          </p>
-        }
-        @if (descuentoInvalido()) {
-          <p class="pf-nota pf-nota--error" role="alert">
-            El descuento no puede ser mayor que el valor de las prendas.
-          </p>
-        }
-        @if (abonoInvalido()) {
-          <p class="pf-nota pf-nota--error" role="alert">El abono no puede superar el total.</p>
-        }
-        @if (error()) {
-          <p class="pf-nota pf-nota--error" role="alert">{{ error() }}</p>
-        }
       </div>
     </form>
   }

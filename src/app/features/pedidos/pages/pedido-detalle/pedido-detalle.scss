@@ -442,22 +442,6 @@
   min-height: 44px;
 }
 
-.pd-nota {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-}
-
-.pd-nota--error {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-}
-
 .pd-ayuda {
   font-size: 0.9rem;
   color: var(--color-text-muted);

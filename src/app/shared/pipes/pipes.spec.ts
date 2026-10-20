@@ -1,3 +1,4 @@
+import { FechaHoraPipe } from './fecha-hora.pipe';
 import { FechaPipe } from './fecha.pipe';
 import { MonedaPipe } from './moneda.pipe';
 
@@ -26,5 +27,17 @@ describe('FechaPipe', () => {
 
   it('devuelve vacío si no hay fecha', () => {
     expect(pipe.transform(null)).toBe('');
+  });
+});
+
+describe('FechaHoraPipe', () => {
+  const pipe = new FechaHoraPipe();
+
+  it('convierte el instante UTC a la hora de Colombia', () => {
+    expect(pipe.transform('2026-10-20T02:30:00Z')).toBe('19/10/2026 21:30');
+  });
+
+  it('con "hora" muestra solo la hora', () => {
+    expect(pipe.transform('2026-10-20T02:30:00Z', 'hora')).toBe('21:30');
   });
 });

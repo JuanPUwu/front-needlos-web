@@ -6,7 +6,6 @@ export type NombreIcono =
   | 'inventario'
   | 'gastos'
   | 'caja'
-  | 'nomina'
   | 'informes'
   | 'equipo'
   | 'ajustes'

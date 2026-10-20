@@ -17,12 +17,12 @@ describe('mensajeDeError', () => {
     expect(codigoDeError(error)).toBe('CREDENCIALES_INVALIDAS');
   });
 
-  it('informa la falta de conexion', () => {
-    expect(mensajeDeError(new HttpErrorResponse({ status: 0 }), 'generico')).toContain('conexion');
+  it('informa la falta de conexión', () => {
+    expect(mensajeDeError(new HttpErrorResponse({ status: 0 }), 'generico')).toContain('conexión');
   });
 
   it('informa el tiempo de espera agotado', () => {
-    expect(mensajeDeError(new TimeoutError(), 'generico')).toContain('tardo demasiado');
+    expect(mensajeDeError(new TimeoutError(), 'generico')).toContain('tardó demasiado');
   });
 
   it('usa el mensaje por defecto si la respuesta no es un error estandar', () => {

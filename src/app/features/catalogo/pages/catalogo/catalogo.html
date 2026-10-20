@@ -35,9 +35,11 @@
 
       <!-- ── Alta / edición ────────────────────────────────────── -->
       <section class="catalogo-bloque catalogo-bloque--form" aria-labelledby="titulo-form">
-        <h2 class="catalogo-bloque__titulo" id="titulo-form">
-          {{ editando() ? 'Editar tipo de prenda' : 'Nuevo tipo de prenda' }}
-        </h2>
+        <app-titulo-bloque
+          [titulo]="editando() ? 'Editar tipo de prenda' : 'Nuevo tipo de prenda'"
+          idTitulo="titulo-form"
+          [error]="errorForm()"
+        />
 
         <form class="catalogo-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
           <div class="catalogo-field">
@@ -75,10 +77,6 @@
             />
           </div>
 
-          @if (errorForm()) {
-            <p class="catalogo-aviso catalogo-aviso--error" role="alert">{{ errorForm() }}</p>
-          }
-
           <div class="catalogo-form__acciones">
             @if (editando()) {
               <button
@@ -98,7 +96,7 @@
 
       <!-- ── Lista ─────────────────────────────────────────────── -->
       <section class="catalogo-bloque catalogo-bloque--lista" aria-labelledby="titulo-lista">
-        <h2 class="catalogo-bloque__titulo" id="titulo-lista">Tipos de prenda</h2>
+        <app-titulo-bloque titulo="Tipos de prenda" idTitulo="titulo-lista" [error]="error()" />
 
         <div class="catalogo-filtros" role="group" aria-label="Filtros">
           <input
@@ -130,10 +128,6 @@
             </button>
           }
         </div>
-
-        @if (error()) {
-          <p class="catalogo-aviso catalogo-aviso--error" role="alert">{{ error() }}</p>
-        }
 
         @if (cargando()) {
           <app-esqueleto forma="lista" [filas]="6" [alto]="72" texto="Cargando catálogo..." />

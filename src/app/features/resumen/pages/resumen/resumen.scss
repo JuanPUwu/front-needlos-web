@@ -1,0 +1,438 @@
+// Estilos propios del Resumen. Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.resumen-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+}
+
+.resumen-contenedor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// Estado del día en el encabezado: cápsula del alto de las acciones.
+.resumen-estado {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+
+  &[data-estado='EN_CURSO'] {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+  }
+}
+
+// ── Cápsulas (periodo, tarjetas y bloques) ──────────────────
+.resumen-periodo,
+.resumen-tarjeta,
+.resumen-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.resumen-pestanas {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container panel (max-width: 720px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @container panel (max-width: 420px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.resumen-pestana {
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &[aria-selected='true'] {
+    background: var(--color-accent);
+    color: var(--color-surface);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.resumen-rango {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-4);
+
+  @container panel (max-width: 480px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.resumen-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+// Etiqueta a la izquierda y error en línea a la derecha (nunca debajo del campo).
+.resumen-campo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.resumen-campo__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.resumen-req {
+  color: var(--color-danger);
+}
+
+.resumen-campo__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.resumen-control {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.resumen-ver {
+  height: 46px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-accent-hover);
+  }
+}
+
+.resumen-fechas {
+  margin-left: var(--space-2);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.resumen-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+// Tarjetas y bloques: llenan el alto que deja el periodo.
+.resumen-datos {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// ── Tarjetas de totales ─────────────────────────────────────
+.resumen-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container panel (max-width: 560px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// Tarjetas angostas: cifra más chica para que el resumen quepa sin desplazarse.
+@container panel (max-width: 900px) {
+  .resumen-cifra {
+    font-size: 1.5rem;
+  }
+
+  .resumen-linea,
+  .resumen-metodo {
+    font-size: 0.85rem;
+  }
+}
+
+.resumen-tarjeta {
+  --tono: var(--color-navy);
+
+  border-top: 4px solid var(--tono);
+
+  &[data-tipo='efectivo'] {
+    --tono: var(--estado-entregado);
+  }
+
+  &[data-tipo='transferencias'] {
+    --tono: var(--estado-proceso);
+  }
+}
+
+.resumen-tarjeta__titulo {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+// Mismo alto que la fila de título de Movimientos (que lleva la paginación): los dos bloques
+// arrancan su lista a la misma altura.
+.resumen-bloque__titulo {
+  min-height: 44px;
+}
+
+.resumen-cifra {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-success);
+  font-variant-numeric: tabular-nums;
+}
+
+.resumen-cifra--negativa {
+  color: var(--color-danger);
+}
+
+.resumen-lineas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.resumen-linea {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.95rem;
+
+  dt {
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.resumen-mas {
+  color: var(--color-success);
+}
+
+.resumen-menos {
+  color: var(--color-danger);
+}
+
+.resumen-metodos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) 0 0;
+  border-top: 1px solid var(--color-border-soft);
+  list-style: none;
+}
+
+.resumen-metodo {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+
+  strong {
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ── Día por día ─────────────────────────────────────────────
+.resumen-bloque {
+  min-height: 0;
+  overflow: hidden;
+  container: resumenbloque / inline-size;
+}
+
+// Día por día (izquierda) | Movimientos (derecha): ocupan el alto que queda en la sección;
+// la sección nunca se desplaza, solo sus listas por dentro.
+.resumen-abajo {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
+  gap: var(--space-4);
+
+  @container panel (max-width: 860px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  }
+}
+
+.resumen-dias {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+}
+
+.resumen-dia {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+  }
+}
+
+.resumen-dia--vacio {
+  color: var(--color-text-muted);
+}
+
+.resumen-dia__fecha {
+  font-weight: 600;
+}
+
+.resumen-dia__neto {
+  color: var(--color-success);
+}
+
+.resumen-dia__neto--negativo {
+  color: var(--color-danger);
+}
+
+// ── Esqueleto: el mismo marcado en $0 con los textos convertidos en piezas grises ──
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador continuo de carga.
+.resumen-datos--esqueleto {
+  .resumen-tarjeta__titulo,
+  .resumen-cifra,
+  .resumen-linea dt,
+  .resumen-linea dd,
+  .resumen-dia__fecha,
+  .resumen-dia__neto {
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+      color-mix(in srgb, var(--color-bg), var(--color-navy) 6%);
+    background-size: 200% 100%;
+    color: transparent;
+    animation: resumen-brillo 1.4s linear infinite;
+  }
+
+  .resumen-dia {
+    cursor: default;
+  }
+}
+
+@keyframes resumen-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resumen-pestana,
+  .resumen-dia {
+    transition: none;
+  }
+
+  .resumen-datos--esqueleto * {
+    animation: none;
+  }
+}

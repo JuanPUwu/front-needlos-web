@@ -1,0 +1,155 @@
+<app-titulo-bloque class="rm-cabecera" titulo="Movimientos" idTitulo="t-mov" [error]="error()">
+  @if (totalPaginas() > 1) {
+    <nav class="rm-paginacion" aria-label="Paginación de movimientos">
+      <span class="rm-paginacion__texto"
+        >{{ total() }} · {{ pagina() + 1 }} de {{ totalPaginas() }}</span
+      >
+      <button
+        class="rm-pagina"
+        type="button"
+        aria-label="Página anterior"
+        [disabled]="pagina() === 0 || cargando()"
+        (click)="irAPagina.emit(pagina() - 1)"
+      >
+        <app-icono class="rm-pagina__icono rm-pagina__icono--atras" nombre="flecha-derecha" />
+      </button>
+      <button
+        class="rm-pagina"
+        type="button"
+        aria-label="Página siguiente"
+        [disabled]="pagina() + 1 >= totalPaginas() || cargando()"
+        (click)="irAPagina.emit(pagina() + 1)"
+      >
+        <app-icono class="rm-pagina__icono" nombre="flecha-derecha" />
+      </button>
+    </nav>
+  }
+</app-titulo-bloque>
+
+<div class="rm-filtros" [class.rm-filtros--limpiar]="hayFiltros()">
+  <select
+    #tipoSel
+    class="rm-select"
+    aria-label="Tipo de movimiento"
+    [value]="filtros().tipo"
+    (change)="elegirTipo(tipoSel.value)"
+  >
+    @for (t of tipos; track t.valor) {
+      <option [value]="t.valor">{{ t.etiqueta }}</option>
+    }
+  </select>
+  <select
+    #metodoSel
+    class="rm-select"
+    aria-label="Método de pago"
+    [value]="filtros().metodo"
+    (change)="elegirMetodo(metodoSel.value)"
+  >
+    <option value="">Todo método</option>
+    @for (m of metodos; track m.valor) {
+      <option [value]="m.valor">{{ m.etiqueta }}</option>
+    }
+  </select>
+  <select
+    #ordenSel
+    class="rm-select"
+    aria-label="Orden"
+    [value]="filtros().orden"
+    (change)="elegirOrden(ordenSel.value)"
+  >
+    @for (o of ordenes; track o.valor) {
+      <option [value]="o.valor">{{ o.etiqueta }}</option>
+    }
+  </select>
+  @if (hayFiltros()) {
+    <button class="rm-limpiar" type="button" (click)="limpiar.emit()">Limpiar filtros</button>
+  }
+</div>
+
+@if (cargando() && movimientos().length === 0) {
+  <div class="rm-marco">
+    <app-esqueleto
+      forma="tabla"
+      [filas]="6"
+      [alto]="varios() ? 58 : 45"
+      texto="Cargando movimientos..."
+    />
+  </div>
+} @else if (movimientos().length === 0 && !error()) {
+  <p class="rm-vacio">
+    {{
+      hayFiltros()
+        ? 'Ningún movimiento coincide con los filtros.'
+        : 'Sin movimientos en este periodo.'
+    }}
+  </p>
+} @else {
+  <div class="rm-marco">
+    <table class="rm" [class.rm--cargando]="cargando()">
+      <colgroup>
+        <col class="rm__col--cuando" />
+        <col class="rm__col--tipo" />
+        <col class="rm__col--detalle" />
+        <col class="rm__col--metodo" />
+        <col class="rm__col--monto" />
+        <col class="rm__col--abrir" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th scope="col">{{ varios() ? 'Fecha' : 'Hora' }}</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Detalle</th>
+          <th scope="col">Método</th>
+          <th scope="col">Monto</th>
+          <th scope="col"><span class="rm__oculto">Abrir</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (m of movimientos(); track m.tipo + m.id) {
+          <tr class="rm__fila" [attr.data-tipo]="m.tipo" (click)="abrir.emit(m)">
+            <td class="rm__celda rm__celda--cuando">
+              @if (varios()) {
+                <!-- Fecha arriba y hora debajo en pequeño (como el radicado de Pedidos). -->
+                {{ m.fecha | fecha }}
+                <!-- Un gasto tiene fecha, no hora de negocio. -->
+                <span class="rm__hora">{{
+                  m.tipo === 'GASTO' ? '—' : (m.momento | fechaHora: 'hora')
+                }}</span>
+              } @else if (m.tipo === 'GASTO') {
+                <!-- Un gasto tiene fecha, no hora de negocio. -->
+                <span title="Los gastos se registran por fecha, sin hora">—</span>
+              } @else {
+                {{ m.momento | fechaHora: 'hora' }}
+              }
+            </td>
+            <td class="rm__celda rm__celda--tipo">
+              <span class="rm__tipo">{{ etiquetaTipo[m.tipo] }}</span>
+            </td>
+            <td class="rm__celda rm__celda--detalle" [title]="m.razon ?? m.cliente ?? ''">
+              @if (m.tipo === 'GASTO') {
+                {{ m.razon }}
+              } @else {
+                <strong class="rm__pedido">{{ m.pedidoNumero }}</strong> {{ m.cliente }}
+              }
+            </td>
+            <td class="rm__celda rm__celda--metodo">{{ etiquetaMetodo(m.metodo) }}</td>
+            <td class="rm__celda rm__celda--monto" [class.rm__celda--mas]="esIngreso(m)">
+              {{ esIngreso(m) ? '+' : '−' }} {{ m.monto | moneda }}
+            </td>
+            <td class="rm__celda rm__celda--abrir">
+              <button
+                class="rm__abrir"
+                type="button"
+                [attr.aria-label]="etiquetaAbrir(m)"
+                [title]="m.tipo === 'GASTO' ? 'Corregir gasto' : 'Abrir pedido'"
+                (click)="$event.stopPropagation(); abrir.emit(m)"
+              >
+                <app-icono class="rm__icono" nombre="flecha-derecha" />
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

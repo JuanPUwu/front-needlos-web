@@ -4,6 +4,7 @@
       titulo="Pedidos"
       subtitulo="Sigue cada prenda desde que llega hasta que se entrega."
       icono="pedidos"
+      [error]="errorFiltros() ?? error()"
     >
       @if (puedeCrear()) {
         <button
@@ -198,18 +199,10 @@
           }
         </div>
       }
-
-      @if (errorFiltros()) {
-        <p class="pedidos-aviso pedidos-aviso--error" role="alert">{{ errorFiltros() }}</p>
-      }
     </section>
 
     <!-- ── Tabla ─────────────────────────────────────────────── -->
     <section class="pedidos-bloque" aria-label="Listado de pedidos">
-      @if (error()) {
-        <p class="pedidos-aviso pedidos-aviso--error" role="alert">{{ error() }}</p>
-      }
-
       @if (cargando() && pedidos().length === 0) {
         <app-esqueleto forma="tabla" [filas]="6" [alto]="63" texto="Cargando pedidos..." />
       } @else if (pedidos().length === 0) {

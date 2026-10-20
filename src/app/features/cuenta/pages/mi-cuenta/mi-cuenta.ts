@@ -13,6 +13,7 @@ import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
+import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { FechaHoraPipe } from '../../../../shared/pipes/fecha-hora.pipe';
@@ -26,7 +27,7 @@ import { CuentaService } from '../../services/cuenta.service';
 /** Mi cuenta: cambiar contrasena y ver/cerrar las sesiones abiertas. */
 @Component({
   selector: 'app-mi-cuenta',
-  imports: [Esqueleto, Encabezado, ReactiveFormsModule, FechaHoraPipe],
+  imports: [TituloBloque, Esqueleto, Encabezado, ReactiveFormsModule, FechaHoraPipe],
   templateUrl: './mi-cuenta.html',
   styleUrl: './mi-cuenta.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

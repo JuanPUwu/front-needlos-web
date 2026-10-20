@@ -23,6 +23,7 @@
       [titulo]="'Pedido ' + p.numero"
       [subtitulo]="'Recibido el ' + (p.fecha | fecha) + ' · Entrega ' + (p.fechaEntrega | fecha)"
       icono="pedidos"
+      [error]="error() ?? (anulado() ? 'Anulado. Razón: ' + p.razonAnulacion : null)"
     >
       <ng-container [ngTemplateOutlet]="chips" />
       <button
@@ -457,18 +458,20 @@
             }
           </form>
         }
-
-        @if (anulado()) {
-          <p class="pd-nota pd-nota--error">
-            Pedido anulado. Razón: <strong>{{ p.razonAnulacion }}</strong>
-          </p>
-        }
-        @if (error()) {
-          <p class="pd-nota pd-nota--error" role="alert">{{ error() }}</p>
-        }
       </div>
     </div>
   } @else if (error()) {
-    <p class="pd-nota pd-nota--error" role="alert">{{ error() }}</p>
+    <!-- No se pudo cargar: el error va en la línea del título. -->
+    <app-encabezado titulo="Pedido" icono="pedidos" [error]="error()">
+      <button
+        class="pd-cerrar"
+        type="button"
+        aria-label="Cerrar"
+        title="Cerrar"
+        (click)="cerrar.emit()"
+      >
+        <app-icono class="pd-cerrar__icono" nombre="cerrar" />
+      </button>
+    </app-encabezado>
   }
 </div>

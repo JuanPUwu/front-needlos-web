@@ -16,6 +16,7 @@ import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
+import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { PERMISOS, Permiso } from '../../../../core/auth/permisos';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Memoria } from '../../../../core/estado/memoria';
@@ -34,7 +35,7 @@ export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
 /** Gestión del equipo: invitar por correo, miembros e invitaciones pendientes. */
 @Component({
   selector: 'app-equipo',
-  imports: [Esqueleto, Encabezado, ReactiveFormsModule],
+  imports: [TituloBloque, Esqueleto, Encabezado, ReactiveFormsModule],
   templateUrl: './equipo.html',
   styleUrl: './equipo.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

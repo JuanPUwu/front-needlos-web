@@ -1,0 +1,171 @@
+<div class="gm-fondo" aria-hidden="true" (click)="cerrar()"></div>
+
+<div
+  #caja
+  class="gm-caja"
+  [class.gm-caja--ancha]="gastoId()"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-gasto"
+  tabindex="-1"
+>
+  <app-encabezado
+    idTitulo="titulo-gasto"
+    [titulo]="gastoId() ? 'Corrigiendo gasto' : 'Registrando gasto'"
+    [subtitulo]="
+      gastoId()
+        ? 'Cada corrección queda en el historial de cambios.'
+        : 'Anota en qué se fue el dinero: pagos, insumos, servicios…'
+    "
+    icono="gastos"
+    [error]="error()"
+  >
+    <button class="gm-cerrar" type="button" aria-label="Cerrar" title="Cerrar" (click)="cerrar()">
+      <app-icono class="gm-cerrar__icono" nombre="cerrar" />
+    </button>
+  </app-encabezado>
+
+  @if (cargando()) {
+    <section class="gm-seccion">
+      <app-esqueleto forma="campos" [filas]="4" texto="Cargando gasto..." />
+    </section>
+  } @else {
+    <div class="gm-cuerpo">
+      <form class="gm-seccion" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+        <div class="gm-campo">
+          <div class="gm-campo__head">
+            <label class="gm-campo__label" for="gastoRazon">
+              Razón <span class="gm-req">*</span>
+            </label>
+            @if (form.controls.razon.touched && form.controls.razon.invalid) {
+              <span class="gm-campo__error">Escribe en qué se gastó</span>
+            }
+          </div>
+          <input
+            class="gm-campo__input"
+            id="gastoRazon"
+            type="text"
+            formControlName="razon"
+            maxlength="200"
+            placeholder="Pago semana a empleados, hilos e insumos…"
+          />
+        </div>
+
+        <div class="gm-fila">
+          <div class="gm-campo">
+            <div class="gm-campo__head">
+              <label class="gm-campo__label" for="gastoMonto">
+                Monto <span class="gm-req">*</span>
+              </label>
+              @if (form.controls.monto.touched && form.controls.monto.invalid) {
+                <span class="gm-campo__error">Solo números</span>
+              } @else if (montoInvalido()) {
+                <span class="gm-campo__error">Mayor que 0</span>
+              }
+            </div>
+            <input
+              class="gm-campo__input"
+              id="gastoMonto"
+              type="text"
+              inputmode="decimal"
+              formControlName="monto"
+              placeholder="0"
+            />
+          </div>
+          <div class="gm-campo">
+            <div class="gm-campo__head">
+              <label class="gm-campo__label" for="gastoMetodo">
+                Método de pago <span class="gm-req">*</span>
+              </label>
+            </div>
+            <select class="gm-campo__input" id="gastoMetodo" formControlName="metodo">
+              @for (m of metodos; track m.valor) {
+                <option [value]="m.valor">{{ m.etiqueta }}</option>
+              }
+            </select>
+          </div>
+          <div class="gm-campo">
+            <div class="gm-campo__head">
+              <label class="gm-campo__label" for="gastoFecha">
+                Fecha <span class="gm-req">*</span>
+              </label>
+              @if (form.controls.fecha.touched && form.controls.fecha.invalid) {
+                <span class="gm-campo__error">Elige la fecha</span>
+              }
+            </div>
+            <input class="gm-campo__input" id="gastoFecha" type="date" formControlName="fecha" />
+          </div>
+        </div>
+
+        <p class="gm-ayuda">
+          {{
+            form.controls.metodo.value === 'EFECTIVO'
+              ? 'Se resta del efectivo del día elegido.'
+              : 'Se resta de las transferencias del día elegido.'
+          }}
+        </p>
+
+        <div class="gm-acciones">
+          <button class="gm-boton gm-boton--borde" type="button" (click)="limpiar()">
+            {{ gastoId() ? 'Cancelar' : 'Limpiar' }}
+          </button>
+          <button class="gm-boton" type="submit" [disabled]="guardando()">
+            @if (gastoId()) {
+              {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+            } @else {
+              {{ guardando() ? 'Registrando...' : 'Registrar gasto' }}
+            }
+          </button>
+        </div>
+      </form>
+
+      @if (gastoId()) {
+        <section class="gm-seccion gm-historial" aria-labelledby="t-historial">
+          <h3 class="gm-seccion__titulo" id="t-historial">Historial de cambios</h3>
+          @if (historial().length === 0) {
+            <app-esqueleto forma="lista" [filas]="2" [alto]="72" texto="Cargando historial..." />
+          } @else {
+            <ol class="gm-cambios">
+              @for (c of historial(); track $index) {
+                <li class="gm-cambio" [attr.data-accion]="c.accion">
+                  <div class="gm-cambio__fila">
+                    <strong class="gm-cambio__accion">{{ etiquetaAccion[c.accion] }}</strong>
+                    <span class="gm-cambio__meta">
+                      {{ c.fecha | fechaHora }}{{ c.usuario ? ' · ' + c.usuario : '' }}
+                    </span>
+                  </div>
+                  @if (c.accion === 'CORREGIDO' && c.antes && c.despues) {
+                    <ul class="gm-cambio__detalle">
+                      @if (c.antes.razon !== c.despues.razon) {
+                        <li>Razón: {{ c.antes.razon }} → {{ c.despues.razon }}</li>
+                      }
+                      @if (c.antes.monto !== c.despues.monto) {
+                        <li>
+                          Monto: {{ c.antes.monto | moneda }} → {{ c.despues.monto | moneda }}
+                        </li>
+                      }
+                      @if (c.antes.metodo !== c.despues.metodo) {
+                        <li>
+                          Método: {{ etiquetaMetodo(c.antes.metodo) }} →
+                          {{ etiquetaMetodo(c.despues.metodo) }}
+                        </li>
+                      }
+                      @if (c.antes.fecha !== c.despues.fecha) {
+                        <li>Fecha: {{ c.antes.fecha | fecha }} → {{ c.despues.fecha | fecha }}</li>
+                      }
+                    </ul>
+                  } @else if (c.despues) {
+                    <span class="gm-cambio__meta">
+                      {{ c.despues.monto | moneda }} · {{ etiquetaMetodo(c.despues.metodo) }} ·
+                      {{ c.despues.fecha | fecha }}
+                    </span>
+                  }
+                </li>
+              }
+            </ol>
+          }
+        </section>
+      }
+    </div>
+  }
+</div>

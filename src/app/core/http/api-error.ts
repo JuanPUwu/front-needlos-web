@@ -26,11 +26,11 @@ export function esProblemDetail(valor: unknown): valor is ProblemDetail {
 /** Mensaje para mostrar al usuario: el del backend si existe; si no, uno generico. */
 export function mensajeDeError(error: unknown, porDefecto: string): string {
   if (error instanceof TimeoutError) {
-    return 'El servidor tardo demasiado en responder. Intentalo de nuevo.';
+    return 'El servidor tardó demasiado en responder. Inténtalo de nuevo.';
   }
   if (error instanceof HttpErrorResponse) {
     if (error.status === 0) {
-      return 'No hay conexion con el servidor. Revisa tu internet e intentalo de nuevo.';
+      return 'No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.';
     }
     if (esProblemDetail(error.error)) {
       return error.error.detail;

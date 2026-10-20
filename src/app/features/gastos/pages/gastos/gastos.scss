@@ -1,0 +1,319 @@
+// Estilos propios de Gastos (listado). Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.gastos-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+}
+
+.gastos-contenedor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// ── Registrar gasto: botón "+" en el encabezado ─────────────
+.gastos-nuevo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-accent-hover);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.gastos-nuevo__icono {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+// ── Cápsulas: búsqueda y listado ────────────────────────────
+.gastos-buscar,
+.gastos-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: gastoslista / inline-size;
+
+  @container panel (max-width: 560px) {
+    padding: var(--space-3);
+  }
+}
+
+.gastos-bloque {
+  flex: 1;
+  min-height: 0;
+}
+
+.gastos-busqueda {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+
+  @container gastoslista (max-width: 560px) {
+    flex-wrap: wrap;
+
+    .gastos-buscador-caja {
+      flex-basis: 100%;
+    }
+
+    .gastos-buscar-boton {
+      flex: 1;
+    }
+  }
+}
+
+.gastos-buscador-caja {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.gastos-buscador-caja__lupa {
+  position: absolute;
+  top: 50%;
+  left: var(--space-3);
+  width: 1.15rem;
+  height: 1.15rem;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.gastos-control {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.gastos-buscador-caja .gastos-buscador {
+  padding-left: calc(var(--space-3) + 1.15rem + var(--space-2));
+}
+
+.gastos-buscar-boton {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-accent-hover);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.gastos-herramienta {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.gastos-herramienta--activa {
+  border-color: var(--color-border);
+  background: var(--focus-ring);
+}
+
+.gastos-herramienta__icono {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.gastos-herramienta__cuenta {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--color-navy);
+  color: var(--color-surface);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.gastos-cuenta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+
+  strong {
+    color: var(--color-navy);
+  }
+}
+
+// ── Filtros (panel plegable) ────────────────────────────────
+.gastos-filtros {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+
+  @container gastoslista (max-width: 860px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @container gastoslista (max-width: 420px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.gastos-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.gastos-filtro__label {
+  margin-left: var(--space-2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.gastos-limpiar,
+.gastos-pagina {
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.gastos-vacio {
+  padding: var(--space-6) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+// ── Pie: suma y paginación ──────────────────────────────────
+.gastos-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.gastos-suma {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+
+  strong {
+    color: var(--color-danger);
+  }
+}
+
+.gastos-paginacion {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.gastos-paginacion__texto {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}

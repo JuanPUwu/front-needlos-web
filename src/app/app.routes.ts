@@ -118,9 +118,19 @@ export const routes: Routes = [
           import('./features/catalogo/pages/catalogo/catalogo').then((m) => m.Catalogo),
       },
       { path: 'inventario', ...placeholder('Inventario', 'inventario') },
-      { path: 'gastos', ...placeholder('Gastos', 'gastos') },
-      { path: 'caja', ...placeholder('Caja', 'caja') },
-      { path: 'nomina', ...placeholder('Nómina', 'nomina') },
+      {
+        // Gastos y resumen (F6): solo el SASTRE_ADMIN.
+        path: 'gastos',
+        canActivate: [rolGuard('SASTRE_ADMIN')],
+        loadComponent: () => import('./features/gastos/pages/gastos/gastos').then((m) => m.Gastos),
+      },
+      {
+        path: 'resumen',
+        canActivate: [rolGuard('SASTRE_ADMIN')],
+        loadComponent: () =>
+          import('./features/resumen/pages/resumen/resumen').then((m) => m.Resumen),
+      },
+      { path: 'caja', redirectTo: 'resumen' },
       { path: 'informes', ...placeholder('Informes', 'informes') },
       {
         path: 'equipo',

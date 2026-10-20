@@ -1,0 +1,332 @@
+// Popup del gasto: medidas del formulario base (Reglas §12.3). Solo tokens globales.
+
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+
+  @media (max-width: 560px) {
+    padding: 0;
+  }
+}
+
+.gm-fondo {
+  position: absolute;
+  inset: 0;
+  background: var(--color-velo);
+}
+
+// La caja es el contenedor "panel": el contenido se adapta al ancho del popup.
+.gm-caja {
+  position: relative;
+  width: min(760px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: panel / inline-size;
+  outline: none;
+
+  @media (max-width: 560px) {
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+// Corrección: formulario + historial en dos columnas.
+.gm-caja--ancha {
+  width: min(1120px, 100%);
+}
+
+.gm-cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.gm-caja--ancha .gm-cuerpo {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+
+  @container panel (max-width: 860px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.gm-cerrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.gm-cerrar__icono {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+// ── Tarjetas, filas y campos ────────────────────────────────
+.gm-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: gmseccion / inline-size;
+}
+
+.gm-seccion__titulo {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.gm-fila {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: end;
+
+  @container gmseccion (max-width: 520px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+    .gm-campo:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.gm-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.gm-campo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.gm-campo__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.gm-req {
+  color: var(--color-danger);
+}
+
+.gm-campo__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.gm-campo__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+
+  &.ng-touched.ng-invalid {
+    border-color: var(--color-danger);
+  }
+}
+
+.gm-ayuda {
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+// ── Acciones ────────────────────────────────────────────────
+.gm-acciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container gmseccion (max-width: 360px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.gm-boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.gm-boton--borde {
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-accent);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+// ── Historial de cambios ────────────────────────────────────
+.gm-cambios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: 420px;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+}
+
+.gm-cambio {
+  --tono: var(--estado-proceso);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--tono);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+
+  &[data-accion='CORREGIDO'] {
+    --tono: var(--estado-entregado);
+  }
+
+  &[data-accion='ELIMINADO'] {
+    --tono: var(--estado-anulado);
+  }
+}
+
+.gm-cambio__fila {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.gm-cambio__accion {
+  color: var(--tono);
+}
+
+.gm-cambio__meta {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.gm-cambio__detalle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-left: var(--space-4);
+  color: var(--color-text);
+}
+
+// ── Movimiento: el popup entero aparece y se va con un fundido (≤ 100 ms) ─
+:host(.gm-entrar) {
+  animation: gm-fundido var(--dur-popup) var(--ease-out);
+}
+
+:host(.gm-salir) {
+  animation: gm-fundido var(--dur-salir) var(--ease-in) reverse forwards;
+}
+
+@keyframes gm-fundido {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host(.gm-entrar) {
+    animation: none;
+  }
+
+  :host(.gm-salir) {
+    animation-duration: 1ms;
+  }
+
+  .gm-boton {
+    transition: none;
+  }
+}

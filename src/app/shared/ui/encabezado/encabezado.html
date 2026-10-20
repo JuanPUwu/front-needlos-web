@@ -12,6 +12,10 @@
     }
   </div>
 
+  @if (error(); as e) {
+    <p class="encabezado__error" role="alert" [title]="e">{{ e }}</p>
+  }
+
   <div class="encabezado__acciones">
     <ng-content />
     <!-- Volver: al final de la cápsula, como una acción más (no agranda el título). -->

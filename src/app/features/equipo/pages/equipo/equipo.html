@@ -43,9 +43,11 @@
 
       <!-- ── Alta / edición ────────────────────────────────────── -->
       <section class="equipo-bloque equipo-bloque--form" aria-labelledby="titulo-form">
-        <h2 class="equipo-bloque__titulo" id="titulo-form">
-          {{ editando() ? 'Editar empleado' : 'Agregar empleado' }}
-        </h2>
+        <app-titulo-bloque
+          [titulo]="editando() ? 'Editar empleado' : 'Agregar empleado'"
+          idTitulo="titulo-form"
+          [error]="errorForm()"
+        />
 
         <form class="equipo-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
           <div class="equipo-fila">
@@ -165,10 +167,6 @@
             <p class="equipo-bloque__ayuda">Un administrador tiene todos los permisos.</p>
           }
 
-          @if (errorForm()) {
-            <p class="equipo-aviso equipo-aviso--error" role="alert">{{ errorForm() }}</p>
-          }
-
           <div class="equipo-form__acciones">
             @if (editando()) {
               <button
@@ -190,7 +188,7 @@
 
       <!-- ── Miembros e invitaciones ───────────────────────────── -->
       <section class="equipo-bloque equipo-bloque--lista" aria-labelledby="titulo-lista">
-        <h2 class="equipo-bloque__titulo" id="titulo-lista">Miembros</h2>
+        <app-titulo-bloque titulo="Miembros" idTitulo="titulo-lista" [error]="error()" />
 
         <div class="equipo-filtros" role="group" aria-label="Filtros">
           <input
@@ -232,10 +230,6 @@
             </button>
           }
         </div>
-
-        @if (error()) {
-          <p class="equipo-aviso equipo-aviso--error" role="alert">{{ error() }}</p>
-        }
 
         @if (cargando()) {
           <app-esqueleto forma="lista" [filas]="5" [alto]="72" texto="Cargando equipo..." />

@@ -17,6 +17,7 @@ import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
+import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { Memoria } from '../../../../core/estado/memoria';
 import { recordarFormulario } from '../../../../core/estado/recordar-formulario';
 import { codigoDeError, mensajeDeError } from '../../../../core/http/api-error';
@@ -38,7 +39,7 @@ export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
  */
 @Component({
   selector: 'app-catalogo',
-  imports: [Esqueleto, Encabezado, ReactiveFormsModule, MonedaPipe],
+  imports: [TituloBloque, Esqueleto, Encabezado, ReactiveFormsModule, MonedaPipe],
   templateUrl: './catalogo.html',
   styleUrl: './catalogo.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -4,10 +4,12 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
 }
 
 .clientes-page {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   padding: var(--space-4);
@@ -28,12 +30,13 @@
   display: grid;
   gap: var(--space-4);
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas:
     'stat lista'
     'form lista';
 
-  @container panel (max-width: 880px) {
+  // Se apila solo en teléfono; en tablet y computador la sección no se desplaza.
+  @container panel (max-width: 560px) {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     grid-template-areas:
@@ -46,13 +49,13 @@
 // Sin permiso para crear/editar: solo resumen y lista.
 .clientes-bento--sin-form {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas:
     'stat'
     'lista';
 
-  @container panel (max-width: 880px) {
-    grid-template-rows: auto 1fr;
+  @container panel (max-width: 560px) {
+    grid-template-rows: auto minmax(0, 1fr);
     grid-template-areas:
       'stat'
       'lista';
@@ -110,12 +113,6 @@
   min-height: 0;
   container-type: inline-size;
   container-name: clienteslista;
-}
-
-.clientes-bloque__titulo {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--color-text);
 }
 
 .clientes-bloque__ayuda {
@@ -206,20 +203,6 @@
 }
 
 // ── Avisos ──────────────────────────────────────────────────
-.clientes-aviso {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-}
-
-.clientes-aviso--error {
-  color: var(--color-danger);
-  background: rgba(198, 40, 40, 0.08);
-}
 
 // ── Botones ─────────────────────────────────────────────────
 .clientes-boton {
@@ -294,6 +277,11 @@
     flex-direction: column;
     align-items: stretch;
   }
+}
+
+// El título se estira para que el error quepa en su misma línea, junto al buscador.
+.clientes-lista-titulo {
+  flex: 1;
 }
 
 .clientes-buscador {

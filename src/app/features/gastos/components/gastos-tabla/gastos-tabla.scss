@@ -1,0 +1,282 @@
+// Listado de gastos: tabla de anchos proporcionales que pasa a tarjetas cuando no cabe.
+// Solo tokens globales. El contenedor `gastoslista` es la tarjeta del listado.
+
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+.gt {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0 var(--space-4);
+  font-size: 0.95rem;
+  transition: opacity var(--dur-color) var(--ease-out);
+
+  th {
+    padding: var(--space-2) var(--space-3) var(--space-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+    text-align: center;
+  }
+
+  th + th {
+    box-shadow: inset 1px 0 0 var(--color-border-soft);
+  }
+}
+
+// Anchos en proporción (suman 100 %).
+.gt__col--fecha {
+  width: 13%;
+}
+
+.gt__col--razon {
+  width: 33%;
+}
+
+.gt__col--metodo {
+  width: 14%;
+}
+
+.gt__col--monto {
+  width: 14%;
+}
+
+.gt__col--quien {
+  width: 16%;
+}
+
+.gt__col--acciones {
+  width: 10%;
+}
+
+.gt--cargando {
+  opacity: 0.6;
+}
+
+.gt__fila {
+  // El color de la fila se define aquí; las celdas solo lo pintan.
+  --fondo: var(--color-bg);
+  --tono: var(--estado-entregado);
+
+  cursor: pointer;
+
+  &[data-metodo='transferencia'] {
+    --tono: var(--estado-proceso);
+  }
+
+  &:hover {
+    --fondo: var(--focus-ring);
+  }
+
+  .gt__celda {
+    background: var(--fondo);
+    transition: background-color var(--dur-color) var(--ease-out);
+  }
+}
+
+.gt__celda {
+  padding: var(--space-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+
+  &:first-child {
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+  }
+
+  &:last-child {
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+}
+
+.gt__celda--razon {
+  text-align: left;
+}
+
+.gt__celda--monto {
+  font-weight: 700;
+  color: var(--color-danger);
+}
+
+.gt__metodo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--tono);
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tono);
+  }
+}
+
+.gt__celda--acciones {
+  white-space: nowrap;
+}
+
+.gt__icono-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+  }
+}
+
+.gt__icono-boton--peligro {
+  color: var(--color-danger);
+
+  &:hover {
+    background: var(--color-danger-bg);
+  }
+}
+
+.gt__icono {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.gt__oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+// ── Tarjetas: cuando la tabla no cabe ───────────────────────
+@container gastoslista (max-width: 760px) {
+  .gt {
+    display: block;
+    border-spacing: 0;
+
+    colgroup,
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+  }
+
+  // Tarjeta: borde izquierdo del tipo de pago; razón | monto; método | acciones; fecha | quién.
+  .gt__fila {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'razon monto'
+      'metodo acciones'
+      'fecha quien';
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-left: 4px solid var(--tono);
+    border-radius: var(--radius-md);
+    background: var(--fondo);
+    transition: background-color var(--dur-color) var(--ease-out);
+
+    .gt__celda {
+      padding: 0;
+      background: none;
+      border-radius: 0;
+      text-align: left;
+    }
+  }
+
+  .gt__celda--razon {
+    grid-area: razon;
+    font-weight: 700;
+    white-space: normal;
+  }
+
+  .gt__celda--monto {
+    grid-area: monto;
+    text-align: right !important;
+  }
+
+  .gt__celda--metodo {
+    grid-area: metodo;
+  }
+
+  .gt__celda--acciones {
+    grid-area: acciones;
+    text-align: right !important;
+  }
+
+  .gt__celda--fecha,
+  .gt__celda--quien {
+    padding-top: var(--space-3) !important;
+    border-top: 1px solid var(--color-border-soft);
+    font-size: 0.9rem;
+
+    &::before {
+      content: attr(data-titulo) ': ';
+      color: var(--color-text-muted);
+    }
+  }
+
+  .gt__celda--fecha {
+    grid-area: fecha;
+  }
+
+  .gt__celda--quien {
+    grid-area: quien;
+    text-align: right !important;
+  }
+}
+
+@container gastoslista (max-width: 400px) {
+  .gt__fila {
+    grid-template-areas:
+      'razon monto'
+      'metodo acciones'
+      'fecha fecha'
+      'quien quien';
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .gt__celda--quien {
+    padding-top: 0 !important;
+    border-top: none;
+    text-align: left !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gt,
+  .gt__fila,
+  .gt__celda {
+    transition: none;
+  }
+}

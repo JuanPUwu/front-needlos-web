@@ -1,0 +1,59 @@
+<table class="gt" [class.gt--cargando]="cargando()">
+  <colgroup>
+    <col class="gt__col--fecha" />
+    <col class="gt__col--razon" />
+    <col class="gt__col--metodo" />
+    <col class="gt__col--monto" />
+    <col class="gt__col--quien" />
+    <col class="gt__col--acciones" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th scope="col">Fecha</th>
+      <th scope="col">Razón</th>
+      <th scope="col">Método</th>
+      <th scope="col">Monto</th>
+      <th scope="col">Registró</th>
+      <th scope="col"><span class="gt__oculto">Acciones</span></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (g of gastos(); track g.id) {
+      <tr
+        class="gt__fila"
+        [attr.data-metodo]="g.metodo === 'EFECTIVO' ? 'efectivo' : 'transferencia'"
+        (click)="editar.emit(g)"
+      >
+        <td class="gt__celda gt__celda--fecha" data-titulo="Fecha">{{ g.fecha | fecha }}</td>
+        <td class="gt__celda gt__celda--razon" [title]="g.razon">{{ g.razon }}</td>
+        <td class="gt__celda gt__celda--metodo">
+          <span class="gt__metodo">{{ etiquetaMetodo(g.metodo) }}</span>
+        </td>
+        <td class="gt__celda gt__celda--monto">{{ g.monto | moneda }}</td>
+        <td class="gt__celda gt__celda--quien" data-titulo="Registró">
+          {{ g.registradoPor ?? '—' }}
+        </td>
+        <td class="gt__celda gt__celda--acciones">
+          <button
+            class="gt__icono-boton"
+            type="button"
+            [attr.aria-label]="'Corregir gasto ' + g.razon"
+            title="Corregir"
+            (click)="$event.stopPropagation(); editar.emit(g)"
+          >
+            <app-icono class="gt__icono" nombre="editar" />
+          </button>
+          <button
+            class="gt__icono-boton gt__icono-boton--peligro"
+            type="button"
+            [attr.aria-label]="'Eliminar gasto ' + g.razon"
+            title="Eliminar"
+            (click)="$event.stopPropagation(); eliminar.emit(g)"
+          >
+            <app-icono class="gt__icono" nombre="eliminar" />
+          </button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

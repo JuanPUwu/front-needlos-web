@@ -9,6 +9,9 @@ export interface Sastreria {
   plan: string;
   licenciaHasta: string | null;
   activo: boolean;
+  /** Horario del resumen ("HH:mm"). */
+  horaInicioCaja: string;
+  horaFinCaja: string;
 }
 
 export interface ActualizarSastreriaRequest {
@@ -16,4 +19,6 @@ export interface ActualizarSastreriaRequest {
   nit: string | null;
   direccion: string | null;
   telefono: string | null;
+  horaInicioCaja: string;
+  horaFinCaja: string;
 }

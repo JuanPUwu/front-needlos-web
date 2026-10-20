@@ -24,9 +24,11 @@
       <!-- ── Alta / edición (permiso GESTIONAR_CLIENTES) ────────── -->
       @if (puedeGestionar()) {
         <section class="clientes-bloque clientes-bloque--form" aria-labelledby="titulo-form">
-          <h2 class="clientes-bloque__titulo" id="titulo-form">
-            {{ editando() ? 'Editar cliente' : 'Nuevo cliente' }}
-          </h2>
+          <app-titulo-bloque
+            [titulo]="editando() ? 'Editar cliente' : 'Nuevo cliente'"
+            idTitulo="titulo-form"
+            [error]="errorForm()"
+          />
 
           <form class="clientes-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
             <div class="clientes-fila">
@@ -86,10 +88,6 @@
               />
             </div>
 
-            @if (errorForm()) {
-              <p class="clientes-aviso clientes-aviso--error" role="alert">{{ errorForm() }}</p>
-            }
-
             <div class="clientes-form__acciones">
               @if (editando()) {
                 <button
@@ -113,7 +111,12 @@
       <!-- ── Lista ─────────────────────────────────────────────── -->
       <section class="clientes-bloque clientes-bloque--lista" aria-labelledby="titulo-lista">
         <div class="clientes-lista-cabecera">
-          <h2 class="clientes-bloque__titulo" id="titulo-lista">Listado</h2>
+          <app-titulo-bloque
+            class="clientes-lista-titulo"
+            titulo="Listado"
+            idTitulo="titulo-lista"
+            [error]="errorFiltros() ?? error()"
+          />
           <input
             #buscador
             class="clientes-field__input clientes-buscador"
@@ -194,14 +197,6 @@
             </button>
           }
         </div>
-
-        @if (errorFiltros()) {
-          <p class="clientes-aviso clientes-aviso--error" role="alert">{{ errorFiltros() }}</p>
-        }
-
-        @if (error()) {
-          <p class="clientes-aviso clientes-aviso--error" role="alert">{{ error() }}</p>
-        }
 
         @if (cargando()) {
           <app-esqueleto forma="lista" [filas]="6" [alto]="92" texto="Cargando clientes..." />

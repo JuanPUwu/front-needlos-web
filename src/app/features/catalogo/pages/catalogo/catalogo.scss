@@ -4,10 +4,12 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
 }
 
 .catalogo-page {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   padding: var(--space-4);
@@ -28,12 +30,13 @@
   display: grid;
   gap: var(--space-4);
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas:
     'stats lista'
     'form lista';
 
-  @container panel (max-width: 880px) {
+  // Se apila solo en teléfono; en tablet y computador la sección no se desplaza.
+  @container panel (max-width: 560px) {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     grid-template-areas:
@@ -98,12 +101,6 @@
   min-height: 0;
   container-type: inline-size;
   container-name: catalogolista;
-}
-
-.catalogo-bloque__titulo {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--color-text);
 }
 
 .catalogo-bloque__ayuda {
@@ -184,16 +181,6 @@
 }
 
 // ── Avisos ──────────────────────────────────────────────────
-.catalogo-aviso {
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-}
-
-.catalogo-aviso--error {
-  color: var(--color-danger);
-  background: rgba(198, 40, 40, 0.08);
-}
 
 // ── Botones ─────────────────────────────────────────────────
 .catalogo-boton {

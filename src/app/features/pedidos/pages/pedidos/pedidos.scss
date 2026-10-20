@@ -356,16 +356,6 @@
 }
 
 // ── Avisos, botones y paginación ────────────────────────────
-.pedidos-aviso {
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-}
-
-.pedidos-aviso--error {
-  color: var(--color-danger);
-  background: var(--color-danger-bg);
-}
 
 .pedidos-boton {
   display: inline-flex;

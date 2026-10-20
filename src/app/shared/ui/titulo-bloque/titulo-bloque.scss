@@ -1,0 +1,29 @@
+// Fila de título de tarjeta con el error en línea. Solo tokens globales.
+
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.tb__titulo {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+// Ocupa lo que sobra de la fila y se recorta: nunca baja a otra línea.
+.tb__error {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-danger);
+}

@@ -58,9 +58,8 @@ export class Panel {
     { etiqueta: 'Pedidos', ruta: '/pedidos', icono: 'pedidos' },
     { etiqueta: 'Clientes', ruta: '/clientes', icono: 'clientes' },
     { etiqueta: 'Inventario', ruta: '/inventario', icono: 'inventario' },
-    { etiqueta: 'Gastos', ruta: '/gastos', icono: 'gastos' },
-    { etiqueta: 'Caja', ruta: '/caja', icono: 'caja' },
-    { etiqueta: 'Nómina', ruta: '/nomina', icono: 'nomina' },
+    { etiqueta: 'Gastos', ruta: '/gastos', icono: 'gastos', soloAdmin: true },
+    { etiqueta: 'Resumen', ruta: '/resumen', icono: 'caja', soloAdmin: true },
     { etiqueta: 'Informes', ruta: '/informes', icono: 'informes' },
     { etiqueta: 'Equipo', ruta: '/equipo', icono: 'equipo', soloAdmin: true },
   ];

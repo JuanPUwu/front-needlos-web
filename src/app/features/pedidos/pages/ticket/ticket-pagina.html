@@ -3,18 +3,20 @@
     <a class="ticketpag-volver" routerLink="/pedidos" [queryParams]="{ pedido: id }"
       >← Volver al pedido</a
     >
-    @if (ticket()) {
+    @if (error(); as e) {
+      <!-- En la misma línea de la barra, sin agregar filas. -->
+      <p class="ticketpag-error" role="alert" [title]="e">{{ e }}</p>
+    } @else if (ticket()) {
       <button class="ticketpag-boton" type="button" (click)="imprimir()">Imprimir</button>
     }
   </div>
 
-  @if (error()) {
-    <p class="ticketpag-error" role="alert">{{ error() }}</p>
-  } @else if (ticket(); as t) {
+  <!-- Si hubo error, la barra lo muestra y no hay ticket que pintar. -->
+  @if (ticket(); as t) {
     <div class="ticketpag-papel">
       <app-ticket [datos]="t" />
     </div>
-  } @else {
+  } @else if (!error()) {
     <app-esqueleto forma="bloque" [alto]="640" texto="Cargando ticket..." />
   }
 </main>

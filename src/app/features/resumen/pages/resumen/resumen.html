@@ -1,0 +1,233 @@
+<main class="resumen-page">
+  <div class="resumen-contenedor">
+    <app-encabezado
+      titulo="Resumen"
+      subtitulo="Lo que entró y salió de tu negocio. Cada día arranca en $0."
+      icono="caja"
+      [error]="error()"
+    >
+      @if (datos(); as d) {
+        @if (d.estado) {
+          <span class="resumen-estado" [attr.data-estado]="d.estado">
+            {{ d.estado === 'EN_CURSO' ? 'En curso' : 'Cerrado' }} · {{ d.horaInicio }} –
+            {{ d.horaFin }}
+          </span>
+        }
+      }
+    </app-encabezado>
+
+    <!-- ── Periodo ──────────────────────────────────────────── -->
+    <section class="resumen-periodo" aria-label="Periodo">
+      <div class="resumen-pestanas" role="tablist" aria-label="Periodo">
+        @for (p of periodos; track p.valor) {
+          <button
+            class="resumen-pestana"
+            type="button"
+            role="tab"
+            [attr.aria-selected]="periodo() === p.valor"
+            (click)="elegir(p.valor)"
+          >
+            {{ p.etiqueta }}
+          </button>
+        }
+      </div>
+      @if (periodo() === 'rango') {
+        <form class="resumen-rango" [formGroup]="rango" novalidate (ngSubmit)="verRango()">
+          <div class="resumen-campo">
+            <div class="resumen-campo__head">
+              <label class="resumen-campo__label" for="rangoDesde">
+                Desde <span class="resumen-req">*</span>
+              </label>
+              @if (errorRango('desde'); as e) {
+                <span class="resumen-campo__error">{{ e }}</span>
+              }
+            </div>
+            <input
+              class="resumen-control"
+              id="rangoDesde"
+              type="date"
+              formControlName="desde"
+              [max]="rango.controls.hasta.value"
+            />
+          </div>
+          <div class="resumen-campo">
+            <div class="resumen-campo__head">
+              <label class="resumen-campo__label" for="rangoHasta">
+                Hasta <span class="resumen-req">*</span>
+              </label>
+              @if (errorRango('hasta'); as e) {
+                <span class="resumen-campo__error">{{ e }}</span>
+              }
+            </div>
+            <input
+              class="resumen-control"
+              id="rangoHasta"
+              type="date"
+              formControlName="hasta"
+              [min]="rango.controls.desde.value"
+            />
+          </div>
+          <button class="resumen-ver" type="submit">Ver</button>
+        </form>
+      }
+      @if (fechas().desde) {
+        <p class="resumen-fechas">
+          @if (fechas().desde === fechas().hasta) {
+            {{ fechas().desde | fecha }}
+          } @else {
+            Del {{ fechas().desde | fecha }} al {{ fechas().hasta | fecha }}
+          }
+        </p>
+      }
+    </section>
+
+    @if (vista(); as d) {
+      <!-- Mientras carga, la misma estructura en $0 con piezas grises (mide igual). -->
+      <div
+        class="resumen-datos"
+        [class.resumen-datos--esqueleto]="esqueleto()"
+        [attr.aria-busy]="esqueleto()"
+      >
+        @if (esqueleto()) {
+          <span class="resumen-oculto" role="status">Cargando resumen...</span>
+        }
+        <!-- ── Totales: total, efectivo y transferencias ─────────── -->
+        <div class="resumen-tarjetas" [attr.aria-hidden]="esqueleto()">
+          <article class="resumen-tarjeta">
+            <h2 class="resumen-tarjeta__titulo">Neto del periodo</h2>
+            <strong class="resumen-cifra" [class.resumen-cifra--negativa]="d.total.neto < 0">
+              {{ d.total.neto | moneda }}
+            </strong>
+            <dl class="resumen-lineas">
+              <div class="resumen-linea">
+                <dt>Ingresos</dt>
+                <dd class="resumen-mas">{{ d.total.ingresos | moneda }}</dd>
+              </div>
+              @if (d.total.devoluciones > 0) {
+                <div class="resumen-linea">
+                  <dt>Devoluciones</dt>
+                  <dd class="resumen-menos">− {{ d.total.devoluciones | moneda }}</dd>
+                </div>
+              }
+              <div class="resumen-linea">
+                <dt>Gastos</dt>
+                <dd class="resumen-menos">− {{ d.total.egresos | moneda }}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="resumen-tarjeta" data-tipo="efectivo">
+            <h2 class="resumen-tarjeta__titulo">Efectivo</h2>
+            <strong class="resumen-cifra" [class.resumen-cifra--negativa]="d.efectivo.neto < 0">
+              {{ d.efectivo.neto | moneda }}
+            </strong>
+            <dl class="resumen-lineas">
+              <div class="resumen-linea">
+                <dt>Ingresos</dt>
+                <dd class="resumen-mas">{{ d.efectivo.ingresos | moneda }}</dd>
+              </div>
+              @if (d.efectivo.devoluciones > 0) {
+                <div class="resumen-linea">
+                  <dt>Devoluciones</dt>
+                  <dd class="resumen-menos">− {{ d.efectivo.devoluciones | moneda }}</dd>
+                </div>
+              }
+              <div class="resumen-linea">
+                <dt>Gastos</dt>
+                <dd class="resumen-menos">− {{ d.efectivo.egresos | moneda }}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="resumen-tarjeta" data-tipo="transferencias">
+            <h2 class="resumen-tarjeta__titulo">Transferencias</h2>
+            <strong
+              class="resumen-cifra"
+              [class.resumen-cifra--negativa]="d.transferencias.neto < 0"
+            >
+              {{ d.transferencias.neto | moneda }}
+            </strong>
+            <dl class="resumen-lineas">
+              <div class="resumen-linea">
+                <dt>Ingresos</dt>
+                <dd class="resumen-mas">{{ d.transferencias.ingresos | moneda }}</dd>
+              </div>
+              @if (d.transferencias.devoluciones > 0) {
+                <div class="resumen-linea">
+                  <dt>Devoluciones</dt>
+                  <dd class="resumen-menos">− {{ d.transferencias.devoluciones | moneda }}</dd>
+                </div>
+              }
+              <div class="resumen-linea">
+                <dt>Gastos</dt>
+                <dd class="resumen-menos">− {{ d.transferencias.egresos | moneda }}</dd>
+              </div>
+            </dl>
+            @if (d.transferencias.porMetodo.length > 0) {
+              <ul class="resumen-metodos" aria-label="Detalle por método">
+                @for (m of d.transferencias.porMetodo; track m.metodo) {
+                  <li class="resumen-metodo">
+                    <span>{{ etiquetaMetodo(m.metodo) }}</span>
+                    <strong [class.resumen-menos]="m.neto < 0">{{ m.neto | moneda }}</strong>
+                  </li>
+                }
+              </ul>
+            }
+          </article>
+        </div>
+
+        <!-- ── Día por día | Movimientos: lado a lado, llenan el alto libre ── -->
+        <div class="resumen-abajo">
+          <section class="resumen-bloque" aria-labelledby="t-dias">
+            <app-titulo-bloque
+              class="resumen-bloque__titulo"
+              titulo="Día por día"
+              idTitulo="t-dias"
+            />
+            <ul class="resumen-dias" [attr.aria-hidden]="esqueleto()">
+              @for (dia of d.dias; track dia.fecha) {
+                <li>
+                  <button
+                    class="resumen-dia"
+                    type="button"
+                    [class.resumen-dia--vacio]="
+                      dia.ingresos === 0 && dia.egresos === 0 && dia.devoluciones === 0
+                    "
+                    [disabled]="esqueleto()"
+                    [attr.aria-label]="'Ver el ' + (dia.fecha | fecha)"
+                    (click)="verDia(dia.fecha)"
+                  >
+                    <span class="resumen-dia__fecha">{{ dia.fecha | fecha }}</span>
+                    <strong
+                      class="resumen-dia__neto"
+                      [class.resumen-dia__neto--negativo]="dia.neto < 0"
+                    >
+                      {{ dia.neto | moneda }}
+                    </strong>
+                  </button>
+                </li>
+              }
+            </ul>
+          </section>
+
+          <section class="resumen-bloque" aria-labelledby="t-mov">
+            <app-resumen-movimientos
+              [movimientos]="movimientos()"
+              [filtros]="filtrosMov()"
+              [total]="totalMov()"
+              [pagina]="paginaMov()"
+              [totalPaginas]="totalPaginasMov()"
+              [cargando]="cargandoMov()"
+              [error]="errorMov()"
+              [varios]="varios()"
+              (filtrar)="filtrarMovimientos($event)"
+              (limpiar)="limpiarFiltrosMov()"
+              (irAPagina)="irAPaginaMov($event)"
+              (abrir)="abrirMovimiento($event)"
+            />
+          </section>
+        </div>
+      </div>
+    }
+  </div>
+</main>
