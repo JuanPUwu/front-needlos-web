@@ -52,17 +52,6 @@
   color: var(--color-text-muted);
 }
 
-.seleccionar-banner {
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-}
-
-.seleccionar-banner--error {
-  color: var(--color-danger);
-  background: rgba(198, 40, 40, 0.08);
-}
-
 .seleccionar-lista {
   list-style: none;
   padding: 0;
@@ -122,4 +111,16 @@
   .seleccionar-item:active:not(:disabled) {
     transform: none;
   }
+}
+
+// Error en lugar del subtítulo (Reglas §12.2): misma zona, sin agregar filas; si es largo se
+// recorta y el texto completo va en `title`.
+.seleccionar-card__error {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
+  font-weight: 500;
+  color: var(--color-danger);
 }

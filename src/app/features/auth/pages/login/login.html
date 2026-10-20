@@ -2,7 +2,13 @@
   <section class="login-card">
     <header class="login-card__header">
       <app-logo class="login-card__logo" variant="dark" />
-      <h1 class="login-card__subtitle">Inicia sesión en tu sastrería</h1>
+      <h1 class="login-card__subtitle">
+        @if (error(); as e) {
+          <span class="login-card__error" role="alert" [title]="e">{{ e }}</span>
+        } @else {
+          Inicia sesión en tu sastrería
+        }
+      </h1>
     </header>
 
     <form class="login-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
@@ -58,10 +64,6 @@
         </div>
         <a class="login-olvido" routerLink="/recuperar-contrasena">¿Olvidaste tu contraseña?</a>
       </div>
-
-      @if (error()) {
-        <p class="login-banner login-banner--error" role="alert">{{ error() }}</p>
-      }
 
       <button class="login-submit" type="submit" [disabled]="cargando()">
         {{ cargando() ? 'Ingresando...' : 'Iniciar sesión' }}

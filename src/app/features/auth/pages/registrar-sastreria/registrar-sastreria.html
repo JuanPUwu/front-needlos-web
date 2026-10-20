@@ -3,7 +3,11 @@
     <header class="registro-card__header">
       <app-logo class="registro-card__logo" variant="dark" />
       <p class="registro-card__subtitle">
-        Registra tu sastrería: empiezas en el plan Demo. Tú quedas como administrador.
+        @if (error(); as e) {
+          <span class="registro-card__error" role="alert" [title]="e">{{ e }}</span>
+        } @else {
+          Registra tu sastrería: empiezas en el plan Demo. Tú quedas como administrador.
+        }
       </p>
     </header>
 
@@ -201,10 +205,6 @@
           >
         }
       </div>
-
-      @if (error()) {
-        <p class="registro-banner registro-banner--error" role="alert">{{ error() }}</p>
-      }
 
       <button class="registro-submit" type="submit" [disabled]="cargando()">
         {{ cargando() ? 'Creando tu sastrería...' : 'Crear mi sastrería' }}

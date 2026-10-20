@@ -3,7 +3,11 @@
     <header class="recuperar-card__header">
       <app-logo class="recuperar-card__logo" variant="dark" />
       <h1 class="recuperar-card__subtitle">
-        ¿Olvidaste tu contraseña?, Te enviaremos un enlace a tu correo para crear una nueva.
+        @if (error(); as e) {
+          <span class="recuperar-card__error" role="alert" [title]="e">{{ e }}</span>
+        } @else {
+          ¿Olvidaste tu contraseña?, Te enviaremos un enlace a tu correo para crear una nueva.
+        }
       </h1>
     </header>
 
@@ -34,10 +38,6 @@
             />
           </div>
         </div>
-
-        @if (error()) {
-          <p class="recuperar-banner recuperar-banner--error" role="alert">{{ error() }}</p>
-        }
 
         <button class="recuperar-submit" type="submit" [disabled]="cargando()">
           {{ cargando() ? 'Enviando...' : 'Enviar enlace' }}

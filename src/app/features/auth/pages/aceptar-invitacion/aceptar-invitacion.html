@@ -23,7 +23,13 @@
       }
       @default {
         <h1 class="aceptar-card__titulo">Te invitaron a {{ info()?.sastreria }}</h1>
-        <p class="aceptar-card__subtitle">Para {{ info()?.email }}</p>
+        <p class="aceptar-card__subtitle">
+          @if (error(); as e) {
+            <span class="aceptar-card__error" role="alert" [title]="e">{{ e }}</span>
+          } @else {
+            Para {{ info()?.email }}
+          }
+        </p>
 
         @if (info()?.requiereContrasena) {
           <form class="aceptar-form" [formGroup]="form" (ngSubmit)="aceptar()" novalidate>
@@ -79,10 +85,6 @@
               </div>
             </div>
 
-            @if (error()) {
-              <p class="aceptar-banner aceptar-banner--error" role="alert">{{ error() }}</p>
-            }
-
             <button class="aceptar-submit" type="submit" [disabled]="cargando()">
               {{ cargando() ? 'Aceptando...' : 'Aceptar y crear contraseña' }}
             </button>
@@ -92,9 +94,6 @@
             Ya tienes una cuenta en NeedlOS. Acepta para unirte; entras con tu contraseña o Google
             de siempre.
           </p>
-          @if (error()) {
-            <p class="aceptar-banner aceptar-banner--error" role="alert">{{ error() }}</p>
-          }
           <button class="aceptar-submit" type="button" [disabled]="cargando()" (click)="aceptar()">
             {{ cargando() ? 'Aceptando...' : 'Aceptar invitación' }}
           </button>

@@ -3,8 +3,12 @@
     <header class="verificar-card__header">
       <app-logo class="verificar-card__logo" variant="dark" />
       <h1 class="verificar-card__subtitle">
-        Enviamos un código de 6 dígitos a <strong>{{ email }}</strong
-        >. Escríbelo aquí para activar tu cuenta.
+        @if (error(); as e) {
+          <span class="verificar-card__error" role="alert" [title]="e">{{ e }}</span>
+        } @else {
+          Enviamos un código de 6 dígitos a <strong>{{ email }}</strong
+          >. Escríbelo aquí para activar tu cuenta.
+        }
       </h1>
     </header>
 
@@ -35,10 +39,6 @@
           />
         </div>
       </div>
-
-      @if (error()) {
-        <p class="verificar-banner verificar-banner--error" role="alert">{{ error() }}</p>
-      }
 
       <button class="verificar-submit" type="submit" [disabled]="cargando()">
         {{ cargando() ? 'Verificando...' : 'Verificar y entrar' }}

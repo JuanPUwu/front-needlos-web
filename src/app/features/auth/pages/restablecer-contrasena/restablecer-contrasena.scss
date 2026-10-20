@@ -198,3 +198,15 @@
     transform: none;
   }
 }
+
+// Error en lugar del subtítulo (Reglas §12.2): misma zona, sin agregar filas; si es largo se
+// recorta y el texto completo va en `title`.
+.restablecer-card__error {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
+  font-weight: 500;
+  color: var(--color-danger);
+}

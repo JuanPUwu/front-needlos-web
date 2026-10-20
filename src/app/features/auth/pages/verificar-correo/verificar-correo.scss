@@ -150,11 +150,6 @@
   background: rgba(2, 40, 89, 0.07);
 }
 
-.verificar-banner--error {
-  color: var(--color-danger);
-  background: rgba(198, 40, 40, 0.08);
-}
-
 .verificar-submit {
   height: 48px;
   border: none;
@@ -238,4 +233,16 @@
   .verificar-submit:active:not(:disabled) {
     transform: none;
   }
+}
+
+// Error en lugar del subtítulo (Reglas §12.2): misma zona, sin agregar filas; si es largo se
+// recorta y el texto completo va en `title`.
+.verificar-card__error {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-weight: 500;
+  color: var(--color-danger);
 }

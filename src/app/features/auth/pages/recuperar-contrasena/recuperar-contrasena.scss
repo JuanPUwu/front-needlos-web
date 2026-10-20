@@ -136,11 +136,6 @@
   font-size: 0.9rem;
 }
 
-.recuperar-banner--error {
-  color: var(--color-danger);
-  background: rgba(198, 40, 40, 0.08);
-}
-
 .recuperar-banner--exito {
   color: #1b7a34;
   background: rgba(52, 200, 74, 0.12);
@@ -204,4 +199,16 @@
   .recuperar-submit:active:not(:disabled) {
     transform: none;
   }
+}
+
+// Error en lugar del subtítulo (Reglas §12.2): misma zona, sin agregar filas; si es largo se
+// recorta y el texto completo va en `title`.
+.recuperar-card__error {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-weight: 500;
+  color: var(--color-danger);
 }

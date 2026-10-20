@@ -2,7 +2,13 @@
   <section class="restablecer-card">
     <header class="restablecer-card__header">
       <app-logo class="restablecer-card__logo" variant="dark" />
-      <h1 class="restablecer-card__subtitle">Crea una nueva contraseña</h1>
+      <h1 class="restablecer-card__subtitle">
+        @if (error(); as e) {
+          <span class="restablecer-card__error" role="alert" [title]="e">{{ e }}</span>
+        } @else {
+          Crea una nueva contraseña
+        }
+      </h1>
     </header>
 
     @switch (estado()) {
@@ -71,10 +77,6 @@
               <span class="restablecer-field__error">Las contraseñas no coinciden.</span>
             }
           </div>
-
-          @if (error()) {
-            <p class="restablecer-banner restablecer-banner--error" role="alert">{{ error() }}</p>
-          }
 
           <button class="restablecer-submit" type="submit" [disabled]="cargando()">
             {{ cargando() ? 'Guardando...' : 'Guardar contraseña' }}
