@@ -1,0 +1,300 @@
+// Tarjeta "Cartera y entregas". Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-4);
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: informecartera / inline-size;
+}
+
+// "Hoy": esta tarjeta no depende del periodo elegido.
+.ic-hoy {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.ic {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// ── Datos principales ───────────────────────────────────────
+.ic-datos {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  // Solo en teléfono se parten en dos filas; en tarjetas angostas, letra más chica.
+  @container informecartera (max-width: 380px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    .ic-dato--ancho {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+@container informecartera (max-width: 560px) {
+  .ic-datos {
+    gap: var(--space-3);
+  }
+
+  .ic-dato {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .ic-dato__valor {
+    font-size: 1.1rem;
+  }
+
+  .ic-dato__nota {
+    display: none;
+  }
+}
+
+.ic-dato {
+  --tono: var(--color-navy);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+
+  &[data-categoria='VENCIDO'] {
+    --tono: var(--estado-anulado);
+  }
+
+  &[data-categoria='HOY'] {
+    --tono: var(--estado-entregado);
+  }
+
+  &[data-categoria='PROXIMO'] {
+    --tono: var(--estado-proceso);
+  }
+}
+
+.ic-dato__etiqueta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.ic-dato__valor {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--tono);
+  font-variant-numeric: tabular-nums;
+}
+
+.ic-dato__valor--debe {
+  color: var(--color-warning);
+}
+
+.ic-dato__nota {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+// ── Listas (se desplazan dentro de la tarjeta) ──────────────
+.ic-cuerpo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow: hidden auto;
+}
+
+.ic-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.ic-subtitulo {
+  margin-left: var(--space-2);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.ic-enlace {
+  height: 30px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+  }
+}
+
+.ic-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.ic-fila {
+  --tono: var(--color-text-muted);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &[data-categoria='VENCIDO'] {
+    --tono: var(--estado-anulado);
+  }
+
+  &[data-categoria='HOY'] {
+    --tono: var(--estado-entregado);
+  }
+
+  &[data-categoria='PROXIMO'] {
+    --tono: var(--estado-proceso);
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+  }
+}
+
+.ic-fila__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  strong {
+    color: var(--color-navy);
+  }
+}
+
+.ic-fila__valor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.ic-fila__valor--debe {
+  font-size: 0.95rem;
+  color: var(--color-warning);
+}
+
+.ic-fila__categoria {
+  font-weight: 600;
+  color: var(--tono);
+}
+
+.ic-vacio {
+  padding: var(--space-4) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+// ── Esqueleto: el mismo marcado en $0 con los textos en piezas grises ─
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
+.ic--esqueleto {
+  .ic-dato__etiqueta,
+  .ic-dato__valor,
+  .ic-dato__nota,
+  .ic-subtitulo,
+  .ic-fila__nombre,
+  .ic-fila__valor {
+    width: fit-content;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+      color-mix(in srgb, var(--color-bg), var(--color-navy) 6%);
+    background-size: 200% 100%;
+    color: transparent;
+    animation: ic-brillo 1.4s linear infinite;
+
+    * {
+      color: transparent;
+    }
+  }
+}
+
+@keyframes ic-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ic-fila {
+    transition: none;
+  }
+
+  .ic--esqueleto * {
+    animation: none;
+  }
+}

@@ -1,0 +1,164 @@
+// Tarjeta "Productividad por sastre". Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-4);
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.ip {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+// Columnas: sastre | finalizadas | entregadas (iguales en encabezado y filas).
+.ip-encabezado,
+.ip-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 6.5rem 6.5rem;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.ip-encabezado {
+  padding: 0 var(--space-4);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.ip-encabezado__num {
+  text-align: center;
+}
+
+.ip-lista {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+}
+
+.ip-fila {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.95rem;
+}
+
+.ip-fila__sastre {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.ip-avatar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-navy);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-surface);
+}
+
+.ip-fila--sin-asignar {
+  color: var(--color-text-muted);
+
+  .ip-avatar {
+    background: var(--color-border-soft);
+    color: var(--color-text-muted);
+  }
+}
+
+.ip-fila__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.ip-fila__num {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.ip-fila--sin-asignar .ip-fila__num {
+  color: var(--color-text-muted);
+}
+
+.ip-vacio {
+  padding: var(--space-4) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.ip-ayuda {
+  margin-left: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+// ── Esqueleto: el mismo marcado con los textos en piezas grises ─
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
+.ip--esqueleto {
+  .ip-fila__nombre,
+  .ip-fila__num,
+  .ip-avatar {
+    background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+      color-mix(in srgb, var(--color-bg), var(--color-navy) 6%);
+    background-size: 200% 100%;
+    color: transparent;
+    animation: ip-brillo 1.4s linear infinite;
+  }
+
+  .ip-fila__nombre,
+  .ip-fila__num {
+    width: fit-content;
+    justify-self: center;
+    border-radius: var(--radius-sm);
+  }
+
+  .ip-fila__nombre {
+    justify-self: start;
+  }
+}
+
+@keyframes ip-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ip--esqueleto * {
+    animation: none;
+  }
+}

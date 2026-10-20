@@ -1,0 +1,105 @@
+<main class="informes-page">
+  <div class="informes-contenedor">
+    <app-encabezado
+      titulo="Informes"
+      subtitulo="Cómo va tu negocio: ventas, lo que te deben, quién produce y qué se pide más."
+      icono="informes"
+    />
+
+    <!-- ── Periodo (como en el Resumen) ────────────────────────── -->
+    <section class="informes-periodo" aria-label="Periodo">
+      <div class="informes-pestanas" role="tablist" aria-label="Periodo">
+        @for (p of periodos; track p.valor) {
+          <button
+            class="informes-pestana"
+            type="button"
+            role="tab"
+            [attr.aria-selected]="periodo() === p.valor"
+            (click)="elegir(p.valor)"
+          >
+            {{ p.etiqueta }}
+          </button>
+        }
+      </div>
+      @if (fechas().desde) {
+        <p class="informes-fechas">
+          @if (fechas().desde === fechas().hasta) {
+            {{ fechas().desde | fecha }}
+          } @else {
+            Del {{ fechas().desde | fecha }} al {{ fechas().hasta | fecha }}
+          }
+        </p>
+      }
+      @if (periodo() === 'rango') {
+        <form class="informes-rango" [formGroup]="rango" novalidate (ngSubmit)="verRango()">
+          <div class="informes-campo">
+            <div class="informes-campo__head">
+              <label class="informes-campo__label" for="infDesde">
+                Desde <span class="informes-req">*</span>
+              </label>
+              @if (errorRango('desde'); as e) {
+                <span class="informes-campo__error">{{ e }}</span>
+              }
+            </div>
+            <input
+              class="informes-control"
+              id="infDesde"
+              type="date"
+              formControlName="desde"
+              [max]="rango.controls.hasta.value"
+            />
+          </div>
+          <div class="informes-campo">
+            <div class="informes-campo__head">
+              <label class="informes-campo__label" for="infHasta">
+                Hasta <span class="informes-req">*</span>
+              </label>
+              @if (errorRango('hasta'); as e) {
+                <span class="informes-campo__error">{{ e }}</span>
+              }
+            </div>
+            <input
+              class="informes-control"
+              id="infHasta"
+              type="date"
+              formControlName="hasta"
+              [min]="rango.controls.desde.value"
+            />
+          </div>
+          <button class="informes-ver" type="submit">Ver</button>
+        </form>
+      }
+    </section>
+
+    <!-- ── Informes: 2 × 2, llenan el alto; las listas se desplazan dentro ── -->
+    <div class="informes-grilla">
+      <app-informe-ventas
+        aria-labelledby="t-ventas"
+        role="region"
+        [datos]="ventas().datos"
+        [error]="ventas().error"
+      />
+      <app-informe-cartera
+        aria-labelledby="t-cartera"
+        role="region"
+        [datos]="cartera().datos"
+        [error]="cartera().error"
+        (abrirPedido)="abrirPedido($event)"
+        (verPedidos)="verPedidos($event)"
+      />
+      <app-informe-productividad
+        aria-labelledby="t-productividad"
+        role="region"
+        [datos]="productividad().datos"
+        [error]="productividad().error"
+      />
+      <app-informe-prendas
+        aria-labelledby="t-prendas"
+        role="region"
+        [datos]="prendas().datos"
+        [error]="prendas().error"
+        (verPedidos)="verPedidos($event)"
+      />
+    </div>
+  </div>
+</main>

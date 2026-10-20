@@ -1,0 +1,91 @@
+<app-titulo-bloque titulo="Cartera y entregas" idTitulo="t-cartera" [error]="error()">
+  <span class="ic-hoy">Hoy</span>
+</app-titulo-bloque>
+
+@if (vista(); as v) {
+  <div class="ic" [class.ic--esqueleto]="!datos()" [attr.aria-busy]="!datos()">
+    <div class="ic-datos">
+      <div class="ic-dato ic-dato--ancho">
+        <span class="ic-dato__etiqueta">Por cobrar</span>
+        <strong class="ic-dato__valor ic-dato__valor--debe">{{ v.totalAdeudado | moneda }}</strong>
+        <span class="ic-dato__nota">
+          {{ v.pedidosConSaldo }} {{ v.pedidosConSaldo === 1 ? 'pedido' : 'pedidos' }}
+        </span>
+      </div>
+      <div class="ic-dato" data-categoria="VENCIDO">
+        <span class="ic-dato__etiqueta">Vencidos</span>
+        <strong class="ic-dato__valor">{{ v.vencidos }}</strong>
+      </div>
+      <div class="ic-dato" data-categoria="HOY">
+        <span class="ic-dato__etiqueta">Para hoy</span>
+        <strong class="ic-dato__valor">{{ v.paraHoy }}</strong>
+      </div>
+      <div class="ic-dato" data-categoria="PROXIMO">
+        <span class="ic-dato__etiqueta">En 3 días</span>
+        <strong class="ic-dato__valor">{{ v.proximos }}</strong>
+      </div>
+    </div>
+
+    <div class="ic-cuerpo">
+      <div class="ic-cabecera">
+        <h3 class="ic-subtitulo">Mayores saldos</h3>
+        @if (datos() && v.pedidosConSaldo > 0) {
+          <button class="ic-enlace" type="button" (click)="verConSaldo()">Ver en Pedidos</button>
+        }
+      </div>
+      <ul class="ic-lista">
+        @for (p of v.mayoresSaldos; track $index) {
+          <li>
+            <button
+              class="ic-fila"
+              type="button"
+              [disabled]="!datos()"
+              [attr.aria-label]="'Abrir pedido ' + p.numero"
+              (click)="abrirPedido.emit(p.id)"
+            >
+              <span class="ic-fila__nombre" [title]="p.numero + ' ' + p.cliente"
+                ><strong>{{ p.numero }}</strong> {{ p.cliente }}</span
+              >
+              <strong class="ic-fila__valor ic-fila__valor--debe">{{ p.saldo | moneda }}</strong>
+            </button>
+          </li>
+        } @empty {
+          <li class="ic-vacio">Nadie debe nada.</li>
+        }
+      </ul>
+
+      <div class="ic-cabecera">
+        <h3 class="ic-subtitulo">Por entregar</h3>
+        @if (datos() && v.vencidos > 0) {
+          <button class="ic-enlace" type="button" (click)="verVencidos()">
+            Ver vencidos en Pedidos
+          </button>
+        }
+      </div>
+      <ul class="ic-lista">
+        @for (p of v.porEntregar; track $index) {
+          <li>
+            <button
+              class="ic-fila"
+              type="button"
+              [attr.data-categoria]="p.categoria"
+              [disabled]="!datos()"
+              [attr.aria-label]="'Abrir pedido ' + p.numero"
+              (click)="abrirPedido.emit(p.id)"
+            >
+              <span class="ic-fila__nombre" [title]="p.numero + ' ' + p.cliente"
+                ><strong>{{ p.numero }}</strong> {{ p.cliente }}</span
+              >
+              <span class="ic-fila__valor">
+                <span class="ic-fila__categoria">{{ etiquetaEntrega[p.categoria] }}</span>
+                {{ p.fechaEntrega | fecha }} · {{ p.piezasPendientes }} pzs
+              </span>
+            </button>
+          </li>
+        } @empty {
+          <li class="ic-vacio">Nada por entregar en los próximos días.</li>
+        }
+      </ul>
+    </div>
+  </div>
+}

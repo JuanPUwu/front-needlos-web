@@ -1,0 +1,32 @@
+<app-titulo-bloque titulo="Productividad por sastre" idTitulo="t-productividad" [error]="error()" />
+
+@if (vista(); as v) {
+  <div class="ip" [class.ip--esqueleto]="!datos()" [attr.aria-busy]="!datos()">
+    <div class="ip-encabezado" aria-hidden="true">
+      <span>Sastre</span>
+      <span class="ip-encabezado__num">Finalizadas</span>
+      <span class="ip-encabezado__num">Entregadas</span>
+    </div>
+    <ul class="ip-lista">
+      @for (s of v.sastres; track s.sastreId ?? 'sin-asignar') {
+        <li class="ip-fila" [class.ip-fila--sin-asignar]="!s.sastreId">
+          <span class="ip-fila__sastre">
+            <span class="ip-avatar" aria-hidden="true">{{ iniciales(s.nombre) ?? '—' }}</span>
+            <span class="ip-fila__nombre" [title]="s.nombre ?? 'Sin asignar'">{{
+              s.nombre ?? 'Sin asignar'
+            }}</span>
+          </span>
+          <span class="ip-fila__num" [attr.aria-label]="s.finalizadas + ' piezas finalizadas'">
+            {{ s.finalizadas }}
+          </span>
+          <span class="ip-fila__num" [attr.aria-label]="s.entregadas + ' piezas entregadas'">
+            {{ s.entregadas }}
+          </span>
+        </li>
+      } @empty {
+        <li class="ip-vacio">Nadie finalizó ni entregó prendas en este periodo.</li>
+      }
+    </ul>
+    <p class="ip-ayuda">Piezas, contadas para la persona asignada a cada prenda.</p>
+  </div>
+}

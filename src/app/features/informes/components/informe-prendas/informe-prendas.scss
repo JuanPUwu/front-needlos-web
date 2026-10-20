@@ -1,0 +1,163 @@
+// Tarjeta "Prendas y clientes". Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-4);
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: informeprendas / inline-size;
+}
+
+// Prendas | clientes, lado a lado; se apilan si la tarjeta es angosta.
+.ipc {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container informeprendas (max-width: 380px) {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden auto;
+  }
+}
+
+.ipc-bloque {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ipc-subtitulo {
+  margin-left: var(--space-2);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.ipc-lista {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+}
+
+.ipc-fila {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+.ipc-fila--boton {
+  cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+  }
+}
+
+.ipc-fila__puesto {
+  min-width: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.ipc-fila__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.ipc-fila__valor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  white-space: nowrap;
+
+  strong {
+    color: var(--color-navy);
+  }
+}
+
+.ipc-fila__nota {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.ipc-vacio {
+  padding: var(--space-4) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+// ── Esqueleto: el mismo marcado con los textos en piezas grises ─
+// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
+.ipc--esqueleto {
+  .ipc-subtitulo,
+  .ipc-fila__puesto,
+  .ipc-fila__nombre,
+  .ipc-fila__valor strong,
+  .ipc-fila__nota {
+    width: fit-content;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
+      color-mix(in srgb, var(--color-bg), var(--color-navy) 6%);
+    background-size: 200% 100%;
+    color: transparent;
+    animation: ipc-brillo 1.4s linear infinite;
+  }
+}
+
+@keyframes ipc-brillo {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipc-fila--boton {
+    transition: none;
+  }
+
+  .ipc--esqueleto * {
+    animation: none;
+  }
+}

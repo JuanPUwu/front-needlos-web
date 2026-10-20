@@ -1,0 +1,198 @@
+// Estilos propios de Informes. Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.informes-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+}
+
+.informes-contenedor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.informes-periodo {
+  // Pestañas y fechas en la misma fila (deja más alto a los informes); el rango, debajo.
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+
+  @container panel (max-width: 760px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.informes-pestanas {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container panel (max-width: 720px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @container panel (max-width: 420px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.informes-pestana {
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &[aria-selected='true'] {
+    background: var(--color-accent);
+    color: var(--color-surface);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.informes-rango {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-4);
+
+  @container panel (max-width: 480px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.informes-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+// Etiqueta a la izquierda y error en línea a la derecha (nunca debajo del campo).
+.informes-campo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.informes-campo__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.informes-req {
+  color: var(--color-danger);
+}
+
+.informes-campo__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.informes-control {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.informes-ver {
+  height: 46px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-accent-hover);
+  }
+}
+
+.informes-fechas {
+  margin-left: var(--space-2);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// ── Informes: 2 × 2 que llenan el alto que queda (la sección nunca se desplaza) ──
+.informes-grilla {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  // Teléfono: una columna; aquí la sección sí se desplaza (Reglas §12.2).
+  @container panel (max-width: 560px) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-rows: minmax(420px, auto);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .informes-pestana {
+    transition: none;
+  }
+}

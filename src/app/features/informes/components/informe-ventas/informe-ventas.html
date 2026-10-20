@@ -1,0 +1,59 @@
+<app-titulo-bloque titulo="Ventas e ingresos" idTitulo="t-ventas" [error]="error()" />
+
+@if (vista(); as v) {
+  <div class="iv" [class.iv--esqueleto]="!datos()" [attr.aria-busy]="!datos()">
+    <div class="iv-datos">
+      <div class="iv-dato">
+        <span class="iv-dato__etiqueta">Ventas</span>
+        <strong class="iv-dato__valor">{{ v.ventas | moneda }}</strong>
+        <span class="iv-dato__nota"
+          >{{ v.pedidos }} {{ v.pedidos === 1 ? 'pedido' : 'pedidos' }}</span
+        >
+      </div>
+      <div class="iv-dato">
+        <span class="iv-dato__etiqueta">Ticket promedio</span>
+        <strong class="iv-dato__valor">{{ v.ticketPromedio | moneda }}</strong>
+        <span class="iv-dato__nota">por pedido</span>
+      </div>
+      <div class="iv-dato">
+        <span class="iv-dato__etiqueta">Ingresos</span>
+        <strong class="iv-dato__valor iv-dato__valor--ingreso">{{ v.ingresos | moneda }}</strong>
+        <span class="iv-dato__nota">abonos − devoluciones</span>
+      </div>
+    </div>
+
+    <div class="iv-cuerpo">
+      <h3 class="iv-subtitulo">Ingresos por método</h3>
+      <ul class="iv-lista">
+        @for (m of v.porMetodo; track m.metodo) {
+          <li class="iv-fila">
+            <span class="iv-fila__nombre">{{ etiquetaMetodo(m.metodo) }}</span>
+            <span class="iv-fila__valor">
+              <strong>{{ m.neto | moneda }}</strong>
+              @if (m.devoluciones > 0) {
+                <span class="iv-fila__nota">− {{ m.devoluciones | moneda }} devuelto</span>
+              }
+            </span>
+          </li>
+        } @empty {
+          <li class="iv-vacio">Sin ingresos en este periodo.</li>
+        }
+      </ul>
+
+      @if (varios()) {
+        <h3 class="iv-subtitulo">Ventas por día</h3>
+        <ul class="iv-lista">
+          @for (d of v.porDia; track d.fecha) {
+            <li class="iv-fila" [class.iv-fila--vacia]="d.pedidos === 0">
+              <span class="iv-fila__nombre">{{ d.fecha | fecha }}</span>
+              <span class="iv-fila__valor">
+                <strong>{{ d.ventas | moneda }}</strong>
+                <span class="iv-fila__nota">{{ d.pedidos }} ped.</span>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+}
