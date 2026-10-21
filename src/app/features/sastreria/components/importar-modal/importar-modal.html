@@ -1,0 +1,134 @@
+<div class="im-fondo" aria-hidden="true" (click)="cerrar()"></div>
+
+<div
+  class="im-caja"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-importar"
+  tabindex="-1"
+>
+  <app-encabezado
+    idTitulo="titulo-importar"
+    titulo="Importar datos"
+    subtitulo="Trae tus clientes, catálogo o inventario desde una hoja de Excel."
+    icono="todo"
+    [error]="error()"
+  >
+    <button class="im-cerrar" type="button" aria-label="Cerrar" title="Cerrar" (click)="cerrar()">
+      <app-icono class="im-cerrar__icono" nombre="cerrar" />
+    </button>
+  </app-encabezado>
+
+  <section class="im-seccion" aria-label="Qué importar">
+    <div class="im-tipos" role="tablist" aria-label="Qué importar">
+      @for (t of tipos; track t.valor) {
+        <button
+          class="im-tipo"
+          type="button"
+          role="tab"
+          [attr.aria-selected]="tipo() === t.valor"
+          [disabled]="ocupado()"
+          (click)="elegirTipo(t.valor)"
+        >
+          {{ t.etiqueta }}
+        </button>
+      }
+    </div>
+
+    <!-- Qué debe importar y cómo (dueño 2026-10-20): pasos y columnas de la plantilla. -->
+    <ol class="im-pasos">
+      <li>
+        <strong>Descarga la plantilla</strong> y ábrela en Excel o Google Sheets: deja la primera
+        fila (los títulos) tal cual y escribe una fila por cada uno de tus {{ plural() }}.
+      </li>
+      <li>
+        <strong>Guárdala como CSV</strong>: en Excel, Archivo → Guardar como → "CSV UTF-8
+        (delimitado por comas)"; en Google Sheets, Archivo → Descargar → CSV.
+      </li>
+      <li>
+        <strong>Elígela aquí</strong>: verás qué se importará antes de guardar nada. Lo que ya
+        tienes en NeedlOS no se repite: se omite y te decimos por qué.
+      </li>
+    </ol>
+
+    <div class="im-columnas" role="table" aria-label="Columnas de la plantilla">
+      @for (c of columnas(); track c.nombre) {
+        <div class="im-columna" role="row">
+          <span class="im-columna__nombre" role="cell">
+            {{ c.nombre }}
+            @if (c.obligatoria) {
+              <span class="im-req" aria-label="obligatoria">*</span>
+            }
+          </span>
+          <span class="im-columna__ayuda" role="cell">{{ c.ayuda }}</span>
+        </div>
+      }
+      <p class="im-columnas__nota"><span class="im-req">*</span> Obligatoria</p>
+    </div>
+
+    <div class="im-acciones">
+      <button class="im-boton im-boton--borde" type="button" (click)="descargarPlantilla()">
+        Descargar plantilla
+      </button>
+      <label class="im-boton" [class.im-boton--apagado]="ocupado()">
+        {{ archivo() ? 'Elegir otro archivo' : 'Elegir archivo' }}
+        <input
+          class="im-archivo"
+          type="file"
+          accept=".csv,text/csv"
+          [disabled]="ocupado()"
+          (change)="alElegir($event)"
+        />
+      </label>
+    </div>
+  </section>
+
+  @if (archivo(); as a) {
+    <section class="im-seccion" aria-labelledby="titulo-vista">
+      <div class="im-vista__cabeza">
+        <h3 class="im-vista__titulo" id="titulo-vista">Vista previa</h3>
+        <span class="im-vista__archivo" [title]="a.nombre">{{ a.nombre }}</span>
+      </div>
+
+      @if (vista(); as v) {
+        <div class="im-cifras">
+          <span class="im-cifra" data-estado="NUEVO"
+            ><strong>{{ v.nuevos }}</strong> nuevos</span
+          >
+          <span class="im-cifra" data-estado="OMITIDO"
+            ><strong>{{ v.omitidos }}</strong> se omiten</span
+          >
+          <span class="im-cifra" data-estado="ERROR"
+            ><strong>{{ v.errores }}</strong> con error</span
+          >
+        </div>
+
+        <ul class="im-filas">
+          @for (f of v.filas; track f.linea) {
+            <li class="im-fila" [attr.data-estado]="f.estado">
+              <span class="im-fila__linea">Fila {{ f.linea }}</span>
+              <span class="im-fila__resumen">{{ f.resumen }}</span>
+              <span class="im-fila__estado">
+                {{ f.estado === 'NUEVO' ? 'Nuevo' : f.estado === 'OMITIDO' ? 'Se omite' : 'Error' }}
+              </span>
+              @if (f.motivo) {
+                <span class="im-fila__motivo">{{ f.motivo }}</span>
+              }
+            </li>
+          }
+        </ul>
+
+        <div class="im-acciones">
+          <button class="im-boton im-boton--borde" type="button" (click)="cerrar()">
+            Cancelar
+          </button>
+          <button class="im-boton" type="button" [disabled]="!puedeImportar()" (click)="importar()">
+            {{ ocupado() ? 'Importando...' : 'Importar ' + v.nuevos + ' ' + plural() }}
+          </button>
+        </div>
+      } @else if (ocupado()) {
+        <p class="im-ayuda" role="status">Revisando el archivo...</p>
+      }
+    </section>
+  }
+</div>

@@ -55,12 +55,20 @@ export class PlataformaService {
     });
   }
 
-  desactivar(id: string): Observable<SastreriaPlataforma> {
-    return this.http.patch<SastreriaPlataforma>(`${this.base}/sastrerias/${id}/desactivar`, null);
+  /** Bloqueo por abuso (Manual §16.1): siempre con el motivo. */
+  bloquear(id: string, motivo: string): Observable<SastreriaPlataforma> {
+    return this.http.patch<SastreriaPlataforma>(`${this.base}/sastrerias/${id}/bloquear`, {
+      motivo,
+    });
   }
 
-  activar(id: string): Observable<SastreriaPlataforma> {
-    return this.http.patch<SastreriaPlataforma>(`${this.base}/sastrerias/${id}/activar`, null);
+  desbloquear(id: string): Observable<SastreriaPlataforma> {
+    return this.http.patch<SastreriaPlataforma>(`${this.base}/sastrerias/${id}/desbloquear`, null);
+  }
+
+  /** Recupera una sastrería en eliminación (dentro de los 90 días). */
+  recuperar(id: string): Observable<SastreriaPlataforma> {
+    return this.http.patch<SastreriaPlataforma>(`${this.base}/sastrerias/${id}/recuperar`, null);
   }
 
   /** Abre una sesión de soporte (solo lectura) dentro de la sastrería. */

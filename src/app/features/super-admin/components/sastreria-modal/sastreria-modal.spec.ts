@@ -21,6 +21,11 @@ function sastreria(parcial: Partial<SastreriaPlataforma> = {}): SastreriaPlatafo
     admin: 'Ana Ruiz',
     adminEmail: 'ana@example.com',
     telefono: null,
+    bloqueoMotivo: null,
+    eliminacionSolicitadaEn: null,
+    seBorraEl: null,
+    eliminacionOrigen: null,
+    eliminadaEn: null,
     ...parcial,
   };
 }
@@ -30,8 +35,8 @@ describe('SastreriaModal', () => {
     sastreria: ReturnType<typeof vi.fn>;
     acciones: ReturnType<typeof vi.fn>;
     otorgarLicencia: ReturnType<typeof vi.fn>;
-    desactivar: ReturnType<typeof vi.fn>;
-    activar: ReturnType<typeof vi.fn>;
+    bloquear: ReturnType<typeof vi.fn>;
+    desbloquear: ReturnType<typeof vi.fn>;
     entrarEnSoporte: ReturnType<typeof vi.fn>;
   };
   let auth: { entrarEnSoporte: ReturnType<typeof vi.fn> };
@@ -52,8 +57,10 @@ describe('SastreriaModal', () => {
         of({ contenido: [], pagina: 0, tamano: 20, totalElementos: 0, totalPaginas: 0 }),
       ),
       otorgarLicencia: vi.fn(() => of(sastreria({ plan: 'LICENCIADO', estado: 'LICENCIADA' }))),
-      desactivar: vi.fn(() => of(sastreria({ activo: false, estado: 'DESACTIVADA' }))),
-      activar: vi.fn(() => of(sastreria())),
+      bloquear: vi.fn(() =>
+        of(sastreria({ activo: false, estado: 'BLOQUEADA', bloqueoMotivo: 'Fraude' })),
+      ),
+      desbloquear: vi.fn(() => of(sastreria())),
       entrarEnSoporte: vi.fn(() => of({ accessToken: 'soporte' })),
     };
     auth = { entrarEnSoporte: vi.fn() };
@@ -107,14 +114,19 @@ describe('SastreriaModal', () => {
     expect(auth.entrarEnSoporte).toHaveBeenCalledWith({ accessToken: 'soporte' });
   });
 
-  it('desactivar pide confirmar; activar no', async () => {
+  it('bloquear pide el motivo y confirmar; quitar el bloqueo no confirma', async () => {
     const c = crear();
-    await c.cambiarActivo();
-    expect(confirmar).toHaveBeenCalledTimes(1);
-    expect(service.desactivar).toHaveBeenCalledWith('t1');
+    await c.bloquear();
+    expect(c.bloqueando()).toBe(true);
+    expect(service.bloquear).not.toHaveBeenCalled();
 
-    await c.cambiarActivo();
+    c.motivo.set('Uso fraudulento');
+    await c.bloquear();
     expect(confirmar).toHaveBeenCalledTimes(1);
-    expect(service.activar).toHaveBeenCalledWith('t1');
+    expect(service.bloquear).toHaveBeenCalledWith('t1', 'Uso fraudulento');
+
+    c.desbloquear();
+    expect(confirmar).toHaveBeenCalledTimes(1);
+    expect(service.desbloquear).toHaveBeenCalledWith('t1');
   });
 });

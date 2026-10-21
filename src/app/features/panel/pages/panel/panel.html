@@ -54,20 +54,26 @@
       }
     }
 
-    <!-- Perfil (dueño 2026-10-20): tras la última sección, encima del separador; lleva a Mi cuenta. -->
-    <a
-      class="panel__perfil"
-      routerLink="/mi-cuenta"
-      routerLinkActive="panel__perfil--activo"
-      [title]="'Mi cuenta · ' + usuario()"
-      (click)="cerrarMenu()"
-    >
-      <app-icono class="panel__item-icono" nombre="usuario" />
-      <span class="panel__perfil-texto">
-        <strong class="panel__perfil-nombre">{{ usuario() }}</strong>
-        <span class="panel__perfil-sastreria">{{ contexto() }}</span>
-      </span>
-    </a>
+    <!-- Perfil (dueño 2026-10-20): tras la última sección, encima del separador; lleva a Mi cuenta.
+         Al lado, "Mis sastrerías" para cambiar o crear otra (no para el SuperAdmin ni en soporte). -->
+    <div class="panel__perfil-fila">
+      <a
+        class="panel__perfil"
+        routerLink="/mi-cuenta"
+        routerLinkActive="panel__perfil--activo"
+        [title]="'Mi cuenta · ' + usuario()"
+        (click)="cerrarMenu()"
+      >
+        <app-icono class="panel__item-icono" nombre="usuario" />
+        <span class="panel__perfil-texto">
+          <strong class="panel__perfil-nombre">{{ usuario() }}</strong>
+          <span class="panel__perfil-sastreria">{{ contexto() }}</span>
+        </span>
+      </a>
+      @if (!esSuperAdmin() && !soporte()) {
+        <app-selector-sastreria />
+      }
+    </div>
 
     <div class="panel__separador panel__separador--final"></div>
     @if (soporte()) {

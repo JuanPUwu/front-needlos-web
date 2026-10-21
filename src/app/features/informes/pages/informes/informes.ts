@@ -26,7 +26,14 @@ import { InformeCartera } from '../../components/informe-cartera/informe-cartera
 import { InformePrendas } from '../../components/informe-prendas/informe-prendas';
 import { InformeProductividad } from '../../components/informe-productividad/informe-productividad';
 import { InformeVentas } from '../../components/informe-ventas/informe-ventas';
-import { Cartera, PrendasClientes, Productividad, Ventas } from '../../models/informe.model';
+import {
+  Cartera,
+  ModoInforme,
+  PrendasClientes,
+  Productividad,
+  Ventas,
+} from '../../models/informe.model';
+import { Icono } from '../../../../shared/ui/icono/icono';
 import { InformeService } from '../../services/informe.service';
 import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
 import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
@@ -56,6 +63,7 @@ const CARGANDO = { datos: null, error: null };
   selector: 'app-informes',
   imports: [
     BotonRecargar,
+    Icono,
     Encabezado,
     FechaPipe,
     ReactiveFormsModule,
@@ -79,6 +87,8 @@ export class Informes implements OnInit {
   readonly recargando = signal(0);
 
   readonly periodos = PERIODOS;
+  /** Tablas (por defecto) o gráficos; vive en la URL (`?vista=graficos`). */
+  readonly modo = signal<ModoInforme>('tablas');
   readonly periodo = signal<Periodo>('hoy');
   readonly desde = signal('');
   readonly hasta = signal('');
@@ -106,6 +116,7 @@ export class Informes implements OnInit {
   ngOnInit(): void {
     const q = this.route.snapshot.queryParamMap;
     const periodo = (q.get('periodo') as Periodo | null) ?? 'hoy';
+    this.modo.set(q.get('vista') === 'graficos' ? 'graficos' : 'tablas');
     if (periodo === 'rango' && q.get('desde') && q.get('hasta')) {
       this.desde.set(q.get('desde')!);
       this.hasta.set(q.get('hasta')!);
@@ -165,6 +176,17 @@ export class Informes implements OnInit {
       return 'Elige la fecha';
     }
     return campo === 'hasta' && this.rango.hasError('rangoInvertido') ? 'Antes de "Desde"' : null;
+  }
+
+  /** Cambia entre tablas y gráficos sin volver a pedir los datos (ya traen la serie). */
+  cambiarModo(modo: ModoInforme): void {
+    this.modo.set(modo);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { vista: modo === 'graficos' ? 'graficos' : null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   abrirPedido(id: string): void {

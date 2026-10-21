@@ -1,0 +1,55 @@
+<div class="cs-fondo" aria-hidden="true" (click)="cerrar()"></div>
+
+<div
+  class="cs-caja"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-crear-sastreria"
+  tabindex="-1"
+>
+  <app-encabezado
+    idTitulo="titulo-crear-sastreria"
+    titulo="Crear otra sastrería"
+    subtitulo="Con tu misma cuenta: quedas como su administrador."
+    icono="tienda"
+    [error]="error()"
+  >
+    <button class="cs-cerrar" type="button" aria-label="Cerrar" title="Cerrar" (click)="cerrar()">
+      <app-icono class="cs-cerrar__icono" nombre="cerrar" />
+    </button>
+  </app-encabezado>
+
+  <form class="cs-seccion" [formGroup]="form" (ngSubmit)="crear()" novalidate>
+    <ul class="cs-pasos">
+      <li>Empieza con su propia <strong>prueba gratis</strong> y luego tiene su propio plan.</li>
+      <li>Su información (clientes, pedidos, equipo) es aparte de tus otras sastrerías.</li>
+      <li>Pasas de una a otra con el botón de sastrerías junto a tu perfil.</li>
+    </ul>
+
+    <div class="cs-campo">
+      <div class="cs-campo__head">
+        <label class="cs-campo__label" for="nombreNuevaSastreria">
+          Nombre de la sastrería <span class="cs-req">*</span>
+        </label>
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+          <span class="cs-campo__error">Obligatorio</span>
+        }
+      </div>
+      <input
+        class="cs-campo__input"
+        id="nombreNuevaSastreria"
+        type="text"
+        maxlength="120"
+        placeholder="Sastrería El Buen Corte"
+        formControlName="nombre"
+      />
+    </div>
+
+    <div class="cs-acciones">
+      <button class="cs-boton cs-boton--borde" type="button" (click)="cerrar()">Cancelar</button>
+      <button class="cs-boton" type="submit" [disabled]="creando()">
+        {{ creando() ? 'Creando...' : 'Crear y entrar' }}
+      </button>
+    </div>
+  </form>
+</div>

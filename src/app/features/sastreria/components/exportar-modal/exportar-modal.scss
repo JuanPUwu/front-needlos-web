@@ -1,0 +1,317 @@
+// Popup "Exportar información": medidas del formulario base (Reglas §12.3). Solo tokens globales.
+
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.em-fondo {
+  position: absolute;
+  inset: 0;
+  background: var(--color-velo);
+}
+
+.em-caja {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: panel / inline-size;
+  outline: none;
+}
+
+.em-cerrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.em-cerrar__icono {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.em-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: emseccion / inline-size;
+}
+
+.em-texto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+.em-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg);
+  font-size: 0.9rem;
+  color: var(--color-warning);
+}
+
+.em-aviso__icono {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.em-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.em-campo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.em-campo__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.em-req {
+  color: var(--color-danger);
+}
+
+.em-campo__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+// Campo con el botón de mostrar la contraseña dentro.
+.em-clave {
+  position: relative;
+  display: flex;
+}
+
+.em-campo__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 calc(var(--space-4) + 32px) 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.em-clave__ver {
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-height: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-accent);
+  cursor: pointer;
+  transform: translateY(-50%);
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+  }
+}
+
+.em-clave__icono {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.em-ayuda {
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.em-acciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container emseccion (max-width: 360px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.em-boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.em-boton--borde {
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-accent);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+// El popup entero aparece y se va con un fundido (≤ 100 ms).
+:host(.em-entrar) {
+  animation: em-fundido var(--dur-popup) var(--ease-out);
+}
+
+:host(.em-salir) {
+  animation: em-fundido var(--dur-salir) var(--ease-in) reverse forwards;
+}
+
+@keyframes em-fundido {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host(.em-entrar) {
+    animation: none;
+  }
+
+  :host(.em-salir) {
+    animation-duration: 1ms;
+  }
+
+  .em-boton {
+    transition: none;
+  }
+}
+
+// Teléfono: el popup ocupa toda la pantalla.
+@media (max-width: 560px) {
+  :host {
+    padding: 0;
+  }
+
+  .em-caja {
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .em-caja {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .em-seccion {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .em-campo {
+    gap: var(--space-3);
+  }
+
+  .em-campo__input {
+    padding: var(--space-3);
+  }
+
+  .em-acciones {
+    gap: var(--space-3);
+  }
+
+  .em-boton {
+    padding: 0 var(--space-3);
+  }
+}

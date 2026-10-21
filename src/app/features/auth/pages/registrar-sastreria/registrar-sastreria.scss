@@ -5,6 +5,9 @@
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
+  // La tarjeta y, debajo, el pie con las páginas públicas.
+  flex-direction: column;
+  gap: var(--space-4);
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
@@ -13,6 +16,17 @@
     padding: var(--space-3);
   }
   background: var(--color-bg);
+}
+
+.registro-publico {
+  max-width: 550px;
+}
+
+.registro-legal {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--color-text-muted);
 }
 
 .registro-card {
@@ -161,7 +175,7 @@
   color: var(--color-text);
 
   &::placeholder {
-    color: #b0b0b5;
+    color: var(--color-placeholder);
   }
 }
 
@@ -262,7 +276,7 @@
   border: none;
   border-radius: var(--radius-md);
   background: var(--color-accent);
-  color: #ffffff;
+  color: var(--color-surface);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;

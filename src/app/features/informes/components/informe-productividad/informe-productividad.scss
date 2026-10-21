@@ -115,6 +115,13 @@
   display: flex;
 }
 
+// Gráfico: ocupa el alto libre de la tarjeta.
+.ip-grafico {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
 .ip-ayuda {
   margin-left: var(--space-2);
   font-size: 0.8rem;

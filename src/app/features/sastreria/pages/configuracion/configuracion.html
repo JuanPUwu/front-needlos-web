@@ -142,6 +142,92 @@
           <app-ticket [datos]="vistaPrevia()" [llenar]="true" />
         </div>
       </section>
+
+      <!-- ── Tu información: exportar (y, más adelante, eliminar) (Manual §16.1) ── -->
+      <section
+        class="sastreria-bloque sastreria-bloque--datos"
+        aria-labelledby="titulo-datos-propios"
+      >
+        <div class="sastreria-datos">
+          <span class="sastreria-datos__icono" aria-hidden="true">
+            <app-icono class="sastreria-datos__svg" nombre="todo" />
+          </span>
+          <div class="sastreria-datos__textos">
+            <h3 class="sastreria-datos__titulo" id="titulo-datos-propios">Tu información</h3>
+            @if (conPlan()) {
+              <p class="sastreria-bloque__ayuda">
+                Descarga todo lo de tu sastrería en un archivo que se abre con Excel (es tuya,
+                también si tu licencia vence), o trae tus clientes, catálogo e inventario desde otro
+                sistema.
+                @if (!puedeImportar()) {
+                  Para importar necesitas tu plan vigente.
+                }
+              </p>
+            } @else {
+              <p class="sastreria-bloque__ayuda">
+                Exportar e importar están incluidos en los planes de NeedlOS. Durante la prueba
+                gratis no están disponibles.
+              </p>
+            }
+            <p class="sastreria-bloque__ayuda">
+              Si ya no vas a usar NeedlOS, puedes eliminar tu sastrería (se conserva 90 días).
+            </p>
+          </div>
+          <div class="sastreria-datos__acciones">
+            <button
+              class="sastreria-boton sastreria-boton--borde"
+              type="button"
+              [disabled]="!puedeImportar()"
+              (click)="importarAbierto.set(true)"
+            >
+              Importar datos
+            </button>
+            <button
+              class="sastreria-boton sastreria-boton--borde"
+              type="button"
+              [disabled]="!conPlan()"
+              (click)="exportarAbierto.set(true)"
+            >
+              Exportar información
+            </button>
+            <button
+              class="sastreria-boton sastreria-boton--peligro"
+              type="button"
+              (click)="eliminarAbierto.set(true)"
+            >
+              Eliminar sastrería
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
+
+    @if (eliminarAbierto()) {
+      <app-eliminar-modal
+        animate.enter="el-entrar"
+        animate.leave="el-salir"
+        [sastreria]="form.controls.nombre.value"
+        [puedeExportar]="conPlan()"
+        (cerrado)="eliminarAbierto.set(false)"
+        (exportar)="eliminarAbierto.set(false); exportarAbierto.set(true)"
+      />
+    }
+
+    @if (importarAbierto()) {
+      <app-importar-modal
+        animate.enter="im-entrar"
+        animate.leave="im-salir"
+        (cerrado)="importarAbierto.set(false)"
+      />
+    }
+
+    @if (exportarAbierto()) {
+      <app-exportar-modal
+        animate.enter="em-entrar"
+        animate.leave="em-salir"
+        [sastreria]="form.controls.nombre.value"
+        (cerrado)="exportarAbierto.set(false)"
+      />
+    }
   </div>
 </main>

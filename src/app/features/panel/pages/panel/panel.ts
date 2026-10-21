@@ -8,6 +8,7 @@ import { Bandeja } from '../../../../core/notificaciones/bandeja';
 import { Icono, NombreIcono } from '../../../../shared/ui/icono/icono';
 import { Campana } from '../../../../shared/ui/campana/campana';
 import { Logo } from '../../../../shared/ui/logo/logo';
+import { SelectorSastreria } from '../../components/selector-sastreria/selector-sastreria';
 
 /** Una sección de la barra lateral. */
 interface SeccionNav {
@@ -24,7 +25,7 @@ interface SeccionNav {
  */
 @Component({
   selector: 'app-panel',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Logo, Icono, Campana],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Logo, Icono, Campana, SelectorSastreria],
   templateUrl: './panel.html',
   styleUrl: './panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,7 +59,7 @@ export class Panel {
   readonly soporte = this.auth.soporte;
 
   /**
-   * Aviso del plan (Manual §16): "Solo lectura" para todo el equipo cuando venció; al admin,
+   * Aviso del plan (Manual §16): "Sin plan activo" (solo lectura) para todo el equipo cuando venció; al admin,
    * los días que faltan cuando quedan 7 o menos.
    */
   readonly avisoPlan = computed<{
@@ -73,7 +74,7 @@ export class Panel {
     if (e.soloLectura) {
       return {
         tono: 'peligro',
-        texto: 'Solo lectura',
+        texto: 'Sin plan activo',
         detalle: 'La licencia venció: puedes ver todo, pero no hacer cambios hasta renovarla.',
       };
     }
@@ -86,7 +87,7 @@ export class Panel {
       return {
         tono: 'alerta',
         texto: `${e.plan === 'DEMO' ? 'Prueba' : 'Licencia'}: ${cuando}`,
-        detalle: `${que} ${cuando}. Después, la sastrería queda en solo lectura.`,
+        detalle: `${que} ${cuando}. Después, la sastrería queda sin plan activo (solo se puede ver).`,
       };
     }
     return null;

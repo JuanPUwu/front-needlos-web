@@ -16,6 +16,25 @@ export interface VentaDia {
   ventas: number;
 }
 
+/** Serie del gráfico: por HORA si el periodo es un día, por DIA si son varios. */
+export type Agrupacion = 'HORA' | 'DIA';
+
+/** Cómo se ven los informes (dueño 2026-10-20): tablas (por defecto) o gráficos. */
+export type ModoInforme = 'tablas' | 'graficos';
+
+/** `clave`: la hora ("08") o el día ("2026-10-20"). */
+export interface PuntoVentas {
+  clave: string;
+  ventas: number;
+  ingresos: number;
+}
+
+export interface PuntoProductividad {
+  clave: string;
+  finalizadas: number;
+  entregadas: number;
+}
+
 export interface Ventas {
   desde: string;
   hasta: string;
@@ -25,6 +44,8 @@ export interface Ventas {
   ingresos: number;
   porMetodo: IngresoMetodo[];
   porDia: VentaDia[];
+  agrupacion: Agrupacion;
+  serie: PuntoVentas[];
 }
 
 export type CategoriaEntrega = 'VENCIDO' | 'HOY' | 'PROXIMO';
@@ -77,6 +98,8 @@ export interface Productividad {
   desde: string;
   hasta: string;
   sastres: ProductividadSastre[];
+  agrupacion: Agrupacion;
+  serie: PuntoProductividad[];
 }
 
 export interface PrendaMasPedida {

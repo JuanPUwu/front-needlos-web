@@ -62,6 +62,15 @@ export const routes: Routes = [
       ),
   },
   {
+    // Su sastrería está en eliminación: el admin la puede recuperar (Manual §16.1).
+    path: 'recuperar-sastreria',
+    canActivate: [invitadoGuard],
+    loadComponent: () =>
+      import('./features/auth/pages/recuperar-sastreria/recuperar-sastreria').then(
+        (m) => m.RecuperarSastreria,
+      ),
+  },
+  {
     // Selector de sastreria (hoy no se usa en el login: se entra directo a la primera).
     // Se conservará para el cambio de sastreria dentro de la app.
     path: 'elegir-sastreria',
@@ -77,6 +86,28 @@ export const routes: Routes = [
     canActivate: [rolGuard('SASTRE', 'SASTRE_ADMIN')],
     loadComponent: () =>
       import('./features/pedidos/pages/ticket/ticket-pagina').then((m) => m.TicketPagina),
+  },
+
+  // ── Páginas públicas (con o sin sesión; Manual §16.1, entrega H) ──
+  {
+    path: 'sobre-nosotros',
+    loadComponent: () =>
+      import('./features/publico/pages/sobre-nosotros/sobre-nosotros').then((m) => m.SobreNosotros),
+  },
+  {
+    path: 'contacto',
+    loadComponent: () =>
+      import('./features/publico/pages/contacto/contacto').then((m) => m.Contacto),
+  },
+  {
+    path: 'terminos',
+    loadComponent: () =>
+      import('./features/publico/pages/terminos/terminos').then((m) => m.Terminos),
+  },
+  {
+    path: 'privacidad',
+    loadComponent: () =>
+      import('./features/publico/pages/privacidad/privacidad').then((m) => m.Privacidad),
   },
 
   // ── App autenticada (marco con barra lateral) ─────────────────────

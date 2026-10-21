@@ -201,8 +201,9 @@ export class Gastos implements OnInit {
           const pagina = this.gastos().length === 1 ? this.pagina() - 1 : this.pagina();
           this.cargar(Math.max(pagina, 0));
         },
+        // Los errores van en la línea del título de la sección (Reglas), no en una notificación.
         error: (err: unknown) =>
-          this.notificaciones.error(mensajeDeError(err, 'No se pudo eliminar el gasto.')),
+          this.error.set(mensajeDeError(err, 'No se pudo eliminar el gasto.')),
       });
   }
 

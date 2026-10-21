@@ -46,6 +46,7 @@ import {
   etiquetaMetodo,
 } from '../../models/pedido.model';
 import { PedidoService } from '../../services/pedido.service';
+import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const CON_TEXTO = /\S/;
 const UN_DIA = 24 * 60 * 60 * 1000;
@@ -61,6 +62,7 @@ const UN_DIA = 24 * 60 * 60 * 1000;
 @Component({
   selector: 'app-pedido-detalle',
   imports: [
+    Vacio,
     ReactiveFormsModule,
     NgTemplateOutlet,
     RouterLink,

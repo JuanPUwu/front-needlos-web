@@ -4,62 +4,106 @@
   <div class="ipc" [class.ipc--esqueleto]="!datos()" [attr.aria-busy]="!datos()">
     <section class="ipc-bloque" aria-labelledby="t-mas-pedidas">
       <h3 class="ipc-subtitulo" id="t-mas-pedidas">Prendas más pedidas</h3>
-      <ol class="ipc-lista">
-        @for (p of v.prendas; track $index) {
-          <li class="ipc-fila">
-            <span class="ipc-fila__puesto">{{ $index + 1 }}</span>
-            <span class="ipc-fila__nombre" [title]="p.tipo">{{ p.tipo }}</span>
-            <span class="ipc-fila__valor">
-              <strong>{{ p.piezas }} pzs</strong>
-              <span class="ipc-fila__nota">{{ p.valor | moneda }}</span>
-            </span>
-          </li>
-        } @empty {
-          <li class="ipc-vacio">
+      @if (modo() === 'graficos' && barras(); as b) {
+        @if (b.prendas.length > 0) {
+          <app-grafico-barras
+            class="ipc-barras"
+            unidad="pzs"
+            [barras]="b.prendas"
+            [cargando]="!datos()"
+          />
+        } @else {
+          <div class="ipc-vacio">
             <app-vacio
               icono="percha"
               titulo="Sin pedidos"
               mensaje="No hay pedidos en este periodo."
               [compacto]="true"
             />
-          </li>
+          </div>
         }
-      </ol>
+      } @else {
+        <ol class="ipc-lista">
+          @for (p of v.prendas; track $index) {
+            <li class="ipc-fila">
+              <span class="ipc-fila__puesto">{{ $index + 1 }}</span>
+              <span class="ipc-fila__nombre" [title]="p.tipo">{{ p.tipo }}</span>
+              <span class="ipc-fila__valor">
+                <strong>{{ p.piezas }} pzs</strong>
+                <span class="ipc-fila__nota">{{ p.valor | moneda }}</span>
+              </span>
+            </li>
+          } @empty {
+            <li class="ipc-vacio">
+              <app-vacio
+                icono="percha"
+                titulo="Sin pedidos"
+                mensaje="No hay pedidos en este periodo."
+                [compacto]="true"
+              />
+            </li>
+          }
+        </ol>
+      }
     </section>
 
     <section class="ipc-bloque" aria-labelledby="t-clientes">
       <h3 class="ipc-subtitulo" id="t-clientes">Clientes que más compraron</h3>
-      <ol class="ipc-lista">
-        @for (c of v.clientes; track c.clienteId) {
-          <li>
-            <button
-              class="ipc-fila ipc-fila--boton"
-              type="button"
-              [disabled]="!datos()"
-              [attr.aria-label]="'Ver los pedidos de ' + c.nombre"
-              (click)="verCliente(c)"
-            >
-              <span class="ipc-fila__puesto">{{ $index + 1 }}</span>
-              <span class="ipc-fila__nombre" [title]="c.nombre">{{ c.nombre }}</span>
-              <span class="ipc-fila__valor">
-                <strong>{{ c.valor | moneda }}</strong>
-                <span class="ipc-fila__nota">
-                  {{ c.pedidos }} {{ c.pedidos === 1 ? 'pedido' : 'pedidos' }}
-                </span>
-              </span>
-            </button>
-          </li>
-        } @empty {
-          <li class="ipc-vacio">
+      @if (modo() === 'graficos' && barras(); as b) {
+        @if (b.clientes.length > 0) {
+          <app-grafico-barras
+            class="ipc-barras"
+            formato="moneda"
+            color="var(--color-success)"
+            accion="Ver los pedidos de"
+            [barras]="b.clientes"
+            [interactivo]="true"
+            [cargando]="!datos()"
+            (elegir)="verClienteBarra($event)"
+          />
+        } @else {
+          <div class="ipc-vacio">
             <app-vacio
               icono="percha"
               titulo="Sin pedidos"
               mensaje="No hay pedidos en este periodo."
               [compacto]="true"
             />
-          </li>
+          </div>
         }
-      </ol>
+      } @else {
+        <ol class="ipc-lista">
+          @for (c of v.clientes; track c.clienteId) {
+            <li>
+              <button
+                class="ipc-fila ipc-fila--boton"
+                type="button"
+                [disabled]="!datos()"
+                [attr.aria-label]="'Ver los pedidos de ' + c.nombre"
+                (click)="verCliente(c)"
+              >
+                <span class="ipc-fila__puesto">{{ $index + 1 }}</span>
+                <span class="ipc-fila__nombre" [title]="c.nombre">{{ c.nombre }}</span>
+                <span class="ipc-fila__valor">
+                  <strong>{{ c.valor | moneda }}</strong>
+                  <span class="ipc-fila__nota">
+                    {{ c.pedidos }} {{ c.pedidos === 1 ? 'pedido' : 'pedidos' }}
+                  </span>
+                </span>
+              </button>
+            </li>
+          } @empty {
+            <li class="ipc-vacio">
+              <app-vacio
+                icono="percha"
+                titulo="Sin pedidos"
+                mensaje="No hay pedidos en este periodo."
+                [compacto]="true"
+              />
+            </li>
+          }
+        </ol>
+      }
     </section>
   </div>
 }

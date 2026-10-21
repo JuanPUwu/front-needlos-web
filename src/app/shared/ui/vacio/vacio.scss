@@ -65,3 +65,10 @@
   line-height: 1.4;
   color: var(--color-text-muted);
 }
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .vacio {
+    padding: var(--space-3);
+  }
+}

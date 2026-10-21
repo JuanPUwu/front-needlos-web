@@ -120,7 +120,7 @@
   color: var(--color-text);
 
   &::placeholder {
-    color: #b0b0b5;
+    color: var(--color-placeholder);
   }
 }
 
@@ -142,8 +142,8 @@
 }
 
 .recuperar-banner--exito {
-  color: #1b7a34;
-  background: rgba(52, 200, 74, 0.12);
+  color: var(--color-success);
+  background: var(--color-success-bg);
 }
 
 .recuperar-submit {
@@ -151,7 +151,7 @@
   border: none;
   border-radius: var(--radius-md);
   background: var(--color-accent);
-  color: #ffffff;
+  color: var(--color-surface);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;

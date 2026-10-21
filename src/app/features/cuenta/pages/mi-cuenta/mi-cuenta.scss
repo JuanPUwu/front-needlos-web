@@ -161,7 +161,7 @@
   border: none;
   border-radius: var(--radius-md);
   background: var(--color-accent);
-  color: #ffffff;
+  color: var(--color-surface);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -234,7 +234,7 @@
   padding: 2px 8px;
   border-radius: 999px;
   background: var(--color-navy);
-  color: #ffffff;
+  color: var(--color-surface);
   font-size: 0.7rem;
   font-weight: 700;
 }

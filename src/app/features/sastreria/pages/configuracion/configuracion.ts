@@ -25,6 +25,10 @@ import { hoyIso } from '../../../../shared/util/fechas';
 import { Sastreria } from '../../models/sastreria.model';
 import { SastreriaService } from '../../services/sastreria.service';
 import { avisoFaltantes } from '../../../../shared/util/faltantes';
+import { ExportarModal } from '../../components/exportar-modal/exportar-modal';
+import { EliminarModal } from '../../components/eliminar-modal/eliminar-modal';
+import { ImportarModal } from '../../components/importar-modal/importar-modal';
+import { Icono } from '../../../../shared/ui/icono/icono';
 
 /** Al menos un caracter visible (el backend rechaza textos solo con espacios). */
 const CON_TEXTO = /\S/;
@@ -36,6 +40,10 @@ const CON_TEXTO = /\S/;
 @Component({
   selector: 'app-configuracion-sastreria',
   imports: [
+    ExportarModal,
+    EliminarModal,
+    ImportarModal,
+    Icono,
     TituloBloque,
     Esqueleto,
     Encabezado,
@@ -57,11 +65,23 @@ export class ConfiguracionSastreria implements OnInit {
 
   /** Plan y vencimiento (prueba o licencia). */
   readonly estadoPlan = this.estadoSastreria.estado;
+  /**
+   * Exportar e importar son únicos de los planes (dueño 2026-10-20): en la prueba gratis no.
+   * Exportar sigue con la licencia vencida; importar necesita el plan vigente.
+   */
+  readonly conPlan = computed(() => this.estadoPlan()?.plan === 'LICENCIADO');
+  readonly puedeImportar = computed(() => this.conPlan() && !this.estadoPlan()?.soloLectura);
 
   readonly sastreria = signal<Sastreria | null>(null);
   readonly cargando = signal(true);
   readonly error = signal<string | null>(null);
   readonly guardando = signal(false);
+  /** Popup de exportar toda la información (Manual §16.1). */
+  readonly exportarAbierto = signal(false);
+  /** Popup de importar clientes, catálogo o inventario (Manual §16.1). */
+  readonly importarAbierto = signal(false);
+  /** Popup de eliminar la sastrería (Manual §16.1). */
+  readonly eliminarAbierto = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(120), Validators.pattern(CON_TEXTO)]],

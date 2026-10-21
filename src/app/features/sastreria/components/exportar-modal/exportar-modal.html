@@ -1,0 +1,72 @@
+<div class="em-fondo" aria-hidden="true" (click)="cerrar()"></div>
+
+<div
+  #caja
+  class="em-caja"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-exportar"
+  tabindex="-1"
+>
+  <app-encabezado
+    idTitulo="titulo-exportar"
+    titulo="Exportar información"
+    subtitulo="Descarga todo lo de tu sastrería en un archivo .zip."
+    icono="todo"
+    [error]="error()"
+  >
+    <button class="em-cerrar" type="button" aria-label="Cerrar" title="Cerrar" (click)="cerrar()">
+      <app-icono class="em-cerrar__icono" nombre="cerrar" />
+    </button>
+  </app-encabezado>
+
+  <form class="em-seccion" [formGroup]="form" (ngSubmit)="exportar()" novalidate>
+    <div class="em-texto">
+      <p>
+        El archivo trae, en hojas que se abren con Excel o Google Sheets: datos de la sastrería,
+        equipo, clientes, catálogo, pedidos con sus prendas e historial, abonos, gastos e
+        inventario. No incluye contraseñas.
+      </p>
+      <p class="em-aviso">
+        <app-icono class="em-aviso__icono" nombre="advertencia" />
+        Lleva datos personales de tus clientes y tu equipo: guárdalo en un lugar seguro.
+      </p>
+    </div>
+
+    <div class="em-campo">
+      <div class="em-campo__head">
+        <label class="em-campo__label" for="exportarConfirmacion">
+          Confirma con tu contraseña <span class="em-req">*</span>
+        </label>
+        @if (form.controls.confirmacion.touched && form.controls.confirmacion.invalid) {
+          <span class="em-campo__error">Obligatoria</span>
+        }
+      </div>
+      <div class="em-clave">
+        <input
+          class="em-campo__input"
+          id="exportarConfirmacion"
+          [type]="verClave() ? 'text' : 'password'"
+          autocomplete="current-password"
+          formControlName="confirmacion"
+        />
+        <button
+          class="em-clave__ver"
+          type="button"
+          [attr.aria-label]="verClave() ? 'Ocultar' : 'Mostrar'"
+          (click)="verClave.set(!verClave())"
+        >
+          <app-icono class="em-clave__icono" [nombre]="verClave() ? 'ojo-cerrado' : 'ojo'" />
+        </button>
+      </div>
+      <p class="em-ayuda">¿Entras con Google? Escribe el nombre de tu sastrería.</p>
+    </div>
+
+    <div class="em-acciones">
+      <button class="em-boton em-boton--borde" type="button" (click)="cerrar()">Cancelar</button>
+      <button class="em-boton" type="submit" [disabled]="exportando()">
+        {{ exportando() ? 'Exportando...' : 'Exportar' }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -213,18 +213,70 @@
     min-width: 0;
   }
 
-  // Teléfono: las pestañas toman la fila y el botón baja a la derecha.
-  @container panel (max-width: 560px) {
+  // Angosto: las pestañas toman la fila; Tablas/Gráficos y recargar bajan a la siguiente.
+  @container panel (max-width: 860px) {
     flex-wrap: wrap;
 
     .informes-pestanas {
       flex-basis: 100%;
     }
 
-    app-boton-recargar {
-      // Alineación a la derecha de su fila (no es espaciado entre elementos).
-      margin-left: auto;
+    .informes-modo {
+      flex: 1;
     }
+  }
+}
+
+// Interruptor Tablas / Gráficos (dueño 2026-10-20): dos botones en una cápsula gris.
+.informes-modo {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.informes-modo__boton {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &[aria-pressed='true'] {
+    background: var(--color-surface);
+    color: var(--color-navy);
+    box-shadow: var(--shadow-card);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.informes-modo__icono {
+  width: 1rem;
+  height: 1rem;
+}
+
+// Escritorio mediano: solo los íconos, para que las pestañas de periodo no se aprieten. Desde
+// 860 px el interruptor baja a su propia fila y vuelve a mostrar el texto.
+@container panel (min-width: 861px) and (max-width: 1240px) {
+  .informes-modo__texto {
+    display: none;
   }
 }
 

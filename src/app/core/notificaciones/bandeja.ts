@@ -9,7 +9,8 @@ export type TonoBandeja = 'EXITO' | 'INFO' | 'ALERTA' | 'ERROR';
 
 export interface NotificacionBandeja {
   id: string;
-  tipo: 'PROPIA' | 'SOPORTE' | 'VENCIMIENTO' | 'LICENCIA' | 'PEDIDO';
+  tipo:
+    'PROPIA' | 'SOPORTE' | 'VENCIMIENTO' | 'LICENCIA' | 'PEDIDO' | 'EXPORTACION' | 'ELIMINACION';
   tono: TonoBandeja;
   titulo: string;
   /** Ruta de la app a la que lleva; null si no lleva a ningún lado. */

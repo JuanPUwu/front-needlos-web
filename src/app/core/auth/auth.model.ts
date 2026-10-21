@@ -82,6 +82,21 @@ export interface LoginResponse {
   preauthToken: string | null;
   sastrerias: SastreriaResumen[] | null;
   sesion: SesionResponse | null;
+  /** Su sastrería está en eliminación y la puede recuperar (Manual §16.1). */
+  recuperables?: SastreriaRecuperable[] | null;
+}
+
+/** Sastrería en eliminación que su admin puede recuperar hasta `seBorraEl` (ISO). */
+export interface SastreriaRecuperable {
+  tenantId: string;
+  nombre: string;
+  seBorraEl: string;
+}
+
+/** Estado transitorio: el admin inició sesión y su sastrería está en eliminación. */
+export interface RecuperacionPendiente {
+  preauthToken: string;
+  sastrerias: SastreriaRecuperable[];
 }
 
 /** Estado transitorio mientras la cuenta elige entre varias sastrerias. */

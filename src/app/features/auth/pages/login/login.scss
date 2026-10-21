@@ -5,6 +5,9 @@
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
+  // La tarjeta y, debajo, el pie con las páginas públicas.
+  flex-direction: column;
+  gap: var(--space-4);
   align-items: center;
   justify-content: center;
   padding: var(--space-5);
@@ -120,7 +123,7 @@
   color: var(--color-text);
 
   &::placeholder {
-    color: #b0b0b5;
+    color: var(--color-placeholder);
   }
 }
 
@@ -177,7 +180,7 @@
   border: none;
   border-radius: var(--radius-md);
   background: var(--color-accent);
-  color: #ffffff;
+  color: var(--color-surface);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -216,6 +219,10 @@
 .login-divider__text {
   color: var(--color-text-muted);
   font-size: 0.85rem;
+}
+
+.login-publico {
+  max-width: 550px;
 }
 
 .login-pie {

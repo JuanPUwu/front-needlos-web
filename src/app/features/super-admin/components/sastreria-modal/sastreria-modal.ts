@@ -46,6 +46,11 @@ const ESQUELETO: SastreriaPlataforma = {
   admin: 'Nombre del admin',
   adminEmail: 'correo@ejemplo.com',
   telefono: '3000000000',
+  bloqueoMotivo: null,
+  eliminacionSolicitadaEn: null,
+  seBorraEl: null,
+  eliminacionOrigen: null,
+  eliminadaEn: null,
 };
 
 /** Qué cambió, para que el panel actualice el listado y avise. */
@@ -56,7 +61,7 @@ export interface CambioSastreria {
 
 /**
  * Popup de una sastrería para el SuperAdmin (Manual §16): su uso (sin montos), otorgar o extender
- * la licencia por meses, desactivar o reactivar (con confirmación) y su registro de acciones.
+ * la licencia por meses, bloquear por abuso o recuperar (con confirmación) y su registro de acciones.
  */
 @Component({
   selector: 'app-sastreria-modal',
@@ -83,6 +88,9 @@ export class SastreriaModal implements OnInit, OnDestroy {
   readonly sastreria = signal<SastreriaPlataforma | null>(null);
   readonly acciones = signal<AccionPlataforma[] | null>(null);
   readonly ocupado = signal(false);
+  /** Pidiendo el motivo del bloqueo por abuso. */
+  readonly bloqueando = signal(false);
+  readonly motivo = signal('');
   readonly error = signal<string | null>(null);
 
   /** Lo que se pinta: los datos o, mientras llegan, el esqueleto. */
@@ -126,7 +134,7 @@ export class SastreriaModal implements OnInit, OnDestroy {
     });
     const ok = await this.confirmacion.pedir({
       titulo: `¿Otorgar ${meses} ${meses === 1 ? 'mes' : 'meses'} a ${s.nombre}?`,
-      mensaje: `Quedará licenciada hasta el ${hasta}. Si estaba en solo lectura, vuelve a funcionar completa.`,
+      mensaje: `Quedará licenciada hasta el ${hasta}. Si estaba sin plan, vuelve a funcionar completa.`,
       aceptar: 'Sí, otorgar',
     });
     if (ok) {
@@ -134,27 +142,51 @@ export class SastreriaModal implements OnInit, OnDestroy {
     }
   }
 
-  async cambiarActivo(): Promise<void> {
+  /** Primer toque: pide el motivo; segundo: confirma y bloquea (Manual §16.1). */
+  async bloquear(): Promise<void> {
     const s = this.sastreria();
     if (!s || this.ocupado()) {
       return;
     }
-    if (s.activo) {
-      const ok = await this.confirmacion.pedir({
-        titulo: `¿Desactivar ${s.nombre}?`,
-        mensaje:
-          'Nadie de la sastrería podrá entrar y se cerrarán sus sesiones abiertas. Sus datos se conservan y la puedes reactivar.',
-        aceptar: 'Sí, desactivar',
-        peligro: true,
-      });
-      if (!ok) {
-        return;
-      }
+    if (!this.bloqueando()) {
+      this.motivo.set('');
+      this.bloqueando.set(true);
+      return;
     }
-    this.ejecutar(
-      s.activo ? this.service.desactivar(s.id) : this.service.activar(s.id),
-      s.activo ? 'Sastrería desactivada.' : 'Sastrería activada.',
-    );
+    const motivo = this.motivo().trim();
+    const ok = await this.confirmacion.pedir({
+      titulo: `¿Bloquear ${s.nombre}?`,
+      mensaje:
+        'Nadie de la sastrería podrá entrar y se cerrarán sus sesiones abiertas. Es solo para abuso; sus datos se conservan y puedes quitar el bloqueo.',
+      aceptar: 'Sí, bloquear',
+      peligro: true,
+    });
+    if (ok) {
+      this.bloqueando.set(false);
+      this.ejecutar(this.service.bloquear(s.id, motivo), 'Sastrería bloqueada.');
+    }
+  }
+
+  desbloquear(): void {
+    const s = this.sastreria();
+    if (s && !this.ocupado()) {
+      this.ejecutar(this.service.desbloquear(s.id), 'Bloqueo quitado.');
+    }
+  }
+
+  async recuperar(): Promise<void> {
+    const s = this.sastreria();
+    if (!s || this.ocupado()) {
+      return;
+    }
+    const ok = await this.confirmacion.pedir({
+      titulo: `¿Recuperar ${s.nombre}?`,
+      mensaje: 'Su equipo podrá volver a entrar y no se borrará. Hazlo solo si su dueño lo pidió.',
+      aceptar: 'Sí, recuperar',
+    });
+    if (ok) {
+      this.ejecutar(this.service.recuperar(s.id), 'Sastrería recuperada.');
+    }
   }
 
   /** Entra a la sastrería como su admin, en solo lectura; el admin verá el aviso de la visita. */
@@ -186,7 +218,7 @@ export class SastreriaModal implements OnInit, OnDestroy {
       });
   }
 
-  private ejecutar(peticion: ReturnType<PlataformaService['activar']>, mensaje: string): void {
+  private ejecutar(peticion: ReturnType<PlataformaService['desbloquear']>, mensaje: string): void {
     this.ocupado.set(true);
     this.error.set(null);
     peticion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({

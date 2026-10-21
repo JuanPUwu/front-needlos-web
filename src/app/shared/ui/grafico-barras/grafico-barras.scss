@@ -1,0 +1,105 @@
+// Barras horizontales. Solo tokens globales; espaciado con gap.
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.gb {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.gb-fila {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  color: var(--color-text);
+}
+
+.gb-fila--boton {
+  cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &:hover {
+    background: var(--color-bg);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.gb-fila__cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.gb-fila__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.gb-fila__valor {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.gb-fila__detalle {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.gb-barra {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-bg);
+}
+
+.gb-barra__relleno {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+// Mientras carga: los textos y las barras en gris.
+.gb--cargando {
+  .gb-fila__nombre,
+  .gb-fila__valor {
+    color: transparent;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+  }
+
+  .gb-barra__relleno {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gb-fila--boton {
+    transition: none;
+  }
+}

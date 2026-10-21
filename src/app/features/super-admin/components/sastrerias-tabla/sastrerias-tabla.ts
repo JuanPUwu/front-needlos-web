@@ -45,4 +45,9 @@ export const SASTRERIAS_ESQUELETO: SastreriaPlataforma[] = Array.from({ length: 
   admin: 'Admin',
   adminEmail: 'correo@ejemplo.com',
   telefono: null,
+  bloqueoMotivo: null,
+  eliminacionSolicitadaEn: null,
+  seBorraEl: null,
+  eliminacionOrigen: null,
+  eliminadaEn: null,
 }));

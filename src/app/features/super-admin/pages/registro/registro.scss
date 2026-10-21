@@ -146,11 +146,14 @@
   overflow-wrap: anywhere;
 
   &[data-accion='LICENCIA_OTORGADA'],
-  &[data-accion='SASTRERIA_ACTIVADA'] {
+  &[data-accion='SASTRERIA_ACTIVADA'],
+  &[data-accion='SASTRERIA_DESBLOQUEADA'],
+  &[data-accion='ELIMINACION_CANCELADA'] {
     --tono: var(--estado-finalizado);
   }
 
   &[data-accion='SASTRERIA_DESACTIVADA'],
+  &[data-accion='SASTRERIA_BLOQUEADA'],
   &[data-accion='SUPERADMIN_ELIMINADO'] {
     --tono: var(--estado-anulado);
   }

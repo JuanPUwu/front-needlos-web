@@ -120,7 +120,7 @@
   color: var(--color-text);
 
   &::placeholder {
-    color: #b0b0b5;
+    color: var(--color-placeholder);
   }
 }
 
@@ -152,7 +152,7 @@
 
 .verificar-banner--info {
   color: var(--color-navy);
-  background: rgba(2, 40, 89, 0.07);
+  background: var(--color-navy-suave);
 }
 
 .verificar-submit {
@@ -160,7 +160,7 @@
   border: none;
   border-radius: var(--radius-md);
   background: var(--color-accent);
-  color: #ffffff;
+  color: var(--color-surface);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;

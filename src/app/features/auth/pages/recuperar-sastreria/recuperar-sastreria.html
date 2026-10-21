@@ -1,0 +1,46 @@
+<main class="rec-page">
+  <section class="rec-card" aria-labelledby="rec-titulo">
+    <header class="rec-card__header">
+      <app-logo class="rec-card__logo" variant="dark" />
+      <h1 class="rec-card__titulo" id="rec-titulo">
+        @if (error(); as e) {
+          <span class="rec-card__error" role="alert" [title]="e">{{ e }}</span>
+        } @else {
+          Tu sastrería está en eliminación
+        }
+      </h1>
+    </header>
+
+    <p class="rec-texto">
+      Pediste eliminarla (o se programó por no tener un plan activo durante 12 meses). Mientras no
+      se borre, puedes recuperarla tal como estaba: tu equipo volverá a entrar.
+    </p>
+
+    @for (s of pendiente()?.sastrerias ?? []; track s.tenantId) {
+      <div class="rec-sastreria">
+        <span class="rec-sastreria__icono" aria-hidden="true">
+          <app-icono class="rec-sastreria__svg" nombre="tienda" />
+        </span>
+        <div class="rec-sastreria__textos">
+          <strong class="rec-sastreria__nombre">{{ s.nombre }}</strong>
+          <span class="rec-sastreria__fecha"
+            >Se borrará el {{ s.seBorraEl | fechaHora: 'fecha' }}</span
+          >
+        </div>
+      </div>
+      <button
+        class="rec-boton"
+        type="button"
+        [disabled]="recuperando() !== null"
+        (click)="recuperar(s.tenantId, s.nombre)"
+      >
+        {{ recuperando() === s.tenantId ? 'Recuperando...' : 'Recuperar mi sastrería' }}
+      </button>
+    }
+
+    <button class="rec-enlace" type="button" (click)="cancelar()">
+      No, volver al inicio de sesión
+    </button>
+  </section>
+  <app-pie-publico class="rec-publico" />
+</main>

@@ -77,11 +77,13 @@
     --tono: var(--estado-entregado);
   }
 
-  &[data-estado='VENCIDA'] {
+  &[data-estado='SIN_PLAN'] {
     --tono: var(--estado-anulado);
   }
 
-  &[data-estado='DESACTIVADA'] {
+  &[data-estado='BLOQUEADA'],
+  &[data-estado='EN_ELIMINACION'],
+  &[data-estado='ELIMINADA'] {
     --tono: var(--color-text-muted);
   }
 

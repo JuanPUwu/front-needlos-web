@@ -50,3 +50,10 @@
     opacity: 1;
   }
 }
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .bloqueo__caja {
+    padding: var(--space-3) var(--space-3);
+  }
+}

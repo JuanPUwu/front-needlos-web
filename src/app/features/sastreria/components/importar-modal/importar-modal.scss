@@ -1,0 +1,417 @@
+// Popup "Importar datos": medidas del formulario base (Reglas §12.3). Solo tokens globales.
+
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.im-fondo {
+  position: absolute;
+  inset: 0;
+  background: var(--color-velo);
+}
+
+.im-caja {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: panel / inline-size;
+  outline: none;
+}
+
+.im-cerrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.im-cerrar__icono {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.im-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: imseccion / inline-size;
+}
+
+// ── Qué importar: pestañas del mismo ancho ──
+.im-tipos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.im-tipo {
+  height: 44px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &[aria-selected='true'] {
+    background: var(--color-accent);
+    color: var(--color-surface);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.im-pasos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-5);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+// Columnas de la plantilla: nombre (como en el archivo) y qué poner.
+.im-columnas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.im-columna {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: 0.88rem;
+
+  @container imseccion (max-width: 420px) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
+
+.im-columna__nombre {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.im-columna__ayuda {
+  color: var(--color-text-muted);
+}
+
+.im-columnas__nota {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.im-req {
+  color: var(--color-danger);
+}
+
+.im-ayuda {
+  margin-left: var(--space-2);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// ── Vista previa ──
+.im-vista__cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.im-vista__titulo {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.im-vista__archivo {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.im-cifras {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.im-cifra,
+.im-fila {
+  --tono: var(--color-accent);
+  --fondo: var(--focus-ring);
+
+  &[data-estado='OMITIDO'] {
+    --tono: var(--color-text-muted);
+    --fondo: var(--color-bg);
+  }
+
+  &[data-estado='ERROR'] {
+    --tono: var(--color-danger);
+    --fondo: var(--color-danger-bg);
+  }
+}
+
+.im-cifra {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--fondo);
+  font-size: 0.9rem;
+  text-align: center;
+  color: var(--tono);
+
+  strong {
+    font-size: 1.1rem;
+  }
+}
+
+.im-filas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 320px;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+}
+
+.im-fila {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-left: 4px solid var(--tono);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+}
+
+.im-fila__linea {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.im-fila__resumen {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.im-fila__estado {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--tono);
+}
+
+.im-fila__motivo {
+  grid-column: 2 / -1;
+  font-size: 0.85rem;
+  color: var(--tono);
+}
+
+// ── Acciones ──
+.im-acciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container imseccion (max-width: 360px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.im-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  // El label del archivo recibe el foco a través de su input.
+  &:focus-visible,
+  &:focus-within {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.im-boton--borde {
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-accent);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+.im-boton--apagado {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+// El input del archivo no se ve: lo abre su botón (label).
+.im-archivo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+// El popup entero aparece y se va con un fundido (≤ 100 ms).
+:host(.im-entrar) {
+  animation: im-fundido var(--dur-popup) var(--ease-out);
+}
+
+:host(.im-salir) {
+  animation: im-fundido var(--dur-salir) var(--ease-in) reverse forwards;
+}
+
+@keyframes im-fundido {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host(.im-entrar) {
+    animation: none;
+  }
+
+  :host(.im-salir) {
+    animation-duration: 1ms;
+  }
+
+  .im-boton,
+  .im-tipo {
+    transition: none;
+  }
+}
+
+// Teléfono: el popup ocupa toda la pantalla; cifras una debajo de otra.
+@media (max-width: 560px) {
+  :host {
+    padding: 0;
+  }
+
+  .im-caja {
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .im-cifras {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .im-caja {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .im-seccion {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .im-pasos {
+    padding-left: var(--space-3);
+  }
+
+  .im-acciones {
+    gap: var(--space-3);
+  }
+
+  .im-boton {
+    padding: 0 var(--space-3);
+  }
+}

@@ -1,0 +1,52 @@
+<main class="mp">
+  <div class="mp-columna">
+    <header class="mp-cabeza">
+      <a class="mp-logo" [routerLink]="volver().ruta" aria-label="NeedlOS">
+        <app-logo class="mp-logo__img" variant="dark" />
+      </a>
+      <a class="mp-volver" [routerLink]="volver().ruta">{{ volver().texto }}</a>
+    </header>
+
+    <article class="mp-tarjeta" aria-labelledby="mp-titulo">
+      <div class="mp-titulo-bloque">
+        <h1 class="mp-titulo" id="mp-titulo">{{ titulo() }}</h1>
+        @if (actualizado(); as fecha) {
+          <p class="mp-fecha">Última actualización: {{ fecha }}</p>
+        }
+        @if (introduccion(); as intro) {
+          <p class="mp-intro">{{ intro }}</p>
+        }
+      </div>
+
+      @for (s of secciones(); track s.titulo) {
+        <section class="mp-seccion">
+          <h2 class="mp-seccion__titulo">{{ s.titulo }}</h2>
+          @for (p of s.parrafos ?? []; track $index) {
+            <p class="mp-parrafo">{{ p }}</p>
+          }
+          @if (s.lista?.length) {
+            <ul class="mp-lista">
+              @for (item of s.lista; track $index) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          }
+          @if (s.enlaces?.length) {
+            <ul class="mp-enlaces">
+              @for (e of s.enlaces; track e.url) {
+                <li class="mp-enlace">
+                  <span class="mp-enlace__etiqueta">{{ e.etiqueta }}</span>
+                  <a class="mp-enlace__valor" [href]="e.url" target="_blank" rel="noopener">{{
+                    e.texto
+                  }}</a>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    </article>
+
+    <app-pie-publico />
+  </div>
+</main>

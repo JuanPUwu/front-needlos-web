@@ -90,6 +90,23 @@
   color: var(--color-text-muted);
 }
 
+.iv-resumen {
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+
+  strong {
+    color: var(--color-navy);
+  }
+}
+
+// ── Gráfico: ocupa el alto libre de la tarjeta ──────────────
+.iv-grafico {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
 // ── Listas (se desplazan dentro de la tarjeta) ──────────────
 .iv-cuerpo {
   flex: 1;

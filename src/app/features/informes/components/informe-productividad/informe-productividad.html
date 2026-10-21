@@ -2,38 +2,72 @@
 
 @if (vista(); as v) {
   <div class="ip" [class.ip--esqueleto]="!datos()" [attr.aria-busy]="!datos()">
-    <div class="ip-encabezado" aria-hidden="true">
-      <span>Sastre</span>
-      <span class="ip-encabezado__num">Finalizadas</span>
-      <span class="ip-encabezado__num">Entregadas</span>
-    </div>
-    <ul class="ip-lista">
-      @for (s of v.sastres; track s.sastreId ?? 'sin-asignar') {
-        <li class="ip-fila" [class.ip-fila--sin-asignar]="!s.sastreId">
-          <span class="ip-fila__sastre">
-            <span class="ip-avatar" aria-hidden="true">{{ iniciales(s.nombre) ?? '—' }}</span>
-            <span class="ip-fila__nombre" [title]="s.nombre ?? 'Sin asignar'">{{
-              s.nombre ?? 'Sin asignar'
-            }}</span>
-          </span>
-          <span class="ip-fila__num" [attr.aria-label]="s.finalizadas + ' piezas finalizadas'">
-            {{ s.finalizadas }}
-          </span>
-          <span class="ip-fila__num" [attr.aria-label]="s.entregadas + ' piezas entregadas'">
-            {{ s.entregadas }}
-          </span>
-        </li>
-      } @empty {
-        <li class="ip-vacio">
-          <app-vacio
-            icono="equipo"
-            titulo="Sin actividad"
-            mensaje="Nadie finalizó ni entregó prendas en este periodo."
-            [compacto]="true"
+    @if (modo() === 'graficos') {
+      <!-- Gráfico: piezas de todo el equipo por hora (un día) o por día (dueño 2026-10-20). -->
+      <div class="ip-grafico">
+        @if (grafico(); as g) {
+          @if (g.vacio) {
+            <app-vacio
+              icono="equipo"
+              titulo="Sin actividad"
+              mensaje="Nadie finalizó ni entregó prendas en este periodo."
+              [compacto]="true"
+            />
+          } @else {
+            <app-grafico-lineas
+              [etiquetas]="g.etiquetas"
+              [series]="g.series"
+              [descripcion]="
+                g.porHora
+                  ? 'Piezas finalizadas y entregadas por hora'
+                  : 'Piezas finalizadas y entregadas por día'
+              "
+            />
+          }
+        } @else {
+          <app-grafico-lineas
+            [etiquetas]="[]"
+            [series]="[]"
+            descripcion="Cargando la productividad"
+            [cargando]="true"
           />
-        </li>
-      }
-    </ul>
-    <p class="ip-ayuda">Piezas, contadas para la persona asignada a cada prenda.</p>
+        }
+      </div>
+      <p class="ip-ayuda">Piezas de todo el equipo.</p>
+    } @else {
+      <div class="ip-encabezado" aria-hidden="true">
+        <span>Sastre</span>
+        <span class="ip-encabezado__num">Finalizadas</span>
+        <span class="ip-encabezado__num">Entregadas</span>
+      </div>
+      <ul class="ip-lista">
+        @for (s of v.sastres; track s.sastreId ?? 'sin-asignar') {
+          <li class="ip-fila" [class.ip-fila--sin-asignar]="!s.sastreId">
+            <span class="ip-fila__sastre">
+              <span class="ip-avatar" aria-hidden="true">{{ iniciales(s.nombre) ?? '—' }}</span>
+              <span class="ip-fila__nombre" [title]="s.nombre ?? 'Sin asignar'">{{
+                s.nombre ?? 'Sin asignar'
+              }}</span>
+            </span>
+            <span class="ip-fila__num" [attr.aria-label]="s.finalizadas + ' piezas finalizadas'">
+              {{ s.finalizadas }}
+            </span>
+            <span class="ip-fila__num" [attr.aria-label]="s.entregadas + ' piezas entregadas'">
+              {{ s.entregadas }}
+            </span>
+          </li>
+        } @empty {
+          <li class="ip-vacio">
+            <app-vacio
+              icono="equipo"
+              titulo="Sin actividad"
+              mensaje="Nadie finalizó ni entregó prendas en este periodo."
+              [compacto]="true"
+            />
+          </li>
+        }
+      </ul>
+      <p class="ip-ayuda">Piezas, contadas para la persona asignada a cada prenda.</p>
+    }
   </div>
 }

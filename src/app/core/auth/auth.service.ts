@@ -7,6 +7,8 @@ import { borrarTodoLoRecordado, guardarRutaDeRegreso, tomarRutaDeRegreso } from 
 import {
   LoginRequest,
   LoginResponse,
+  SastreriaResumen,
+  RecuperacionPendiente,
   RegistrarSastreriaGoogleRequest,
   RegistrarSastreriaRequest,
   RegistroPendienteResponse,
@@ -37,6 +39,9 @@ export class AuthService {
 
   private readonly _seleccionPendiente = signal<SeleccionPendiente | null>(null);
   readonly seleccionPendiente = this._seleccionPendiente.asReadonly();
+  /** Inició sesión y su sastrería está en eliminación: la puede recuperar (Manual §16.1). */
+  private readonly _recuperacionPendiente = signal<RecuperacionPendiente | null>(null);
+  readonly recuperacionPendiente = this._recuperacionPendiente.asReadonly();
 
   private renovacionEnCurso: Observable<SesionResponse> | null = null;
 
@@ -61,6 +66,64 @@ export class AuthService {
     return this.http
       .post<LoginResponse>(`${this.base}/google`, { idToken })
       .pipe(map((res) => this.procesarLogin(res)));
+  }
+
+  // ── Varias sastrerías por cuenta (dueño 2026-10-20) ─────────────
+
+  /** Sastrerías de la cuenta, la última usada primero. */
+  misSastrerias(): Observable<SastreriaResumen[]> {
+    return this.http.get<SastreriaResumen[]>(`${this.base}/sastrerias`);
+  }
+
+  /** Pasa a otra sastrería sin volver a iniciar sesión. */
+  cambiarSastreria(tenantId: string): Observable<void> {
+    return this.http
+      .post<SesionResponse>(`${this.base}/cambiar-sastreria`, { tenantId })
+      .pipe(map((sesion) => this.entrarEnOtraSastreria(sesion)));
+  }
+
+  /** Crea otra sastrería con esta cuenta (con su propia prueba gratis) y entra a ella. */
+  crearOtraSastreria(nombre: string): Observable<void> {
+    return this.http
+      .post<SesionResponse>(`${this.base}/sastrerias`, { nombre })
+      .pipe(map((sesion) => this.entrarEnOtraSastreria(sesion)));
+  }
+
+  /**
+   * Cambió de sastrería: lo recordado (borradores, filtros) era de la anterior y se olvida; se
+   * recarga la app para que nada de la otra sastrería quede en pantalla. La cookie nueva ya
+   * trae la sesión de esta.
+   */
+  private entrarEnOtraSastreria(sesion: SesionResponse): void {
+    borrarTodoLoRecordado();
+    this._sesion.set(sesion);
+    window.location.assign(this.rutaInicial());
+  }
+
+  /** El admin recupera su sastrería en eliminación y entra (Manual §16.1). */
+  recuperarSastreria(tenantId: string): Observable<void> {
+    const pendiente = this._recuperacionPendiente();
+    if (!pendiente) {
+      this.router.navigate(['/login']);
+      return of(undefined);
+    }
+    return this.http
+      .post<SesionResponse>(`${this.base}/recuperar-sastreria`, {
+        preauthToken: pendiente.preauthToken,
+        tenantId,
+      })
+      .pipe(
+        map((sesion) => {
+          this._recuperacionPendiente.set(null);
+          this.entrar(sesion);
+        }),
+      );
+  }
+
+  /** No quiere recuperarla: vuelve al login. */
+  cancelarRecuperacion(): void {
+    this._recuperacionPendiente.set(null);
+    this.router.navigate(['/login']);
   }
 
   seleccionar(tenantId: string): Observable<void> {
@@ -174,6 +237,14 @@ export class AuthService {
   // ── Helpers ─────────────────────────────────────────────────────
 
   private procesarLogin(res: LoginResponse): void {
+    if (res.recuperables?.length && res.preauthToken) {
+      this._recuperacionPendiente.set({
+        preauthToken: res.preauthToken,
+        sastrerias: res.recuperables,
+      });
+      this.router.navigate(['/recuperar-sastreria']);
+      return;
+    }
     if (res.requiereSeleccion && res.preauthToken && res.sastrerias?.length) {
       // Con varias sastrerias se entra directo a la primera; el cambio de sastreria
       // se hara mas adelante desde dentro de la app. Si falla, cae al selector.

@@ -441,10 +441,10 @@
   min-height: 44px;
 }
 
-.pd-ayuda {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-align: center;
+.pd-vacio {
+  // Lista vacía: app-vacio centrado en el espacio libre (dueño 2026-10-20).
+  flex: 1;
+  display: flex;
 }
 
 @media (prefers-reduced-motion: reduce) {

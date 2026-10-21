@@ -87,12 +87,14 @@
     --tono-bg: var(--estado-entregado-bg);
   }
 
-  &[data-estado='VENCIDA'] {
+  &[data-estado='SIN_PLAN'] {
     --tono: var(--estado-anulado);
     --tono-bg: var(--estado-anulado-bg);
   }
 
-  &[data-estado='DESACTIVADA'] {
+  &[data-estado='BLOQUEADA'],
+  &[data-estado='EN_ELIMINACION'],
+  &[data-estado='ELIMINADA'] {
     --tono: var(--color-text-muted);
     --tono-bg: var(--color-surface);
   }
@@ -283,11 +285,14 @@
   overflow-wrap: anywhere;
 
   &[data-accion='LICENCIA_OTORGADA'],
-  &[data-accion='SASTRERIA_ACTIVADA'] {
+  &[data-accion='SASTRERIA_ACTIVADA'],
+  &[data-accion='SASTRERIA_DESBLOQUEADA'],
+  &[data-accion='ELIMINACION_CANCELADA'] {
     --tono: var(--estado-finalizado);
   }
 
-  &[data-accion='SASTRERIA_DESACTIVADA'] {
+  &[data-accion='SASTRERIA_DESACTIVADA'],
+  &[data-accion='SASTRERIA_BLOQUEADA'] {
     --tono: var(--estado-anulado);
   }
 }
@@ -386,6 +391,51 @@
   }
 }
 
+// ── Motivo del bloqueo por abuso ────────────────────────────
+.sm-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.sm-campo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.sm-campo__label {
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.sm-req {
+  color: var(--color-danger);
+}
+
+.sm-campo__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
 // ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
 @media (max-width: 560px) {
   .sm-caja {
@@ -428,5 +478,13 @@
 
   .sm-accion {
     padding: var(--space-3) var(--space-3);
+  }
+
+  .sm-campo {
+    gap: var(--space-3);
+  }
+
+  .sm-campo__input {
+    padding: 0 var(--space-3);
   }
 }

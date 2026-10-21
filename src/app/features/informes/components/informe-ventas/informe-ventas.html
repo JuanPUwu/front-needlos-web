@@ -2,65 +2,104 @@
 
 @if (vista(); as v) {
   <div class="iv" [class.iv--esqueleto]="!datos()" [attr.aria-busy]="!datos()">
-    <div class="iv-datos">
-      <div class="iv-dato">
-        <span class="iv-dato__etiqueta">Ventas</span>
-        <strong class="iv-dato__valor">{{ v.ventas | moneda }}</strong>
-        <span class="iv-dato__nota"
-          >{{ v.pedidos }} {{ v.pedidos === 1 ? 'pedido' : 'pedidos' }}</span
-        >
+    <!-- En gráficos, los totales van en la leyenda: la línea gana alto (dueño 2026-10-20). -->
+    @if (modo() === 'tablas') {
+      <div class="iv-datos">
+        <div class="iv-dato">
+          <span class="iv-dato__etiqueta">Ventas</span>
+          <strong class="iv-dato__valor">{{ v.ventas | moneda }}</strong>
+          <span class="iv-dato__nota"
+            >{{ v.pedidos }} {{ v.pedidos === 1 ? 'pedido' : 'pedidos' }}</span
+          >
+        </div>
+        <div class="iv-dato">
+          <span class="iv-dato__etiqueta">Ticket promedio</span>
+          <strong class="iv-dato__valor">{{ v.ticketPromedio | moneda }}</strong>
+          <span class="iv-dato__nota">por pedido</span>
+        </div>
+        <div class="iv-dato">
+          <span class="iv-dato__etiqueta">Ingresos</span>
+          <strong class="iv-dato__valor iv-dato__valor--ingreso">{{ v.ingresos | moneda }}</strong>
+          <span class="iv-dato__nota">abonos − devoluciones</span>
+        </div>
       </div>
-      <div class="iv-dato">
-        <span class="iv-dato__etiqueta">Ticket promedio</span>
-        <strong class="iv-dato__valor">{{ v.ticketPromedio | moneda }}</strong>
-        <span class="iv-dato__nota">por pedido</span>
-      </div>
-      <div class="iv-dato">
-        <span class="iv-dato__etiqueta">Ingresos</span>
-        <strong class="iv-dato__valor iv-dato__valor--ingreso">{{ v.ingresos | moneda }}</strong>
-        <span class="iv-dato__nota">abonos − devoluciones</span>
-      </div>
-    </div>
+    } @else {
+      <p class="iv-resumen">
+        {{ v.pedidos }} {{ v.pedidos === 1 ? 'pedido' : 'pedidos' }} · Ticket promedio
+        <strong>{{ v.ticketPromedio | moneda }}</strong>
+      </p>
+    }
 
-    <div class="iv-cuerpo">
-      <h3 class="iv-subtitulo">Ingresos por método</h3>
-      <ul class="iv-lista">
-        @for (m of v.porMetodo; track m.metodo) {
-          <li class="iv-fila">
-            <span class="iv-fila__nombre">{{ etiquetaMetodo(m.metodo) }}</span>
-            <span class="iv-fila__valor">
-              <strong>{{ m.neto | moneda }}</strong>
-              @if (m.devoluciones > 0) {
-                <span class="iv-fila__nota">− {{ m.devoluciones | moneda }} devuelto</span>
-              }
-            </span>
-          </li>
-        } @empty {
-          <li class="iv-vacio">
+    @if (modo() === 'graficos') {
+      <!-- Gráfico: ventas e ingresos por hora (un día) o por día (dueño 2026-10-20). -->
+      <div class="iv-grafico">
+        @if (grafico(); as g) {
+          @if (g.vacio) {
             <app-vacio
               icono="caja"
-              titulo="Sin ingresos"
-              mensaje="No hay ingresos en este periodo."
+              titulo="Sin ventas ni ingresos"
+              mensaje="No hay movimientos en este periodo."
               [compacto]="true"
             />
-          </li>
+          } @else {
+            <app-grafico-lineas
+              formato="moneda"
+              [etiquetas]="g.etiquetas"
+              [series]="g.series"
+              [descripcion]="g.porHora ? 'Ventas e ingresos por hora' : 'Ventas e ingresos por día'"
+            />
+          }
+        } @else {
+          <app-grafico-lineas
+            formato="moneda"
+            [etiquetas]="[]"
+            [series]="[]"
+            descripcion="Cargando ventas e ingresos"
+            [cargando]="true"
+          />
         }
-      </ul>
-
-      @if (varios()) {
-        <h3 class="iv-subtitulo">Ventas por día</h3>
+      </div>
+    } @else {
+      <div class="iv-cuerpo">
+        <h3 class="iv-subtitulo">Ingresos por método</h3>
         <ul class="iv-lista">
-          @for (d of v.porDia; track d.fecha) {
-            <li class="iv-fila" [class.iv-fila--vacia]="d.pedidos === 0">
-              <span class="iv-fila__nombre">{{ d.fecha | fecha }}</span>
+          @for (m of v.porMetodo; track m.metodo) {
+            <li class="iv-fila">
+              <span class="iv-fila__nombre">{{ etiquetaMetodo(m.metodo) }}</span>
               <span class="iv-fila__valor">
-                <strong>{{ d.ventas | moneda }}</strong>
-                <span class="iv-fila__nota">{{ d.pedidos }} ped.</span>
+                <strong>{{ m.neto | moneda }}</strong>
+                @if (m.devoluciones > 0) {
+                  <span class="iv-fila__nota">− {{ m.devoluciones | moneda }} devuelto</span>
+                }
               </span>
+            </li>
+          } @empty {
+            <li class="iv-vacio">
+              <app-vacio
+                icono="caja"
+                titulo="Sin ingresos"
+                mensaje="No hay ingresos en este periodo."
+                [compacto]="true"
+              />
             </li>
           }
         </ul>
-      }
-    </div>
+
+        @if (varios()) {
+          <h3 class="iv-subtitulo">Ventas por día</h3>
+          <ul class="iv-lista">
+            @for (d of v.porDia; track d.fecha) {
+              <li class="iv-fila" [class.iv-fila--vacia]="d.pedidos === 0">
+                <span class="iv-fila__nombre">{{ d.fecha | fecha }}</span>
+                <span class="iv-fila__valor">
+                  <strong>{{ d.ventas | moneda }}</strong>
+                  <span class="iv-fila__nota">{{ d.pedidos }} ped.</span>
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
   </div>
 }

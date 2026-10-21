@@ -96,35 +96,84 @@
         <!-- ── Acceso ─────────────────────────────────────────────── -->
         <section class="sm-seccion" aria-labelledby="t-acceso">
           <app-titulo-bloque titulo="Acceso" idTitulo="t-acceso" />
-          <p class="sm-ayuda">
-            {{
-              s.activo
-                ? 'Desactivarla impide que alguien de la sastrería entre (se cierran sus sesiones). Sus datos se conservan.'
-                : 'Está desactivada: nadie de la sastrería puede entrar hasta reactivarla.'
-            }}
-          </p>
-          <div class="sm-acceso">
-            <!-- Modo soporte: ver la sastrería como su admin, sin cambiar nada (queda registrado). -->
-            @if (s.activo) {
+          <!-- Manual §16.1: sin plan sigue entrando; solo se bloquea por abuso; en eliminación se
+               puede recuperar dentro de los 90 días. -->
+          @if (s.estado === 'ELIMINADA') {
+            <p class="sm-ayuda">
+              Se eliminó el {{ s.eliminadaEn | fechaHora: 'fecha' }}: solo quedan sus datos de
+              facturación (nombre, NIT, dueño, fechas e historial de licencias).
+            </p>
+          } @else if (s.estado === 'EN_ELIMINACION') {
+            <p class="sm-ayuda">
+              {{
+                s.eliminacionOrigen === 'ABANDONO'
+                  ? 'Se programó su eliminación por 12 meses sin plan'
+                  : 'Su dueño pidió eliminarla'
+              }}
+              el {{ s.eliminacionSolicitadaEn | fechaHora: 'fecha' }}. Nadie entra y se borra el
+              {{ s.seBorraEl | fechaHora: 'fecha' }}. Si su dueño lo pide, recupérala antes.
+            </p>
+            <div class="sm-acceso">
+              <button class="sm-boton" type="button" [disabled]="ocupado()" (click)="recuperar()">
+                Recuperar sastrería
+              </button>
+            </div>
+          } @else if (!s.activo) {
+            <p class="sm-ayuda">
+              Bloqueada por abuso: <strong>{{ s.bloqueoMotivo }}</strong
+              >. Nadie de la sastrería puede entrar.
+            </p>
+            <div class="sm-acceso">
+              <button class="sm-boton" type="button" [disabled]="ocupado()" (click)="desbloquear()">
+                Quitar bloqueo
+              </button>
+            </div>
+          } @else {
+            <p class="sm-ayuda">
+              Sin plan, la sastrería sigue entrando para ver (y exportar, si tuvo un plan).
+              Bloquéala solo por abuso (fraude o uso indebido): nadie entra y se cierran sus
+              sesiones.
+            </p>
+            @if (bloqueando()) {
+              <div class="sm-campo">
+                <div class="sm-campo__head">
+                  <label class="sm-campo__label" for="motivoBloqueo">
+                    Motivo del bloqueo <span class="sm-req">*</span>
+                  </label>
+                </div>
+                <input
+                  class="sm-campo__input"
+                  id="motivoBloqueo"
+                  type="text"
+                  maxlength="300"
+                  placeholder="Ej.: uso fraudulento"
+                  [value]="motivo()"
+                  (input)="motivo.set($any($event.target).value)"
+                />
+              </div>
+            }
+            <div class="sm-acceso">
+              <!-- Modo soporte: ver la sastrería como su admin, sin cambiar nada (queda registrado). -->
               <button
                 class="sm-boton sm-boton--borde"
                 type="button"
                 [disabled]="!sastreria() || ocupado()"
-                (click)="entrarEnSoporte()"
+                (click)="bloqueando() ? bloqueando.set(false) : entrarEnSoporte()"
               >
-                Entrar en modo soporte
+                {{ bloqueando() ? 'Cancelar' : 'Entrar en modo soporte' }}
               </button>
-            }
-            <button
-              class="sm-boton"
-              [class.sm-boton--peligro]="s.activo"
-              type="button"
-              [disabled]="!sastreria() || ocupado()"
-              (click)="cambiarActivo()"
-            >
-              {{ s.activo ? 'Desactivar sastrería' : 'Activar sastrería' }}
-            </button>
-          </div>
+              <button
+                class="sm-boton sm-boton--peligro"
+                type="button"
+                [disabled]="
+                  !sastreria() || ocupado() || (bloqueando() && motivo().trim().length < 3)
+                "
+                (click)="bloquear()"
+              >
+                {{ bloqueando() ? 'Bloquear' : 'Bloquear por abuso' }}
+              </button>
+            </div>
+          }
         </section>
       </div>
 

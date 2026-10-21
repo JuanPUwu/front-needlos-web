@@ -39,7 +39,7 @@ const TAMANO_PAGINA = 20;
 
 /**
  * Sastrerías del SuperAdmin (Manual §16): cifras de todas, listado con su uso (sin montos), filtros
- * en la URL y el popup de cada una (`?sastreria=<id>`: licencia por meses, activar/desactivar,
+ * en la URL y el popup de cada una (`?sastreria=<id>`: licencia por meses, bloquear por abuso, recuperar,
  * modo soporte). Mientras carga, cifras y tabla se pintan con su mismo marcado en gris.
  */
 @Component({
@@ -86,8 +86,9 @@ export class SuperAdminSastrerias implements OnInit {
       { etiqueta: 'En prueba', valor: r?.enPrueba, tono: 'PRUEBA' },
       { etiqueta: 'Licenciadas', valor: r?.licenciadas, tono: 'LICENCIADA' },
       { etiqueta: 'Por vencer', valor: r?.porVencer, tono: 'POR_VENCER' },
-      { etiqueta: 'Vencidas', valor: r?.vencidas, tono: 'VENCIDA' },
-      { etiqueta: 'Desactivadas', valor: r?.desactivadas, tono: 'DESACTIVADA' },
+      { etiqueta: 'Sin plan', valor: r?.sinPlan, tono: 'SIN_PLAN' },
+      { etiqueta: 'Bloqueadas', valor: r?.bloqueadas, tono: 'BLOQUEADA' },
+      { etiqueta: 'En eliminación', valor: r?.enEliminacion, tono: 'EN_ELIMINACION' },
     ];
   });
 

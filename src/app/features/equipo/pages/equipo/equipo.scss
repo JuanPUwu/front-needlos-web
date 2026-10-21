@@ -233,7 +233,7 @@
   border: none;
   border-radius: var(--radius-md);
   background: var(--color-accent);
-  color: #ffffff;
+  color: var(--color-surface);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -280,7 +280,7 @@
   border: 1px solid var(--color-border-soft);
 
   &:hover:not(:disabled) {
-    background: rgba(198, 40, 40, 0.08);
+    background: var(--color-danger-bg);
   }
 }
 
@@ -489,7 +489,7 @@
 
 .equipo-chip--admin {
   background: var(--color-navy);
-  color: #ffffff;
+  color: var(--color-surface);
 }
 
 .equipo-chip--inactivo {
@@ -498,7 +498,7 @@
 }
 
 .equipo-chip--pendiente {
-  background: rgba(2, 40, 89, 0.08);
+  background: var(--color-navy-suave);
   color: var(--color-navy);
 }
 

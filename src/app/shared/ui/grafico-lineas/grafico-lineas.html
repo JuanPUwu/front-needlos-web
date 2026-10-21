@@ -1,0 +1,133 @@
+<div class="gl" [class.gl--cargando]="cargando()">
+  <ul class="gl-leyenda" aria-hidden="true">
+    @for (s of series(); track s.nombre) {
+      <li class="gl-leyenda__item">
+        <span class="gl-leyenda__color" [style.background]="cargando() ? null : s.color"></span>
+        {{ s.nombre }}
+        @if (s.total !== undefined) {
+          <strong class="gl-leyenda__total">{{ formatear(s.total) }}</strong>
+        }
+      </li>
+    }
+  </ul>
+
+  <div class="gl-lienzo">
+    @if (ancho() > 0 && alto() > 0) {
+      <svg
+        class="gl-svg"
+        [attr.viewBox]="'0 0 ' + ancho() + ' ' + alto()"
+        role="img"
+        [attr.aria-label]="descripcion()"
+        (pointermove)="senalar($event)"
+        (pointerdown)="senalar($event)"
+        (pointerleave)="soltar()"
+      >
+        <!-- Cuadrícula -->
+        @for (m of ejeY().marcas; track $index) {
+          <line
+            class="gl-cuadricula"
+            [attr.x1]="area().x0"
+            [attr.x2]="area().x0 + area().w"
+            [attr.y1]="y(m)"
+            [attr.y2]="y(m)"
+          />
+        }
+
+        <!-- Eje X -->
+        @for (m of marcasX(); track m.i) {
+          <text
+            class="gl-eje"
+            [attr.x]="m.x"
+            [attr.y]="area().y0 + area().h + 18"
+            text-anchor="middle"
+          >
+            {{ m.texto }}
+          </text>
+        }
+
+        @if (!cargando()) {
+          <!-- Guía del punto señalado -->
+          @if (cuadro(); as c) {
+            <line
+              class="gl-guia"
+              [attr.x1]="c.x"
+              [attr.x2]="c.x"
+              [attr.y1]="area().y0"
+              [attr.y2]="area().y0 + area().h"
+            />
+          }
+
+          @for (t of trazos(); track t.nombre) {
+            <path class="gl-linea" [attr.d]="t.d" [style.stroke]="t.color" />
+          }
+
+          @if (cuadro(); as c) {
+            @for (f of c.filas; track f.nombre) {
+              <circle
+                class="gl-punto"
+                [attr.cx]="c.x"
+                [attr.cy]="f.y"
+                r="4.5"
+                [style.stroke]="f.color"
+              />
+            }
+          }
+        }
+
+        <!-- Valores del eje Y: dentro, sobre su línea (margen izquierdo igual al derecho) y
+             encima de las líneas, con halo, para que siempre se lean. -->
+        @for (m of ejeY().marcas; track $index) {
+          <text class="gl-eje" [attr.x]="area().x0" [attr.y]="y(m) - 5">
+            {{ formatoEje(m) }}
+          </text>
+        }
+      </svg>
+
+      @if (cuadro(); as c) {
+        <div
+          class="gl-cuadro"
+          [class.gl-cuadro--izquierda]="c.izquierda"
+          [style.left.px]="c.x"
+          aria-hidden="true"
+        >
+          <strong class="gl-cuadro__titulo">{{ c.titulo }}</strong>
+          @for (f of c.filas; track f.nombre) {
+            <span class="gl-cuadro__fila">
+              <span class="gl-leyenda__color" [style.background]="f.color"></span>
+              {{ f.nombre }}: <strong>{{ f.valor }}</strong>
+            </span>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Los mismos datos para lectores de pantalla -->
+  @if (!cargando()) {
+    <table class="gl-oculto">
+      <caption>
+        {{
+          descripcion()
+        }}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Punto</th>
+          @for (s of series(); track s.nombre) {
+            <th scope="col">{{ s.nombre }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (e of etiquetas(); track $index; let i = $index) {
+          <tr>
+            <th scope="row">{{ e.larga }}</th>
+            @for (s of series(); track s.nombre) {
+              <td>{{ formatear(s.valores[i]) }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

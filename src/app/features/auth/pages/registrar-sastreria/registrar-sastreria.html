@@ -209,6 +209,15 @@
       <button class="registro-submit" type="submit" [disabled]="cargando()">
         {{ cargando() ? 'Creando tu sastrería...' : 'Crear mi sastrería' }}
       </button>
+      <!-- Autorización de tratamiento de datos (Ley 1581): se acepta al registrarse. -->
+      <p class="registro-legal">
+        Al crear tu sastrería aceptas los
+        <a class="registro-pie__enlace" routerLink="/terminos" target="_blank">Términos</a>
+        y autorizas el tratamiento de tus datos según la
+        <a class="registro-pie__enlace" routerLink="/privacidad" target="_blank"
+          >Política de privacidad</a
+        >.
+      </p>
     </form>
 
     <p class="registro-pie">
@@ -216,4 +225,5 @@
       <a class="registro-pie__enlace" routerLink="/login">Inicia sesión</a>
     </p>
   </section>
+  <app-pie-publico class="registro-publico" />
 </main>

@@ -1,0 +1,99 @@
+<div class="el-fondo" aria-hidden="true" (click)="cerrar()"></div>
+
+<div
+  class="el-caja"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-eliminar"
+  tabindex="-1"
+>
+  <app-encabezado
+    idTitulo="titulo-eliminar"
+    titulo="Eliminar sastrería"
+    subtitulo="Antes de confirmar, lee qué pasará con tu información."
+    icono="eliminar"
+    [error]="error()"
+  >
+    <button class="el-cerrar" type="button" aria-label="Cerrar" title="Cerrar" (click)="cerrar()">
+      <app-icono class="el-cerrar__icono" nombre="cerrar" />
+    </button>
+  </app-encabezado>
+
+  <form class="el-seccion" [formGroup]="form" (ngSubmit)="eliminar()" novalidate>
+    <ul class="el-pasos">
+      <li><strong>Desde ahora nadie de tu equipo podrá entrar</strong> a {{ sastreria() }}.</li>
+      <li>
+        Conservaremos tu información <strong>hasta 90 días</strong>. Si cambias de opinión,
+        <strong>inicia sesión con tu cuenta</strong> antes de esa fecha y podrás recuperarla tal
+        como estaba.
+      </li>
+      <li>
+        Después se <strong>borra para siempre</strong>. Solo quedan los datos de facturación (nombre
+        de la sastrería, NIT, tu nombre y correo, fechas e historial de licencias).
+      </li>
+    </ul>
+
+    @if (puedeExportar()) {
+      <div class="el-exportar">
+        <span>Te recomendamos <strong>exportar tu información</strong> antes de eliminarla.</span>
+        <button class="el-boton el-boton--borde" type="button" (click)="exportar.emit()">
+          Exportar primero
+        </button>
+      </div>
+    }
+
+    <div class="el-campo">
+      <div class="el-campo__head">
+        <label class="el-campo__label" for="eliminarConfirmacion">
+          Tu contraseña <span class="el-req">*</span>
+        </label>
+        @if (form.controls.confirmacion.touched && form.controls.confirmacion.invalid) {
+          <span class="el-campo__error">Obligatoria</span>
+        }
+      </div>
+      <div class="el-clave">
+        <input
+          class="el-campo__input"
+          id="eliminarConfirmacion"
+          [type]="verClave() ? 'text' : 'password'"
+          autocomplete="current-password"
+          formControlName="confirmacion"
+        />
+        <button
+          class="el-clave__ver"
+          type="button"
+          [attr.aria-label]="verClave() ? 'Ocultar' : 'Mostrar'"
+          (click)="verClave.set(!verClave())"
+        >
+          <app-icono class="el-clave__icono" [nombre]="verClave() ? 'ojo-cerrado' : 'ojo'" />
+        </button>
+      </div>
+      <p class="el-ayuda">¿Entras con Google? Escribe aquí también el nombre de tu sastrería.</p>
+    </div>
+
+    <div class="el-campo">
+      <div class="el-campo__head">
+        <label class="el-campo__label" for="eliminarNombre">
+          Escribe «{{ sastreria() }}» para confirmar <span class="el-req">*</span>
+        </label>
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+          <span class="el-campo__error">Obligatorio</span>
+        }
+      </div>
+      <input
+        class="el-campo__input"
+        id="eliminarNombre"
+        type="text"
+        autocomplete="off"
+        formControlName="nombre"
+      />
+    </div>
+
+    <div class="el-acciones">
+      <button class="el-boton el-boton--borde" type="button" (click)="cerrar()">Cancelar</button>
+      <button class="el-boton el-boton--peligro" type="submit" [disabled]="eliminando()">
+        {{ eliminando() ? 'Eliminando...' : 'Eliminar sastrería' }}
+      </button>
+    </div>
+  </form>
+</div>

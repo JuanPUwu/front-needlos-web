@@ -1,13 +1,26 @@
 /** Panel del SuperAdmin (alineado con PlataformaDtos del backend). Solo datos de uso. */
 
-export type EstadoPlataforma = 'DESACTIVADA' | 'VENCIDA' | 'POR_VENCER' | 'LICENCIADA' | 'PRUEBA';
+/**
+ * Estado de una sastrería (Manual §16.1): "sin plan" sigue entrando (solo lectura); el único
+ * bloqueo es por abuso; "en eliminación" = nadie entra y se borra a los 90 días.
+ */
+export type EstadoPlataforma =
+  | 'ELIMINADA'
+  | 'EN_ELIMINACION'
+  | 'BLOQUEADA'
+  | 'SIN_PLAN'
+  | 'POR_VENCER'
+  | 'LICENCIADA'
+  | 'PRUEBA';
 
 export const ETIQUETA_ESTADO_PLATAFORMA: Record<EstadoPlataforma, string> = {
   PRUEBA: 'En prueba',
   LICENCIADA: 'Licenciada',
   POR_VENCER: 'Por vencer',
-  VENCIDA: 'Vencida',
-  DESACTIVADA: 'Desactivada',
+  SIN_PLAN: 'Sin plan',
+  BLOQUEADA: 'Bloqueada',
+  EN_ELIMINACION: 'En eliminación',
+  ELIMINADA: 'Eliminada',
 };
 
 export const ESTADOS_PLATAFORMA: { valor: EstadoPlataforma | ''; etiqueta: string }[] = [
@@ -15,8 +28,10 @@ export const ESTADOS_PLATAFORMA: { valor: EstadoPlataforma | ''; etiqueta: strin
   { valor: 'PRUEBA', etiqueta: 'En prueba' },
   { valor: 'LICENCIADA', etiqueta: 'Licenciadas' },
   { valor: 'POR_VENCER', etiqueta: 'Por vencer' },
-  { valor: 'VENCIDA', etiqueta: 'Vencidas' },
-  { valor: 'DESACTIVADA', etiqueta: 'Desactivadas' },
+  { valor: 'SIN_PLAN', etiqueta: 'Sin plan' },
+  { valor: 'BLOQUEADA', etiqueta: 'Bloqueadas' },
+  { valor: 'EN_ELIMINACION', etiqueta: 'En eliminación' },
+  { valor: 'ELIMINADA', etiqueta: 'Eliminadas' },
 ];
 
 export type AccionSuperAdmin =
@@ -26,7 +41,10 @@ export type AccionSuperAdmin =
   | 'SOPORTE_INICIADO'
   | 'SUPERADMIN_INVITADO'
   | 'SUPERADMIN_ELIMINADO'
-  | 'CONFIGURACION_CAMBIADA';
+  | 'CONFIGURACION_CAMBIADA'
+  | 'SASTRERIA_BLOQUEADA'
+  | 'SASTRERIA_DESBLOQUEADA'
+  | 'ELIMINACION_CANCELADA';
 
 export const ETIQUETA_ACCION_SUPERADMIN: Record<AccionSuperAdmin, string> = {
   LICENCIA_OTORGADA: 'Licencia',
@@ -36,14 +54,18 @@ export const ETIQUETA_ACCION_SUPERADMIN: Record<AccionSuperAdmin, string> = {
   SUPERADMIN_INVITADO: 'SuperAdmin invitado',
   SUPERADMIN_ELIMINADO: 'SuperAdmin eliminado',
   CONFIGURACION_CAMBIADA: 'Configuración',
+  SASTRERIA_BLOQUEADA: 'Bloqueada',
+  SASTRERIA_DESBLOQUEADA: 'Desbloqueada',
+  ELIMINACION_CANCELADA: 'Recuperada',
 };
 
 /** Tipos de acción para el filtro del Registro. */
 export const ACCIONES_SUPERADMIN: { valor: AccionSuperAdmin | ''; etiqueta: string }[] = [
   { valor: '', etiqueta: 'Todas las acciones' },
   { valor: 'LICENCIA_OTORGADA', etiqueta: 'Licencias' },
-  { valor: 'SASTRERIA_DESACTIVADA', etiqueta: 'Desactivadas' },
-  { valor: 'SASTRERIA_ACTIVADA', etiqueta: 'Activadas' },
+  { valor: 'SASTRERIA_BLOQUEADA', etiqueta: 'Bloqueos' },
+  { valor: 'SASTRERIA_DESBLOQUEADA', etiqueta: 'Desbloqueos' },
+  { valor: 'ELIMINACION_CANCELADA', etiqueta: 'Recuperadas' },
   { valor: 'SOPORTE_INICIADO', etiqueta: 'Soporte' },
   { valor: 'SUPERADMIN_INVITADO', etiqueta: 'SuperAdmins invitados' },
   { valor: 'SUPERADMIN_ELIMINADO', etiqueta: 'SuperAdmins eliminados' },
@@ -56,8 +78,9 @@ export interface ResumenPlataforma {
   enPrueba: number;
   licenciadas: number;
   porVencer: number;
-  vencidas: number;
-  desactivadas: number;
+  sinPlan: number;
+  bloqueadas: number;
+  enEliminacion: number;
 }
 
 export interface SastreriaPlataforma {
@@ -75,6 +98,13 @@ export interface SastreriaPlataforma {
   admin: string | null;
   adminEmail: string | null;
   telefono: string | null;
+  /** Motivo del bloqueo por abuso (null si no está bloqueada). */
+  bloqueoMotivo: string | null;
+  eliminacionSolicitadaEn: string | null;
+  /** Cuándo se borra (90 días después de pedirlo). */
+  seBorraEl: string | null;
+  eliminacionOrigen: 'DUENO' | 'ABANDONO' | null;
+  eliminadaEn: string | null;
 }
 
 export interface AccionPlataforma {

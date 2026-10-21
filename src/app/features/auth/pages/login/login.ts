@@ -8,12 +8,13 @@ import { recordarFormulario } from '../../../../core/estado/recordar-formulario'
 import { AuthService } from '../../../../core/auth/auth.service';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { Icono } from '../../../../shared/ui/icono/icono';
+import { PiePublico } from '../../../../shared/ui/pie-publico/pie-publico';
 import { Logo } from '../../../../shared/ui/logo/logo';
 import { GoogleButton } from '../../components/google-button/google-button';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, Logo, GoogleButton, Icono],
+  imports: [ReactiveFormsModule, RouterLink, Logo, GoogleButton, Icono, PiePublico],
   templateUrl: './login.html',
   styleUrl: './login.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

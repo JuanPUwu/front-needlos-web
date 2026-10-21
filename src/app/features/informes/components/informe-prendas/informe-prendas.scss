@@ -117,6 +117,13 @@
   color: var(--color-text-muted);
 }
 
+// Barras: se desplazan dentro del bloque si no caben.
+.ipc-barras {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
 .ipc-vacio {
   // Lista vacía: app-vacio centrado en el espacio libre (dueño 2026-10-20).
   flex: 1;

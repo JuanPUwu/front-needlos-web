@@ -1,0 +1,60 @@
+<button
+  class="ss-boton"
+  type="button"
+  aria-label="Mis sastrerías"
+  title="Mis sastrerías"
+  aria-haspopup="true"
+  [attr.aria-expanded]="abierto()"
+  (click)="alternar()"
+>
+  <app-icono class="ss-boton__icono" nombre="tienda" />
+</button>
+
+@if (abierto()) {
+  <div class="ss-menu" role="menu" aria-label="Mis sastrerías">
+    <p class="ss-menu__titulo">Mis sastrerías</p>
+    @if (error(); as e) {
+      <p class="ss-menu__error" role="alert">{{ e }}</p>
+    }
+    @if (sastrerias(); as lista) {
+      <ul class="ss-lista">
+        @for (s of lista; track s.tenantId) {
+          <li>
+            <button
+              class="ss-item"
+              type="button"
+              role="menuitemradio"
+              [attr.aria-checked]="s.tenantId === actual()"
+              [disabled]="cambiando() !== null"
+              (click)="cambiar(s)"
+            >
+              <span class="ss-item__textos">
+                <strong class="ss-item__nombre">{{ s.nombre }}</strong>
+                <span class="ss-item__rol">
+                  {{ cambiando() === s.tenantId ? 'Entrando...' : etiquetaRol(s) }}
+                </span>
+              </span>
+              @if (s.tenantId === actual()) {
+                <app-icono class="ss-item__marca" nombre="finalizado" />
+              }
+            </button>
+          </li>
+        }
+      </ul>
+    } @else if (!error()) {
+      <p class="ss-menu__cargando" role="status">Cargando...</p>
+    }
+    <button class="ss-crear" type="button" role="menuitem" (click)="abrirCrear()">
+      <app-icono class="ss-crear__icono" nombre="mas" />
+      Crear otra sastrería
+    </button>
+  </div>
+}
+
+@if (crearAbierto()) {
+  <app-crear-sastreria-modal
+    animate.enter="cs-entrar"
+    animate.leave="cs-salir"
+    (cerrado)="crearAbierto.set(false)"
+  />
+}

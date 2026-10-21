@@ -167,7 +167,7 @@
 .panel__item--activo {
   background: var(--color-navy);
   border-color: var(--color-navy);
-  color: #ffffff;
+  color: var(--color-surface);
 }
 
 .panel__item-icono {
@@ -198,9 +198,20 @@
 
 // Perfil: tarjeta como los ítems de sección, con la persona y la sastrería; lleva a Mi cuenta.
 // Va al final del bloque de secciones, pegado al separador de Ajustes (dueño 2026-10-20).
-.panel__perfil {
+// Perfil y, a su lado, "Mis sastrerías".
+.panel__perfil-fila {
   // Alineación al fondo del bloque de secciones (no es espaciado entre elementos).
   margin-top: auto;
+  // El menú de "Mis sastrerías" se abre sobre esta fila.
+  position: relative;
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.panel__perfil {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--space-3);

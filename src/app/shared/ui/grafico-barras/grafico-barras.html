@@ -1,0 +1,41 @@
+<ol class="gb" [class.gb--cargando]="cargando()">
+  @for (f of filas(); track f.id) {
+    <li>
+      @if (interactivo() && !cargando()) {
+        <button
+          class="gb-fila gb-fila--boton"
+          type="button"
+          [attr.aria-label]="accion() + ' ' + f.etiqueta"
+          (click)="elegir.emit(f)"
+        >
+          <ng-container
+            [ngTemplateOutlet]="contenido"
+            [ngTemplateOutletContext]="{ $implicit: f }"
+          />
+        </button>
+      } @else {
+        <div class="gb-fila">
+          <ng-container
+            [ngTemplateOutlet]="contenido"
+            [ngTemplateOutletContext]="{ $implicit: f }"
+          />
+        </div>
+      }
+    </li>
+  }
+</ol>
+
+<ng-template #contenido let-f>
+  <span class="gb-fila__cabeza">
+    <span class="gb-fila__nombre" [title]="f.etiqueta">{{ f.etiqueta }}</span>
+    <span class="gb-fila__valor">
+      <strong>{{ f.texto }}</strong>
+      @if (f.detalle) {
+        <span class="gb-fila__detalle">{{ f.detalle }}</span>
+      }
+    </span>
+  </span>
+  <span class="gb-barra" aria-hidden="true">
+    <span class="gb-barra__relleno" [style.width.%]="f.ancho" [style.background]="color()"></span>
+  </span>
+</ng-template>
