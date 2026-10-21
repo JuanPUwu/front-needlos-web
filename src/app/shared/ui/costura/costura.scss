@@ -1,74 +1,35 @@
-// Aguja cosiendo (indicador de carga). Solo tokens globales.
+// Aguja que da vueltas dejando el hilo (indicador de carga). Solo tokens globales.
 // Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): es un indicador de carga.
+// La animación vive en el SVG (animateMotion/animate); aquí solo forma y color.
+// Trazos más gruesos que el diseño original: aquí se ve entre 30 y 90 px de ancho.
 
 :host {
   display: inline-flex;
-  width: 48px;
-  height: 32px;
+  width: 56px;
+  height: 52px;
 }
 
 .costura {
   width: 100%;
   height: 100%;
   overflow: visible;
+}
+
+// Hilo: capas apiladas que forman el degradado (opacidad y grosor de cada una en el .ts).
+// Extremo plano: con extremos redondos cada capa dejaría un "escalón" visible.
+.costura__cola {
   fill: none;
-  stroke-linecap: round;
-}
-
-.costura__tela {
-  stroke: var(--focus-ring);
-  stroke-width: 2;
-}
-
-// La puntada avanza (como la tela al pasar bajo la aguja).
-.costura__puntadas {
   stroke: var(--color-accent);
-  stroke-width: 2;
-  stroke-dasharray: 5 4;
-  animation: costura-avanzar 0.9s linear infinite;
-}
-
-// La aguja sube y baja atravesando la tela.
-.costura__aguja {
-  animation: costura-puntada 0.45s ease-in-out infinite alternate;
+  stroke-linecap: butt;
 }
 
 .costura__cuerpo {
-  stroke: var(--color-navy);
-  stroke-width: 2.2;
+  fill: var(--color-text);
 }
 
-.costura__ojo {
-  fill: var(--color-surface);
-}
-
-.costura__hilo {
+.costura__lazo {
+  fill: none;
   stroke: var(--color-accent);
-  stroke-width: 1.2;
-}
-
-@keyframes costura-avanzar {
-  to {
-    stroke-dashoffset: -18;
-  }
-}
-
-@keyframes costura-puntada {
-  from {
-    transform: translateY(-3px);
-  }
-
-  to {
-    transform: translateY(4px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .costura__puntadas {
-    animation-duration: 3s;
-  }
-
-  .costura__aguja {
-    animation: none;
-  }
+  stroke-width: 4;
+  stroke-linecap: round;
 }
