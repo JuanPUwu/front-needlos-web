@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -39,7 +40,7 @@ describe('SastreriaModal', () => {
     desbloquear: ReturnType<typeof vi.fn>;
     entrarEnSoporte: ReturnType<typeof vi.fn>;
   };
-  let auth: { entrarEnSoporte: ReturnType<typeof vi.fn> };
+  let auth: { entrarEnSoporte: ReturnType<typeof vi.fn>; autenticado: () => boolean };
   let confirmar: ReturnType<typeof vi.fn>;
 
   function crear(): SastreriaModal {
@@ -63,7 +64,7 @@ describe('SastreriaModal', () => {
       desbloquear: vi.fn(() => of(sastreria())),
       entrarEnSoporte: vi.fn(() => of({ accessToken: 'soporte' })),
     };
-    auth = { entrarEnSoporte: vi.fn() };
+    auth = { entrarEnSoporte: vi.fn(), autenticado: signal(false) };
     confirmar = vi.fn().mockResolvedValue(true);
     TestBed.configureTestingModule({
       imports: [SastreriaModal],

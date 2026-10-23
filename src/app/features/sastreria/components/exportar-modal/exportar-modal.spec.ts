@@ -26,6 +26,8 @@ describe('ExportarModal', () => {
     fixture.componentRef.setInput('sastreria', 'Sastrería Prueba');
     modal = fixture.componentInstance;
     URL.createObjectURL = vi.fn(() => 'blob:x');
+    // jsdom no navega: el clic del enlace de descarga solo se registra.
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
     URL.revokeObjectURL = vi.fn();
   });
 

@@ -25,7 +25,11 @@ describe('EliminarModal', () => {
         { provide: SastreriaService, useValue: { eliminar } },
         {
           provide: AuthService,
-          useValue: { cerrarSesion, sesion: signal({ cuenta: { tieneContrasena } }) },
+          useValue: {
+            cerrarSesion,
+            autenticado: signal(false),
+            sesion: signal({ cuenta: { tieneContrasena } }),
+          },
         },
         { provide: Confirmacion, useValue: { pedir, avisar } },
         { provide: Notificaciones, useValue: { info: vi.fn(), exito: vi.fn(), error: vi.fn() } },

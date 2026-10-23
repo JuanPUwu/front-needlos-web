@@ -26,8 +26,7 @@ describe('SuperAdminConfiguracion', () => {
   function crear(): SuperAdminConfiguracion {
     const fixture = TestBed.createComponent(SuperAdminConfiguracion);
     const c = fixture.componentInstance;
-    c.ngOnInit();
-    TestBed.tick();
+    fixture.detectChanges();
     return c;
   }
 

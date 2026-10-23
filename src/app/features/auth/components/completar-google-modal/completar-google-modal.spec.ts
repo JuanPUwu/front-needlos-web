@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -11,7 +12,12 @@ describe('CompletarGoogleModal', () => {
     registrar = vi.fn(() => of(undefined));
     TestBed.configureTestingModule({
       imports: [CompletarGoogleModal],
-      providers: [{ provide: AuthService, useValue: { registrarSastreriaGoogle: registrar } }],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: { registrarSastreriaGoogle: registrar, autenticado: signal(false) },
+        },
+      ],
     });
     const fixture = TestBed.createComponent(CompletarGoogleModal);
     fixture.componentRef.setInput('idToken', 'a.eyJlbWFpbCI6ImFuYUB4LmNvbSJ9.b');
