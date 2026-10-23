@@ -13,6 +13,11 @@ export class CuentaService {
     return this.http.patch<void>(`${this.api}/api/v1/cuenta/contrasena`, req);
   }
 
+  /** Cuenta de Google sin contraseña: envía a su correo el enlace para crearla. */
+  solicitarCrearContrasena(): Observable<void> {
+    return this.http.post<void>(`${this.api}/api/v1/auth/crear-contrasena`, null);
+  }
+
   listarSesiones(): Observable<SesionActiva[]> {
     return this.http.get<SesionActiva[]>(`${this.api}/api/v1/auth/sesiones`);
   }

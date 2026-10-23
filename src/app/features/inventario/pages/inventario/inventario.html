@@ -117,7 +117,13 @@
     <!-- ── Listado ──────────────────────────────────────────── -->
     <section class="inventario-bloque" aria-label="Materiales">
       @if (cargando() && materiales().length === 0) {
-        <app-esqueleto forma="tabla" [filas]="6" [alto]="48" texto="Cargando inventario..." />
+        <app-esqueleto
+          forma="tabla"
+          [filas]="6"
+          [alto]="48"
+          [maximo]="20"
+          texto="Cargando inventario..."
+        />
       } @else if (materiales().length === 0 && !error()) {
         @if (hayFiltros()) {
           <app-vacio

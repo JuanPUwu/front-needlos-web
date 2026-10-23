@@ -23,6 +23,7 @@
 }
 
 .registro-legal {
+  margin: 0 var(--space-8);
   font-size: 0.82rem;
   line-height: 1.45;
   text-align: center;
@@ -341,4 +342,9 @@
   overflow: hidden;
   font-weight: 500;
   color: var(--color-danger);
+}
+
+// Las dos contraseñas no coinciden (error del formulario, no del campo).
+.registro-field__control--error {
+  border-color: var(--color-danger);
 }

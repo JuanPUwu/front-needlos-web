@@ -198,7 +198,13 @@
     <!-- ── Tabla ─────────────────────────────────────────────── -->
     <section class="pedidos-bloque" aria-label="Listado de pedidos">
       @if (cargando() && pedidos().length === 0) {
-        <app-esqueleto forma="tabla" [filas]="6" [alto]="63" texto="Cargando pedidos..." />
+        <app-esqueleto
+          forma="tabla"
+          [filas]="6"
+          [alto]="63"
+          [maximo]="20"
+          texto="Cargando pedidos..."
+        />
       } @else if (pedidos().length === 0) {
         <!-- Vacío: ícono de lo que no se encuentra y mensaje, centrados (dueño 2026-10-20). -->
         @if (hayFiltros() || filtros().estado !== '') {

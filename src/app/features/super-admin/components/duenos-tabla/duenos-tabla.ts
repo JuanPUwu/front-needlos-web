@@ -16,19 +16,4 @@ import { Dueno } from '../../models/plataforma.model';
 export class DuenosTabla {
   readonly duenos = input.required<Dueno[]>();
   readonly cargando = input(false);
-  /** Mientras carga por primera vez: filas de ejemplo en gris (mide igual). */
-  readonly esqueleto = input(false);
 }
-
-/** Filas de ejemplo para el esqueleto del listado (mismo marcado que las reales). */
-export const DUENOS_ESQUELETO: Dueno[] = Array.from({ length: 6 }, (_, i) => ({
-  id: `esqueleto-${i}`,
-  nombre: 'Nombre',
-  apellido: 'Apellido',
-  email: 'correo@ejemplo.com',
-  telefono: '3000000000',
-  verificada: true,
-  registro: '2026-01-01T05:00:00Z',
-  ultimoAcceso: '2026-01-01T05:00:00Z',
-  sastrerias: ['Nombre de la sastrería'],
-}));

@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { codigoDeError, mensajeDeError } from '../../../../core/http/api-error';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
+import { Icono } from '../../../../shared/ui/icono/icono';
 import { Logo } from '../../../../shared/ui/logo/logo';
 
 /** Segundos que el boton de reenvio queda deshabilitado tras usarlo (evita doble clic). */
@@ -17,7 +18,7 @@ const ESPERA_REENVIO_S = 30;
  */
 @Component({
   selector: 'app-verificar-correo',
-  imports: [ReactiveFormsModule, RouterLink, Logo],
+  imports: [ReactiveFormsModule, RouterLink, Logo, Icono],
   templateUrl: './verificar-correo.html',
   styleUrl: './verificar-correo.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

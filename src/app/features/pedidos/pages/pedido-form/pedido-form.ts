@@ -20,6 +20,11 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import {
+  ERROR_TELEFONO,
+  TELEFONO_COLOMBIA,
+  telefonoColombia,
+} from '../../../../shared/validators/telefono.validators';
 import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
 import { PermisosService } from '../../../../core/auth/permisos';
@@ -48,7 +53,6 @@ import { METODOS_PAGO, MetodoPago, Pedido, PrendaRequest } from '../../models/pe
 import { PedidoService } from '../../services/pedido.service';
 
 const CON_TEXTO = /\S/;
-const TELEFONO = /^[0-9]{7,15}$/;
 /** "Designado" cuando las prendas tienen sastres distintos (en edición): no se cambia ninguno. */
 export const VARIOS = '__varios';
 const UN_DIA = 86_400_000;
@@ -88,6 +92,8 @@ type FilaPrenda = FormGroup<{
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PedidoForm implements OnInit {
+  /** Teléfono de Colombia: 10 dígitos, celular 3XX o fijo 60X (dueño 2026-10-21). */
+  readonly errorFormatoTelefono = ERROR_TELEFONO;
   private readonly fb = inject(FormBuilder);
   private readonly pedidos = inject(PedidoService);
   private readonly clientes = inject(ClienteService);
@@ -140,7 +146,7 @@ export class PedidoForm implements OnInit {
   private borrador!: FormularioRecordado<{ clave?: string; version?: number }>;
 
   readonly form = this.fb.nonNullable.group({
-    telefono: ['', [Validators.required, Validators.pattern(TELEFONO)]],
+    telefono: ['', [Validators.required, telefonoColombia]],
     nombre: [
       '',
       [
@@ -599,7 +605,7 @@ export class PedidoForm implements OnInit {
 
   private buscarCliente(telefono: string): void {
     this.errorTelefono.set(null);
-    if (!TELEFONO.test(telefono)) {
+    if (!TELEFONO_COLOMBIA.test(telefono)) {
       this.telefonoConsultado.set(false);
       this.usarClienteNuevo();
       return;

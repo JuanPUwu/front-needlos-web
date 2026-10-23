@@ -3,6 +3,8 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, map, of, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { codigoDeError } from '../http/api-error';
+import { Confirmacion } from '../ui/confirmacion';
 import { borrarTodoLoRecordado, guardarRutaDeRegreso, tomarRutaDeRegreso } from '../estado/almacen';
 import {
   LoginRequest,
@@ -28,6 +30,7 @@ import {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly confirmacion = inject(Confirmacion);
   private readonly base = `${environment.apiUrl}/api/v1/auth`;
 
   private readonly _sesion = signal<SesionResponse | null>(null);
@@ -42,6 +45,9 @@ export class AuthService {
   /** Inició sesión y su sastrería está en eliminación: la puede recuperar (Manual §16.1). */
   private readonly _recuperacionPendiente = signal<RecuperacionPendiente | null>(null);
   readonly recuperacionPendiente = this._recuperacionPendiente.asReadonly();
+  /** Inició sesión una cuenta sin sastrería: preauth para crear la suya. */
+  private readonly _sinSastreriaPendiente = signal<string | null>(null);
+  readonly sinSastreriaPendiente = this._sinSastreriaPendiente.asReadonly();
 
   private renovacionEnCurso: Observable<SesionResponse> | null = null;
 
@@ -118,6 +124,32 @@ export class AuthService {
           this.entrar(sesion);
         }),
       );
+  }
+
+  /** Cuenta sin sastrería: crea la suya (queda de admin) y entra (dueño 2026-10-22). */
+  crearPrimeraSastreria(nombreSastreria: string): Observable<void> {
+    const preauthToken = this._sinSastreriaPendiente();
+    if (!preauthToken) {
+      this.router.navigate(['/login']);
+      return of(undefined);
+    }
+    return this.http
+      .post<SesionResponse>(`${this.base}/crear-primera-sastreria`, {
+        preauthToken,
+        nombreSastreria,
+      })
+      .pipe(
+        map((sesion) => {
+          this._sinSastreriaPendiente.set(null);
+          this.entrar(sesion);
+        }),
+      );
+  }
+
+  /** No crea su sastrería: vuelve al login. */
+  cancelarSinSastreria(): void {
+    this._sinSastreriaPendiente.set(null);
+    this.router.navigate(['/login']);
   }
 
   /** No quiere recuperarla: vuelve al login. */
@@ -213,7 +245,15 @@ export class AuthService {
 
   /** Se ejecuta al arrancar la app: recupera la sesion si la cookie sigue vigente. */
   restaurarSesion(): Observable<unknown> {
-    return this.renovar().pipe(catchError(() => of(null)));
+    return this.renovar().pipe(
+      catchError((error: unknown) => {
+        // Al recargar, solo se explica si la sesión se CERRÓ (no si nunca la hubo o venció).
+        if (codigoDeError(error) === 'SESION_CERRADA') {
+          this.avisarSalida(error);
+        }
+        return of(null);
+      }),
+    );
   }
 
   cerrarSesion(): void {
@@ -227,11 +267,27 @@ export class AuthService {
       });
   }
 
-  /** La sesion ya no es valida en el servidor: limpia el estado local y vuelve al login. */
-  sesionExpirada(): void {
+  /**
+   * La sesion ya no es valida en el servidor: limpia el estado local, vuelve al login y le explica
+   * al usuario por qué (dueño 2026-10-22: que no se sienta brusco).
+   */
+  sesionExpirada(error?: unknown): void {
     // Al volver a entrar, se regresa al mismo punto (los borradores se conservan).
     guardarRutaDeRegreso(this.router.url);
     this.salir();
+    this.avisarSalida(error);
+  }
+
+  /** Mensaje centrado con "Aceptar": la sesión se cerró en otro lado o venció. */
+  private avisarSalida(error: unknown): void {
+    const cerrada = codigoDeError(error) === 'SESION_CERRADA';
+    void this.confirmacion.avisar({
+      tipo: 'info',
+      titulo: cerrada ? 'Se cerró tu sesión' : 'Tu sesión venció',
+      mensaje: cerrada
+        ? 'Tu sesión se cerró desde otro dispositivo o por un cambio en tu cuenta (por ejemplo, la contraseña). Inicia sesión de nuevo para continuar.'
+        : 'Por seguridad, vuelve a iniciar sesión. Al entrar seguirás donde ibas.',
+    });
   }
 
   // ── Helpers ─────────────────────────────────────────────────────
@@ -243,6 +299,11 @@ export class AuthService {
         sastrerias: res.recuperables,
       });
       this.router.navigate(['/recuperar-sastreria']);
+      return;
+    }
+    if (res.sinSastreria && res.preauthToken) {
+      this._sinSastreriaPendiente.set(res.preauthToken);
+      this.router.navigate(['/crear-mi-sastreria']);
       return;
     }
     if (res.requiereSeleccion && res.preauthToken && res.sastrerias?.length) {

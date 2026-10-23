@@ -1,9 +1,4 @@
-<table
-  class="st"
-  [class.st--cargando]="cargando() && !esqueleto()"
-  [class.st--esqueleto]="esqueleto()"
-  [attr.aria-busy]="esqueleto()"
->
+<table class="st" [class.st--cargando]="cargando()">
   <colgroup>
     <col class="st__col--nombre" />
     <col class="st__col--estado" />
@@ -57,7 +52,6 @@
             type="button"
             [attr.aria-label]="'Abrir ' + s.nombre"
             title="Abrir"
-            [disabled]="esqueleto()"
             (click)="$event.stopPropagation(); elegir(s)"
           ></button>
         </td>

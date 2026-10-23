@@ -16,10 +16,7 @@ import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { CambioSastreria, SastreriaModal } from '../../components/sastreria-modal/sastreria-modal';
-import {
-  SASTRERIAS_ESQUELETO,
-  SastreriasTabla,
-} from '../../components/sastrerias-tabla/sastrerias-tabla';
+import { SastreriasTabla } from '../../components/sastrerias-tabla/sastrerias-tabla';
 import {
   ESTADOS_PLATAFORMA,
   EstadoPlataforma,
@@ -33,6 +30,7 @@ import {
 import { PlataformaService } from '../../services/plataforma.service';
 import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
 import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const TAMANO_PAGINA = 20;
@@ -44,7 +42,15 @@ const TAMANO_PAGINA = 20;
  */
 @Component({
   selector: 'app-super-admin-sastrerias',
-  imports: [Vacio, BotonRecargar, Encabezado, TituloBloque, SastreriasTabla, SastreriaModal],
+  imports: [
+    Esqueleto,
+    Vacio,
+    BotonRecargar,
+    Encabezado,
+    TituloBloque,
+    SastreriasTabla,
+    SastreriaModal,
+  ],
   templateUrl: './sastrerias.html',
   styleUrl: './sastrerias.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,7 +65,6 @@ export class SuperAdminSastrerias implements OnInit {
 
   readonly estados = ESTADOS_PLATAFORMA;
   readonly ordenes = ORDENES_SASTRERIAS;
-  readonly esqueletoFilas = SASTRERIAS_ESQUELETO;
 
   readonly resumen = signal<ResumenPlataforma | null>(null);
   readonly sastrerias = signal<SastreriaPlataforma[]>([]);

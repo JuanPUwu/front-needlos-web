@@ -42,34 +42,41 @@
       </div>
     }
 
-    <div class="el-campo">
-      <div class="el-campo__head">
-        <label class="el-campo__label" for="eliminarConfirmacion">
-          Tu contraseña <span class="el-req">*</span>
-        </label>
-        @if (form.controls.confirmacion.touched && form.controls.confirmacion.invalid) {
-          <span class="el-campo__error">Obligatoria</span>
-        }
+    <!-- La contraseña solo si la cuenta tiene; la de Google confirma con el nombre (abajo). -->
+    @if (conContrasena()) {
+      <div class="el-campo">
+        <div class="el-campo__head">
+          <label class="el-campo__label" for="eliminarConfirmacion">
+            Tu contraseña <span class="el-req">*</span>
+          </label>
+          @if (form.controls.confirmacion.touched && form.controls.confirmacion.invalid) {
+            <span class="el-campo__error">Obligatoria</span>
+          }
+        </div>
+        <div class="el-clave">
+          <input
+            class="el-campo__input"
+            id="eliminarConfirmacion"
+            [type]="verClave() ? 'text' : 'password'"
+            autocomplete="current-password"
+            formControlName="confirmacion"
+          />
+          <button
+            class="el-clave__ver"
+            type="button"
+            [attr.aria-label]="verClave() ? 'Ocultar' : 'Mostrar'"
+            (click)="verClave.set(!verClave())"
+          >
+            <app-icono class="el-clave__icono" [nombre]="verClave() ? 'ojo-cerrado' : 'ojo'" />
+          </button>
+        </div>
       </div>
-      <div class="el-clave">
-        <input
-          class="el-campo__input"
-          id="eliminarConfirmacion"
-          [type]="verClave() ? 'text' : 'password'"
-          autocomplete="current-password"
-          formControlName="confirmacion"
-        />
-        <button
-          class="el-clave__ver"
-          type="button"
-          [attr.aria-label]="verClave() ? 'Ocultar' : 'Mostrar'"
-          (click)="verClave.set(!verClave())"
-        >
-          <app-icono class="el-clave__icono" [nombre]="verClave() ? 'ojo-cerrado' : 'ojo'" />
-        </button>
-      </div>
-      <p class="el-ayuda">¿Entras con Google? Escribe aquí también el nombre de tu sastrería.</p>
-    </div>
+    } @else {
+      <p class="el-ayuda">
+        Tu cuenta entra con Google y no tiene contraseña: confirma escribiendo el nombre de tu
+        sastrería.
+      </p>
+    }
 
     <div class="el-campo">
       <div class="el-campo__head">
@@ -78,10 +85,15 @@
         </label>
         @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
           <span class="el-campo__error">Obligatorio</span>
+        } @else if (form.controls.nombre.touched && !nombreCoincide()) {
+          <span class="el-campo__error">No coincide (mayúsculas y minúsculas)</span>
         }
       </div>
       <input
         class="el-campo__input"
+        [class.el-campo__input--error]="
+          form.controls.nombre.touched && form.controls.nombre.valid && !nombreCoincide()
+        "
         id="eliminarNombre"
         type="text"
         autocomplete="off"

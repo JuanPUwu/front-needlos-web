@@ -88,7 +88,11 @@ describe('SastreriaModal', () => {
       expect.objectContaining({ titulo: '¿Otorgar 3 meses a Sastrería Angely?' }),
     );
     expect(service.otorgarLicencia).toHaveBeenCalledWith('t1', 3);
-    expect(cambios).toEqual([expect.objectContaining({ mensaje: 'Licencia otorgada.' })]);
+    expect(cambios).toEqual([
+      expect.objectContaining({
+        mensaje: expect.stringMatching(/^Licencia de \d+ mes(es)? otorgada a /),
+      }),
+    ]);
   });
 
   it('una licencia vigente suma los meses a su vencimiento; si no, cuenta desde hoy', () => {

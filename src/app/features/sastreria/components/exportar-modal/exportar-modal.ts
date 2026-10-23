@@ -5,6 +5,7 @@ import {
   ElementRef,
   OnDestroy,
   afterNextRender,
+  computed,
   inject,
   input,
   output,
@@ -13,6 +14,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
@@ -37,6 +39,7 @@ import { SastreriaService } from '../../services/sastreria.service';
 })
 export class ExportarModal implements OnDestroy {
   private readonly service = inject(SastreriaService);
+  private readonly auth = inject(AuthService);
   private readonly confirmacion = inject(Confirmacion);
   private readonly notificaciones = inject(Notificaciones);
   private readonly destroyRef = inject(DestroyRef);
@@ -48,6 +51,8 @@ export class ExportarModal implements OnDestroy {
   readonly exportando = signal(false);
   readonly error = signal<string | null>(null);
   readonly verClave = signal(false);
+  /** Cuenta de Google sin contraseña: confirma con el nombre de la sastrería. */
+  readonly conContrasena = computed(() => this.auth.sesion()?.cuenta?.tieneContrasena !== false);
 
   readonly form = inject(FormBuilder).nonNullable.group({
     confirmacion: ['', [Validators.required]],
@@ -70,11 +75,27 @@ export class ExportarModal implements OnDestroy {
     }
   }
 
+  /** Cuenta sin contraseña: el nombre escrito debe ser exacto (mayúsculas y minúsculas). */
+  nombreCoincide(): boolean {
+    return (
+      this.conContrasena() ||
+      this.form.controls.confirmacion.value.trim() === this.sastreria().trim()
+    );
+  }
+
   exportar(): void {
+    if (this.form.valid && !this.nombreCoincide()) {
+      this.form.markAllAsTouched();
+      void this.confirmacion.avisar({
+        titulo: 'Revisa la información',
+        mensaje: `Escribe el nombre exactamente como aparece: «${this.sastreria()}», con sus mayúsculas y minúsculas.`,
+      });
+      return;
+    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       const aviso = avisoFaltantes(this.form, 'exportar', {
-        confirmacion: 'tu contraseña (o el nombre de la sastrería si entras con Google)',
+        confirmacion: this.conContrasena() ? 'tu contraseña' : 'el nombre de la sastrería',
       });
       if (aviso) {
         void this.confirmacion.avisar(aviso);

@@ -17,37 +17,11 @@ import { ETIQUETA_ESTADO_PLATAFORMA, SastreriaPlataforma } from '../../models/pl
 export class SastreriasTabla {
   readonly sastrerias = input.required<SastreriaPlataforma[]>();
   readonly cargando = input(false);
-  /** Mientras carga por primera vez: las filas son de ejemplo y se pintan en gris (mide igual). */
-  readonly esqueleto = input(false);
   readonly abrir = output<SastreriaPlataforma>();
 
   readonly etiquetaEstado = ETIQUETA_ESTADO_PLATAFORMA;
 
   elegir(s: SastreriaPlataforma): void {
-    if (!this.esqueleto()) {
-      this.abrir.emit(s);
-    }
+    this.abrir.emit(s);
   }
 }
-
-/** Filas de ejemplo para el esqueleto del listado (mismo marcado que las reales). */
-export const SASTRERIAS_ESQUELETO: SastreriaPlataforma[] = Array.from({ length: 6 }, (_, i) => ({
-  id: `esqueleto-${i}`,
-  nombre: 'Nombre de la sastrería',
-  plan: 'DEMO',
-  vence: '2026-01-01T05:00:00Z',
-  estado: 'PRUEBA',
-  activo: true,
-  registro: '2026-01-01T05:00:00Z',
-  ultimoAcceso: '2026-01-01T05:00:00Z',
-  pedidos: 10,
-  personas: 10,
-  admin: 'Admin',
-  adminEmail: 'correo@ejemplo.com',
-  telefono: null,
-  bloqueoMotivo: null,
-  eliminacionSolicitadaEn: null,
-  seBorraEl: null,
-  eliminacionOrigen: null,
-  eliminadaEn: null,
-}));

@@ -36,30 +36,41 @@
     <div class="em-campo">
       <div class="em-campo__head">
         <label class="em-campo__label" for="exportarConfirmacion">
-          Confirma con tu contraseña <span class="em-req">*</span>
+          @if (conContrasena()) {
+            Confirma con tu contraseña
+          } @else {
+            Escribe «{{ sastreria() }}» para confirmar
+          }
+          <span class="em-req">*</span>
         </label>
         @if (form.controls.confirmacion.touched && form.controls.confirmacion.invalid) {
           <span class="em-campo__error">Obligatoria</span>
+        } @else if (form.controls.confirmacion.touched && !nombreCoincide()) {
+          <span class="em-campo__error">No coincide (mayúsculas y minúsculas)</span>
         }
       </div>
       <div class="em-clave">
         <input
           class="em-campo__input"
           id="exportarConfirmacion"
-          [type]="verClave() ? 'text' : 'password'"
-          autocomplete="current-password"
+          [type]="!conContrasena() || verClave() ? 'text' : 'password'"
+          [attr.autocomplete]="conContrasena() ? 'current-password' : 'off'"
           formControlName="confirmacion"
         />
-        <button
-          class="em-clave__ver"
-          type="button"
-          [attr.aria-label]="verClave() ? 'Ocultar' : 'Mostrar'"
-          (click)="verClave.set(!verClave())"
-        >
-          <app-icono class="em-clave__icono" [nombre]="verClave() ? 'ojo-cerrado' : 'ojo'" />
-        </button>
+        @if (conContrasena()) {
+          <button
+            class="em-clave__ver"
+            type="button"
+            [attr.aria-label]="verClave() ? 'Ocultar' : 'Mostrar'"
+            (click)="verClave.set(!verClave())"
+          >
+            <app-icono class="em-clave__icono" [nombre]="verClave() ? 'ojo-cerrado' : 'ojo'" />
+          </button>
+        }
       </div>
-      <p class="em-ayuda">¿Entras con Google? Escribe el nombre de tu sastrería.</p>
+      @if (!conContrasena()) {
+        <p class="em-ayuda">Tu cuenta entra con Google y no tiene contraseña.</p>
+      }
     </div>
 
     <div class="em-acciones">

@@ -3,7 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Memoria } from '../../../../core/estado/memoria';
-import { recordarFormulario } from '../../../../core/estado/recordar-formulario';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { Logo } from '../../../../shared/ui/logo/logo';
 import { RecuperacionContrasenaService } from '../../services/recuperacion-contrasena.service';
@@ -32,23 +31,11 @@ export class RecuperarContrasena {
     email: ['', [Validators.required, Validators.email, Validators.maxLength(120)]],
   });
 
-  /** Lo escrito sobrevive a la recarga (nunca la contraseña). */
-  private readonly borrador = recordarFormulario(
-    this.form,
-    inject(Memoria),
-    'recuperar',
-    this.destroyRef,
-    {},
-  );
-  private readonly _restaurado = this.restaurarBorrador();
-
-  private restaurarBorrador(): true {
-    const guardado = this.borrador.leer();
-    if (guardado) {
-      this.form.patchValue(guardado.valores);
-    }
-    return true;
-  }
+  /**
+   * Formulario fuera del sistema: NUNCA recuerda lo escrito; al recargar queda limpio (dueño
+   * 2026-10-22). Se borra además el borrador que pudo quedar guardado de versiones anteriores.
+   */
+  private readonly _sinBorrador = inject(Memoria).olvidar('recuperar');
 
   enviar(): void {
     if (this.form.invalid) {

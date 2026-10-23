@@ -23,7 +23,7 @@
     <ul class="cs-pasos">
       <li>Empieza con su propia <strong>prueba gratis</strong> y luego tiene su propio plan.</li>
       <li>Su información (clientes, pedidos, equipo) es aparte de tus otras sastrerías.</li>
-      <li>Pasas de una a otra con el botón de sastrerías junto a tu perfil.</li>
+      <li>Pasas de una a otra desde Mi cuenta → Mis sastrerías.</li>
     </ul>
 
     <div class="cs-campo">
@@ -33,6 +33,10 @@
         </label>
         @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
           <span class="cs-campo__error">Obligatorio</span>
+        } @else if (
+          nombreRechazado() !== null && nombreRechazado() === form.controls.nombre.value.trim()
+        ) {
+          <span class="cs-campo__error" role="alert">Ya existe, elige otro</span>
         }
       </div>
       <input

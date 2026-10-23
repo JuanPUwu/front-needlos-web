@@ -200,41 +200,9 @@
   color: var(--color-text);
 }
 
-// ── Esqueleto: el mismo formulario con los valores en gris ──
-// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
-.scfg--esqueleto .scfg-campo__input,
-.scfg--esqueleto .scfg-ultimo {
-  border-color: transparent;
-  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
-    color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
-  background-size: 200% 100%;
-  color: transparent;
-  animation: scfg-brillo 1.4s linear infinite;
-}
-
-.scfg--esqueleto .scfg-ultimo {
-  width: fit-content;
-  border-radius: var(--radius-sm);
-}
-
-@keyframes scfg-brillo {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -100% 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .scfg-boton {
     transition: none;
-  }
-
-  .scfg--esqueleto .scfg-campo__input,
-  .scfg--esqueleto .scfg-ultimo {
-    animation: none;
   }
 }
 

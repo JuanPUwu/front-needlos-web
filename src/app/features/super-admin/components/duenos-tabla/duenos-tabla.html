@@ -1,9 +1,4 @@
-<table
-  class="dt"
-  [class.dt--cargando]="cargando() && !esqueleto()"
-  [class.dt--esqueleto]="esqueleto()"
-  [attr.aria-busy]="esqueleto()"
->
+<table class="dt" [class.dt--cargando]="cargando()">
   <colgroup>
     <col class="dt__col--dueno" />
     <col class="dt__col--telefono" />

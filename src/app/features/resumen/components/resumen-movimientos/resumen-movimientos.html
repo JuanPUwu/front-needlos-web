@@ -67,11 +67,12 @@
 </div>
 
 @if (cargando() && movimientos().length === 0) {
-  <div class="rm-marco">
+  <div class="rm-marco rm-marco--esqueleto">
     <app-esqueleto
       forma="tabla"
       [filas]="6"
       [alto]="varios() ? 58 : 45"
+      [maximo]="20"
       texto="Cargando movimientos..."
     />
   </div>

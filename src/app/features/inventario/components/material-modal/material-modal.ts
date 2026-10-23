@@ -254,7 +254,7 @@ export class MaterialModal implements OnInit, OnDestroy {
           this.cargarHistorial(0);
           this.cambiado.emit({
             material,
-            mensaje: v.tipo === 'ENTRADA' ? 'Entrada registrada.' : 'Salida registrada.',
+            mensaje: `Inventario: ${v.tipo === 'ENTRADA' ? 'entrada' : 'salida'} de ${cantidad} ${etiquetaUnidad(material.unidad, cantidad)} de ${material.nombre}.`,
             nuevo: false,
           });
         },
@@ -321,7 +321,9 @@ export class MaterialModal implements OnInit, OnDestroy {
         }
         this.cambiado.emit({
           material,
-          mensaje: actual ? 'Cambios guardados.' : 'Material creado.',
+          mensaje: actual
+            ? `Material ${material.nombre} actualizado.`
+            : `Material ${material.nombre} creado en el inventario.`,
           nuevo: !actual,
         });
       },
@@ -374,7 +376,7 @@ export class MaterialModal implements OnInit, OnDestroy {
           this.alActualizar(material);
           this.cambiado.emit({
             material,
-            mensaje: material.activo ? 'Material reactivado.' : 'Material desactivado.',
+            mensaje: `Material ${material.nombre} ${material.activo ? 'reactivado' : 'desactivado'}.`,
             nuevo: false,
           });
         },

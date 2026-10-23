@@ -104,12 +104,20 @@
 
           <div class="equipo-fila">
             <div class="equipo-field">
-              <label class="equipo-field__label" for="telefono">Teléfono (opcional)</label>
+              <div class="equipo-field__head">
+                <label class="equipo-field__label" for="telefono">Teléfono (opcional)</label>
+                @if (form.controls.telefono.touched && form.controls.telefono.invalid) {
+                  <span class="equipo-field__error">{{ errorFormatoTelefono }}</span>
+                }
+              </div>
               <input
                 class="equipo-field__input"
                 id="telefono"
                 type="tel"
+                inputmode="numeric"
+                maxlength="10"
                 formControlName="telefono"
+                placeholder="3001234567"
               />
             </div>
 
@@ -235,7 +243,13 @@
         </div>
 
         @if (cargando() && !listo()) {
-          <app-esqueleto forma="lista" [filas]="5" [alto]="72" texto="Cargando equipo..." />
+          <app-esqueleto
+            forma="lista"
+            [filas]="5"
+            [alto]="72"
+            [maximo]="50"
+            texto="Cargando equipo..."
+          />
         } @else {
           <div class="equipo-lista-scroll">
             @if (empleados().length === 0) {

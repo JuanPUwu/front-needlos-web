@@ -75,7 +75,7 @@
                 @if (errorTelefono()) {
                   <span class="clientes-field__error" role="alert">{{ errorTelefono() }}</span>
                 } @else if (form.controls.telefono.touched && form.controls.telefono.invalid) {
-                  <span class="clientes-field__error">7 a 15 dígitos</span>
+                  <span class="clientes-field__error">{{ errorFormatoTelefono }}</span>
                 }
               </div>
               <input
@@ -83,6 +83,7 @@
                 id="telefono"
                 type="tel"
                 inputmode="numeric"
+                maxlength="10"
                 formControlName="telefono"
                 placeholder="3001234567"
               />
@@ -202,7 +203,13 @@
         </div>
 
         @if (cargando() && !listo()) {
-          <app-esqueleto forma="lista" [filas]="6" [alto]="92" texto="Cargando clientes..." />
+          <app-esqueleto
+            forma="lista"
+            [filas]="6"
+            [alto]="92"
+            [maximo]="20"
+            texto="Cargando clientes..."
+          />
         } @else if (clientes().length === 0) {
           @if (hayFiltros()) {
             <app-vacio

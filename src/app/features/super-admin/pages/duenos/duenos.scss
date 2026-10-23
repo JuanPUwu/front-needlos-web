@@ -126,33 +126,6 @@
   color: var(--color-text-muted);
 }
 
-// ── Esqueleto del contador ──────────────────────────────────
-// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
-.sdue-cuenta--esqueleto {
-  border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
-    color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
-  background-size: 200% 100%;
-  color: transparent;
-  animation: sdue-brillo 1.4s linear infinite;
-}
-
-@keyframes sdue-brillo {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -100% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sdue-cuenta--esqueleto {
-    animation: none;
-  }
-}
-
 // Buscador y botón de recargar en la misma celda (dueño 2026-10-20).
 .sdue-buscar {
   display: flex;

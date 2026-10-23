@@ -14,10 +14,9 @@
   />
 
   <div class="scfg-bento">
-    <!-- ── Prueba y avisos (mientras carga: el mismo formulario en gris) ── -->
+    <!-- ── Prueba y avisos (mientras carga: el esqueleto común de campos, Reglas §12.2) ── -->
     <form
       class="scfg-seccion"
-      [class.scfg--esqueleto]="!config()"
       [attr.aria-busy]="!config()"
       [formGroup]="form"
       (ngSubmit)="guardar()"
@@ -25,60 +24,74 @@
     >
       <app-titulo-bloque titulo="Prueba y avisos" idTitulo="t-config" />
 
-      <div class="scfg-campos">
-        <div class="scfg-campo">
-          <div class="scfg-campo__head">
-            <label class="scfg-campo__label" for="cfgPrueba">Días de prueba</label>
-            @if (form.controls.diasPrueba.touched && form.controls.diasPrueba.invalid) {
-              <span class="scfg-campo__error"
-                >Entre {{ limites.prueba.min }} y {{ limites.prueba.max }}</span
-              >
-            }
-          </div>
-          <input
-            class="scfg-campo__input"
-            id="cfgPrueba"
-            type="number"
-            inputmode="numeric"
-            formControlName="diasPrueba"
-            [min]="limites.prueba.min"
-            [max]="limites.prueba.max"
+      @if (!config()) {
+        <!-- Mide como el formulario: ocupa el alto (los botones reales quedan al pie). -->
+        <div class="scfg-campos">
+          <app-esqueleto
+            forma="campos"
+            [filas]="2"
+            [ayuda]="true"
+            [nota]="true"
+            [accion]="false"
+            texto="Cargando configuración..."
           />
-          <span class="scfg-campo__ayuda"
-            >Con todo incluido, desde que la sastrería se registra. Aplica a las que se registren
-            desde ahora.</span
-          >
         </div>
-
-        <div class="scfg-campo">
-          <div class="scfg-campo__head">
-            <label class="scfg-campo__label" for="cfgAviso">Días de aviso</label>
-            @if (form.controls.diasAviso.touched && form.controls.diasAviso.invalid) {
-              <span class="scfg-campo__error"
-                >Entre {{ limites.aviso.min }} y {{ limites.aviso.max }}</span
-              >
-            }
+      } @else {
+        <div class="scfg-campos">
+          <div class="scfg-campo">
+            <div class="scfg-campo__head">
+              <label class="scfg-campo__label" for="cfgPrueba">Días de prueba</label>
+              @if (form.controls.diasPrueba.touched && form.controls.diasPrueba.invalid) {
+                <span class="scfg-campo__error"
+                  >Entre {{ limites.prueba.min }} y {{ limites.prueba.max }}</span
+                >
+              }
+            </div>
+            <input
+              class="scfg-campo__input"
+              id="cfgPrueba"
+              type="number"
+              inputmode="numeric"
+              formControlName="diasPrueba"
+              [min]="limites.prueba.min"
+              [max]="limites.prueba.max"
+            />
+            <span class="scfg-campo__ayuda"
+              >Con todo incluido, desde que la sastrería se registra. Aplica a las que se registren
+              desde ahora.</span
+            >
           </div>
-          <input
-            class="scfg-campo__input"
-            id="cfgAviso"
-            type="number"
-            inputmode="numeric"
-            formControlName="diasAviso"
-            [min]="limites.aviso.min"
-            [max]="limites.aviso.max"
-          />
-          <span class="scfg-campo__ayuda"
-            >Cuántos días antes del vencimiento se avisa al admin (en la app y por correo) y la
-            sastrería aparece "Por vencer".</span
-          >
-        </div>
 
-        <p class="scfg-ultimo">
-          Último cambio: {{ config()?.actualizadoEn | fechaHora }}
-          {{ config()?.actualizadoPor ? 'por ' + config()?.actualizadoPor : '' }}
-        </p>
-      </div>
+          <div class="scfg-campo">
+            <div class="scfg-campo__head">
+              <label class="scfg-campo__label" for="cfgAviso">Días de aviso</label>
+              @if (form.controls.diasAviso.touched && form.controls.diasAviso.invalid) {
+                <span class="scfg-campo__error"
+                  >Entre {{ limites.aviso.min }} y {{ limites.aviso.max }}</span
+                >
+              }
+            </div>
+            <input
+              class="scfg-campo__input"
+              id="cfgAviso"
+              type="number"
+              inputmode="numeric"
+              formControlName="diasAviso"
+              [min]="limites.aviso.min"
+              [max]="limites.aviso.max"
+            />
+            <span class="scfg-campo__ayuda"
+              >Cuántos días antes del vencimiento se avisa al admin (en la app y por correo) y la
+              sastrería aparece "Por vencer".</span
+            >
+          </div>
+
+          <p class="scfg-ultimo">
+            Último cambio: {{ config()?.actualizadoEn | fechaHora }}
+            {{ config()?.actualizadoPor ? 'por ' + config()?.actualizadoPor : '' }}
+          </p>
+        </div>
+      }
 
       @if (conAcciones()) {
         <div class="scfg-acciones">

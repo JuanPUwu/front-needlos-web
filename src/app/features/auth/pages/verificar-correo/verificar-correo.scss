@@ -52,6 +52,55 @@
   color: var(--color-text-muted);
 }
 
+// El correo al que se envió el código: resaltado y en su propia línea.
+.verificar-correo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-navy-suave);
+  color: var(--color-navy);
+}
+
+.verificar-correo__icono {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.verificar-correo__texto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+// Aviso de revisar spam, antes del campo del código.
+.verificar-spam {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.verificar-spam__icono {
+  flex-shrink: 0;
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--color-navy);
+}
+
 .verificar-form {
   display: flex;
   flex-direction: column;
@@ -250,4 +299,12 @@
   overflow: hidden;
   font-weight: 500;
   color: var(--color-danger);
+}
+
+// ── Teléfono: relleno siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .verificar-correo,
+  .verificar-spam {
+    padding: var(--space-3);
+  }
 }

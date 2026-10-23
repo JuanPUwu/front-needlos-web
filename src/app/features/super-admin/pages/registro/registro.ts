@@ -26,20 +26,10 @@ import {
 import { PlataformaService } from '../../services/plataforma.service';
 import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
 import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const TAMANO_PAGINA = 20;
-
-/** Mientras carga: acciones de ejemplo con el mismo marcado, en gris. */
-const ESQUELETO: AccionPlataforma[] = Array.from({ length: 6 }, (_, i) => ({
-  id: `esqueleto-${i}`,
-  accion: 'LICENCIA_OTORGADA',
-  sastreriaId: null,
-  sastreria: 'Nombre de la sastrería',
-  detalle: 'Detalle de la acción registrada',
-  superAdmin: 'Nombre SuperAdmin',
-  fecha: '2026-01-01T05:00:00Z',
-}));
 
 /**
  * Registro de acciones de los SuperAdmins (Manual §16): quién hizo qué, sobre qué sastrería y
@@ -47,7 +37,7 @@ const ESQUELETO: AccionPlataforma[] = Array.from({ length: 6 }, (_, i) => ({
  */
 @Component({
   selector: 'app-super-admin-registro',
-  imports: [Vacio, BotonRecargar, Encabezado, TituloBloque, FechaHoraPipe],
+  imports: [Esqueleto, Vacio, BotonRecargar, Encabezado, TituloBloque, FechaHoraPipe],
   templateUrl: './registro.html',
   styleUrl: './registro.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,7 +60,6 @@ export class SuperAdminRegistro implements OnInit {
   readonly error = signal<string | null>(null);
   readonly filtros = signal<FiltrosRegistro>(FILTROS_REGISTRO_INICIALES);
 
-  readonly vista = computed(() => this.acciones() ?? ESQUELETO);
   readonly enEsqueleto = computed(() => this.acciones() === null);
   readonly hayFiltros = computed(() => {
     const f = this.filtros();

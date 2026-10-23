@@ -32,14 +32,24 @@ describe('RegistrarSastreria', () => {
     expect(componente.error()).toContain('nombre de tu sastrería');
   });
 
-  it('con Google envia solo el token y el nombre', () => {
+  it('con Google abre el popup para completar documento y teléfono (aún no registra)', () => {
     componente.nombreSastreria.setValue('  El Buen Corte ');
     componente.conGoogle('id-token');
 
-    expect(auth.registrarSastreriaGoogle).toHaveBeenCalledWith({
+    expect(auth.registrarSastreriaGoogle).not.toHaveBeenCalled();
+    expect(componente.googlePendiente()).toEqual({
       idToken: 'id-token',
       nombreSastreria: 'El Buen Corte',
     });
+  });
+
+  it('si el popup de Google encuentra el nombre en uso, lo cierra y marca el campo', () => {
+    componente.nombreSastreria.setValue('El Buen Corte');
+    componente.conGoogle('id-token');
+    componente.nombreEnUsoConGoogle('Ya existe una sastrería llamada "El Buen Corte".');
+
+    expect(componente.googlePendiente()).toBeNull();
+    expect(componente.nombreRechazado()).toBe('El Buen Corte');
   });
 
   it('no envia el formulario si las contrasenas no coinciden', () => {

@@ -19,6 +19,7 @@ import { InvitacionSuperAdmin, SuperAdmin, SuperAdmins } from '../../models/plat
 import { EstadoSuperAdmin } from '../../services/estado-super-admin';
 import { PlataformaService } from '../../services/plataforma.service';
 import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Vacio } from '../../../../shared/ui/vacio/vacio';
 import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
@@ -29,7 +30,7 @@ import { avisoFaltantes } from '../../../../shared/util/faltantes';
  */
 @Component({
   selector: 'app-super-admin-superadmins',
-  imports: [Vacio, ReactiveFormsModule, Encabezado, TituloBloque, FechaHoraPipe],
+  imports: [Esqueleto, Vacio, ReactiveFormsModule, Encabezado, TituloBloque, FechaHoraPipe],
   templateUrl: './superadmins.html',
   styleUrl: './superadmins.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,20 +49,12 @@ export class SuperAdminSuperAdmins implements OnInit {
   readonly errorInvitar = signal<string | null>(null);
   readonly ocupado = signal(false);
 
-  /** Lo que se pinta: los datos o, mientras llegan, el esqueleto con la forma esperada. */
+  /** Lo que se pinta: los datos o, mientras llegan, la forma vacía (las listas muestran el esqueleto). */
   readonly vista = computed<SuperAdmins>(
     () =>
       this.datos() ?? {
         soyPrincipal: this.estado.principal(),
-        superAdmins: [
-          {
-            id: 'esqueleto',
-            nombre: 'Nombre',
-            apellido: 'Apellido',
-            email: 'correo@ejemplo.com',
-            principal: true,
-          },
-        ],
+        superAdmins: [],
         invitaciones: [],
       },
   );
@@ -132,7 +125,10 @@ export class SuperAdminSuperAdmins implements OnInit {
       peligro: true,
     });
     if (ok) {
-      this.ejecutar(this.service.cancelarInvitacion(inv.id), 'Invitación cancelada.');
+      this.ejecutar(
+        this.service.cancelarInvitacion(inv.id),
+        `Invitación a ${inv.email} cancelada.`,
+      );
     }
   }
 
@@ -145,7 +141,10 @@ export class SuperAdminSuperAdmins implements OnInit {
       peligro: true,
     });
     if (ok) {
-      this.ejecutar(this.service.eliminarSuperAdmin(sa.id), 'SuperAdmin eliminado.');
+      this.ejecutar(
+        this.service.eliminarSuperAdmin(sa.id),
+        `${sa.nombre} ${sa.apellido} ya no es SuperAdmin.`,
+      );
     }
   }
 

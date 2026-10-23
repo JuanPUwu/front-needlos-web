@@ -1,0 +1,52 @@
+<main class="cms-page">
+  <section class="cms-card" aria-labelledby="cms-titulo">
+    <header class="cms-card__header">
+      <app-logo class="cms-card__logo" variant="dark" />
+      <h1 class="cms-card__titulo" id="cms-titulo">
+        @if (error(); as e) {
+          <span class="cms-card__error" role="alert" [title]="e">{{ e }}</span>
+        } @else {
+          Tu cuenta no tiene sastrería
+        }
+      </h1>
+    </header>
+
+    <p class="cms-texto">
+      Registra la tuya para administrarla, o pide al administrador de una sastrería que te invite.
+    </p>
+
+    <form class="cms-form" (submit)="$event.preventDefault(); crear()" novalidate>
+      <div class="cms-campo">
+        <div class="cms-campo__head">
+          <label class="cms-campo__label" for="cmsNombre">
+            Nombre de tu sastrería <span class="cms-req">*</span>
+          </label>
+          @if (nombre.touched && nombre.invalid) {
+            <span class="cms-campo__error">Obligatorio</span>
+          } @else if (nombreRechazado() !== null && nombreRechazado() === nombre.value.trim()) {
+            <span class="cms-campo__error" role="alert">Ya existe, elige otro</span>
+          }
+        </div>
+        <input
+          class="cms-campo__input"
+          id="cmsNombre"
+          type="text"
+          maxlength="120"
+          autocomplete="organization"
+          placeholder="Sastrería El Buen Corte"
+          [formControl]="nombre"
+        />
+      </div>
+
+      <button class="cms-boton" type="submit" [disabled]="creando()">
+        {{ creando() ? 'Creando...' : 'Crear mi sastrería' }}
+      </button>
+      <p class="cms-nota">Empieza con su prueba gratis y tú quedas como administrador.</p>
+    </form>
+
+    <button class="cms-enlace" type="button" (click)="cancelar()">
+      Volver al inicio de sesión
+    </button>
+  </section>
+  <app-pie-publico class="cms-publico" />
+</main>

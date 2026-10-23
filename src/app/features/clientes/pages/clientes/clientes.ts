@@ -9,6 +9,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ERROR_TELEFONO,
+  telefonoColombia,
+} from '../../../../shared/validators/telefono.validators';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, debounceTime } from 'rxjs';
 import { Confirmacion } from '../../../../core/ui/confirmacion';
@@ -39,7 +43,6 @@ import { avisoFaltantes } from '../../../../shared/util/faltantes';
 
 /** Al menos un caracter visible (el backend rechaza textos solo con espacios). */
 const CON_TEXTO = /\S/;
-const TELEFONO = /^[0-9]{7,15}$/;
 const TAMANO_PAGINA = 20;
 
 /** Opciones del selector de orden. */
@@ -73,6 +76,8 @@ const ORDENES: { valor: OrdenClientes; etiqueta: string }[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Clientes implements OnInit {
+  /** Teléfono de Colombia: 10 dígitos, celular 3XX o fijo 60X (dueño 2026-10-21). */
+  readonly errorFormatoTelefono = ERROR_TELEFONO;
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ClienteService);
   private readonly auth = inject(AuthService);
@@ -139,7 +144,7 @@ export class Clientes implements OnInit {
         Validators.pattern(CON_TEXTO),
       ],
     ],
-    telefono: ['', [Validators.required, Validators.pattern(TELEFONO)]],
+    telefono: ['', [Validators.required, telefonoColombia]],
   });
 
   /** Formulario a medio llenar (y qué se editaba): sobrevive a la recarga. */
@@ -321,7 +326,9 @@ export class Clientes implements OnInit {
       next: (cliente) => {
         this.guardando.set(false);
         this.notificaciones.exito(
-          actual ? 'Cliente actualizado.' : `Cliente ${cliente.nombre} ${cliente.apellido} creado.`,
+          actual
+            ? `Cliente ${cliente.nombre} ${cliente.apellido} actualizado.`
+            : `Cliente ${cliente.nombre} ${cliente.apellido} creado.`,
         );
         this.cancelar();
         this.cargar(actual ? this.pagina() : 0);

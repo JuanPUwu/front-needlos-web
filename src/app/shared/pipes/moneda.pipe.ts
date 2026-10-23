@@ -18,6 +18,11 @@ const CON_DECIMALES = new Intl.NumberFormat('es-CO', {
  * Pesos colombianos (Reglas §12.2): decimales solo cuando aportan.
  * 25000 -> "$ 25.000" · 25000.5 -> "$ 25.000,50" · null -> "".
  */
+/** Lo mismo que el pipe, para armar textos (p. ej. "Abono de $ 20.000 registrado…"). */
+export function enPesos(valor: number | string | null | undefined): string {
+  return new MonedaPipe().transform(valor);
+}
+
 @Pipe({ name: 'moneda' })
 export class MonedaPipe implements PipeTransform {
   transform(valor: number | string | null | undefined): string {

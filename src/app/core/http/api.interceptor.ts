@@ -9,7 +9,7 @@ export const TIEMPO_MAXIMO_MS = 20_000;
 
 /** Endpoints de autenticacion que no llevan access token ni disparan renovacion. */
 const AUTH_PUBLICO =
-  /\/api\/v1\/auth\/(login|google|seleccionar-sastreria|registrar-sastreria(-google)?|refresh|logout|recuperar-contrasena|restablecer-contrasena)$/;
+  /\/api\/v1\/auth\/(login|google|seleccionar-sastreria|registrar-sastreria(-google)?|refresh|logout|recuperar-contrasena|restablecer-contrasena|crear-primera-sastreria)$/;
 
 /**
  * Interceptor unico de la API (Reglas §12.1):
@@ -48,7 +48,7 @@ export const apiInterceptor: HttpInterceptorFn = (req, next) => {
       }
       return auth.renovar().pipe(
         catchError((errorRenovacion: unknown) => {
-          auth.sesionExpirada();
+          auth.sesionExpirada(errorRenovacion);
           return throwError(() => errorRenovacion);
         }),
         switchMap(() => next(preparar(req)).pipe(timeout(TIEMPO_MAXIMO_MS))),

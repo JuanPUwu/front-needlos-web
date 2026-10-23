@@ -64,7 +64,15 @@
   gap: var(--space-3);
 }
 
+.restablecer-field__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
 .restablecer-field__label {
+  flex-shrink: 0;
   font-size: 0.85rem;
   font-weight: 500;
   margin-left: var(--space-2);
@@ -98,6 +106,11 @@
   &:has(.ng-touched.ng-invalid) {
     border-color: var(--color-danger);
   }
+}
+
+// Las dos contraseñas no coinciden (error del formulario, no del campo).
+.restablecer-field__control--error {
+  border-color: var(--color-danger);
 }
 
 .restablecer-field__input {
@@ -138,6 +151,12 @@
 }
 
 .restablecer-field__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  text-align: right;
   font-size: 0.8rem;
   color: var(--color-danger);
 }
@@ -209,8 +228,8 @@
 .restablecer-card__error {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
   font-weight: 500;
   color: var(--color-danger);

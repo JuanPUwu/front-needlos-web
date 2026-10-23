@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   OnDestroy,
+  computed,
   inject,
   input,
   output,
@@ -49,11 +50,19 @@ export class EliminarModal implements OnDestroy {
   readonly eliminando = signal(false);
   readonly error = signal<string | null>(null);
   readonly verClave = signal(false);
+  /** Cuenta de Google sin contraseña: confirma solo con el nombre (dueño 2026-10-22). */
+  readonly conContrasena = computed(() => this.auth.sesion()?.cuenta?.tieneContrasena !== false);
 
   readonly form = inject(FormBuilder).nonNullable.group({
     confirmacion: ['', [Validators.required]],
     nombre: ['', [Validators.required]],
   });
+
+  constructor() {
+    if (!this.conContrasena()) {
+      this.form.controls.confirmacion.disable();
+    }
+  }
 
   private readonly focoPrevio = document.activeElement as HTMLElement | null;
 
@@ -67,7 +76,23 @@ export class EliminarModal implements OnDestroy {
     }
   }
 
+  /**
+   * El nombre escrito es exactamente el de la sastrería, con sus mayúsculas y minúsculas (dueño
+   * 2026-10-22); solo se ignoran los espacios de los extremos. El servidor exige lo mismo.
+   */
+  nombreCoincide(): boolean {
+    return this.form.controls.nombre.value.trim() === this.sastreria().trim();
+  }
+
   async eliminar(): Promise<void> {
+    if (this.form.valid && !this.nombreCoincide()) {
+      this.form.markAllAsTouched();
+      void this.confirmacion.avisar({
+        titulo: 'Revisa la información',
+        mensaje: `Escribe el nombre exactamente como aparece: «${this.sastreria()}», con sus mayúsculas y minúsculas.`,
+      });
+      return;
+    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       const aviso = avisoFaltantes(this.form, 'eliminar la sastrería', {
@@ -90,10 +115,12 @@ export class EliminarModal implements OnDestroy {
       return;
     }
     const { confirmacion, nombre } = this.form.getRawValue();
+    // Sin contraseña (Google), el servidor confirma con el nombre de la sastrería.
+    const identidad = this.conContrasena() ? confirmacion : nombre;
     this.eliminando.set(true);
     this.error.set(null);
     this.service
-      .eliminar(confirmacion, nombre)
+      .eliminar(identidad, nombre)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

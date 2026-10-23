@@ -15,7 +15,7 @@ import { Memoria } from '../../../../core/estado/memoria';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
-import { MonedaPipe } from '../../../../shared/pipes/moneda.pipe';
+import { MonedaPipe, enPesos } from '../../../../shared/pipes/moneda.pipe';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Icono } from '../../../../shared/ui/icono/icono';
@@ -178,7 +178,10 @@ export class Gastos implements OnInit {
   }
 
   alGuardar(evento: { gasto: Gasto; nuevo: boolean }): void {
-    this.notificaciones.exito(evento.nuevo ? 'Gasto registrado.' : 'Gasto corregido.');
+    const g = evento.gasto;
+    this.notificaciones.exito(
+      `Gasto "${g.razon}" por ${enPesos(g.monto)} ${evento.nuevo ? 'registrado' : 'corregido'}.`,
+    );
     this.cargar(evento.nuevo ? 0 : this.pagina(), { gasto: null, nuevo: null });
   }
 
@@ -197,7 +200,9 @@ export class Gastos implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.notificaciones.exito('Gasto eliminado.');
+          this.notificaciones.exito(
+            `Gasto "${gasto.razon}" por ${enPesos(gasto.monto)} eliminado.`,
+          );
           const pagina = this.gastos().length === 1 ? this.pagina() - 1 : this.pagina();
           this.cargar(Math.max(pagina, 0));
         },

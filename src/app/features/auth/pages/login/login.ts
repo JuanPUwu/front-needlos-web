@@ -4,7 +4,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Memoria } from '../../../../core/estado/memoria';
-import { recordarFormulario } from '../../../../core/estado/recordar-formulario';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { Icono } from '../../../../shared/ui/icono/icono';
@@ -33,23 +32,11 @@ export class Login {
     password: ['', [Validators.required]],
   });
 
-  /** Lo escrito sobrevive a la recarga (nunca la contraseña). */
-  private readonly borrador = recordarFormulario(
-    this.form,
-    inject(Memoria),
-    'login',
-    this.destroyRef,
-    { omitir: ['password'] },
-  );
-  private readonly _restaurado = this.restaurarBorrador();
-
-  private restaurarBorrador(): true {
-    const guardado = this.borrador.leer();
-    if (guardado) {
-      this.form.patchValue(guardado.valores);
-    }
-    return true;
-  }
+  /**
+   * Formulario fuera del sistema: NUNCA recuerda lo escrito; al recargar queda limpio (dueño
+   * 2026-10-22). Se borra además el borrador que pudo quedar guardado de versiones anteriores.
+   */
+  private readonly _sinBorrador = inject(Memoria).olvidar('login');
 
   enviar(): void {
     if (this.form.invalid) {

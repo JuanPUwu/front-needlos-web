@@ -1,0 +1,418 @@
+// Historial de notificaciones (patrón de sección, como Gastos). Solo tokens globales; espaciado
+// con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.hn-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+}
+
+.hn-contenedor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// ── Cápsulas: búsqueda y listado ────────────────────────────
+.hn-buscar,
+.hn-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: hnlista / inline-size;
+
+  @container panel (max-width: 560px) {
+    padding: var(--space-3);
+    // Relleno y separación iguales en teléfono.
+    gap: var(--space-3);
+  }
+}
+
+.hn-bloque {
+  flex: 1;
+  min-height: 0;
+}
+
+.hn-busqueda {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+
+  @container hnlista (max-width: 560px) {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+
+    .hn-buscador-caja {
+      flex-basis: 100%;
+    }
+
+    .hn-buscar-boton {
+      flex: 1;
+    }
+  }
+}
+
+.hn-buscador-caja {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.hn-buscador-caja__lupa {
+  position: absolute;
+  top: 50%;
+  left: var(--space-3);
+  width: 1.15rem;
+  height: 1.15rem;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.hn-control {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+}
+
+.hn-buscador-caja .hn-buscador {
+  padding-left: calc(var(--space-3) + 1.15rem + var(--space-2));
+}
+
+.hn-buscar-boton {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-accent-hover);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.hn-herramienta {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.hn-herramienta--activa {
+  border-color: var(--color-border);
+  background: var(--focus-ring);
+}
+
+.hn-herramienta__icono {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.hn-herramienta__cuenta {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--color-navy);
+  color: var(--color-surface);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.hn-cuenta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+
+  strong {
+    color: var(--color-navy);
+  }
+}
+
+// ── Filtros (panel plegable) ────────────────────────────────
+.hn-filtros {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+
+  @container hnlista (max-width: 860px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @container hnlista (max-width: 420px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.hn-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.hn-filtro__label {
+  margin-left: var(--space-2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+// ── Lista: cada aviso como en la campana ────────────────────
+.hn-lista {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.hn-item {
+  --tono: var(--color-accent);
+
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font: inherit;
+  text-align: left;
+  color: var(--color-text);
+  cursor: default;
+
+  &[data-tono='ALERTA'] {
+    --tono: var(--color-warning);
+  }
+
+  &[data-tono='ERROR'] {
+    --tono: var(--color-danger);
+  }
+
+  &--nueva,
+  &--enlace {
+    cursor: pointer;
+
+    &:hover {
+      background: var(--focus-ring);
+    }
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// Punto de "sin leer" del color del aviso; leída, sin punto.
+.hn-punto {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 0.45em;
+  border-radius: 50%;
+  background: transparent;
+
+  .hn-item--nueva & {
+    background: var(--tono);
+  }
+}
+
+.hn-texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.hn-titulo {
+  font-size: 0.95rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+
+  .hn-item--nueva & {
+    font-weight: 600;
+  }
+}
+
+.hn-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.hn-quitada {
+  font-style: italic;
+}
+
+.hn-limpiar,
+.hn-pagina {
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.hn-paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.hn-paginacion__texto {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// Teléfono: la sección crece con su contenido (nunca menos que la pantalla); la página se
+// desplaza y el relleno inferior queda al final, no a mitad del contenido (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .hn-page,
+  .hn-contenedor {
+    flex: 1 0 auto;
+    min-height: auto;
+  }
+}
+
+// Teléfono: "Limpiar filtros" ocupa toda la fila (dueño 2026-10-20).
+@container panel (max-width: 560px) {
+  .hn-limpiar {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .hn-page {
+    padding: var(--space-3);
+  }
+
+  .hn-contenedor {
+    gap: var(--space-3);
+  }
+
+  .hn-buscar-boton {
+    padding: 0 var(--space-3);
+  }
+
+  .hn-cuenta {
+    padding: 0 var(--space-3);
+  }
+
+  .hn-filtros {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .hn-limpiar {
+    padding: 0 var(--space-3);
+  }
+
+  .hn-pagina {
+    padding: 0 var(--space-3);
+  }
+
+  .hn-item {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+}

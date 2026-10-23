@@ -16,6 +16,8 @@ export interface NotificacionBandeja {
   /** Ruta de la app a la que lleva; null si no lleva a ningún lado. */
   enlace: string | null;
   leida: boolean;
+  /** Se quitó de la campana (sigue en el historial). */
+  archivada: boolean;
   fecha: string;
 }
 
@@ -31,9 +33,10 @@ const TONO_DE: Record<TipoNotificacion, TonoBandeja> = {
 
 /**
  * Bandeja de notificaciones (Manual §19), guardada en el servidor para cada persona en su
- * sastrería. Todo aviso que se muestra en pantalla queda aquí (ya leído); los avisos de eventos
- * (soporte, vencimientos, licencias, pedidos de otros) llegan sin leer, se muestran al llegar y se
- * apilan. En modo soporte no hay bandeja: esa sesión no es de la persona.
+ * sastrería (dueño 2026-10-22): todo llega SIN LEER a la campana, también el eco de lo que la
+ * persona hizo ("Pedido #12-5 creado"); los avisos de eventos (soporte, vencimientos, licencias,
+ * pedidos de otros) se muestran al llegar. Quitar de la campana no borra: queda en el historial
+ * (`/notificaciones`, 90 días). En modo soporte no hay bandeja: esa sesión no es de la persona.
  */
 @Injectable({ providedIn: 'root' })
 export class Bandeja {
@@ -98,21 +101,44 @@ export class Bandeja {
     this.http.post<void>(`${this.base}/leidas`, null).subscribe({ error: () => undefined });
   }
 
-  /** Lo que se mostró en pantalla queda en la bandeja (ya leído). */
+  /**
+   * Lo que se mostró en pantalla (el eco de lo que hizo la persona) llega SIN LEER a la campana
+   * (dueño 2026-10-22). Ya se vio en pantalla: se toma nota para no volver a mostrarlo.
+   */
   private guardar(tipo: TipoNotificacion, mensaje: string): void {
     if (!this.activa()) {
       return;
     }
     this.http
-      .post<void>(this.base, { tono: TONO_DE[tipo], titulo: mensaje.slice(0, 300) })
+      .post<NotificacionBandeja>(this.base, { tono: TONO_DE[tipo], titulo: mensaje.slice(0, 300) })
       .subscribe({
-        next: () => {
-          if (this.lista() !== null) {
-            this.cargar();
+        next: (n) => {
+          this.noLeidas.update((c) => c + 1);
+          if (!this.ultimaVista || n.fecha > this.ultimaVista) {
+            this.ultimaVista = n.fecha;
           }
+          this.lista.update((l) => (l === null ? l : [n, ...l]));
         },
         error: () => undefined,
       });
+  }
+
+  /** La quita de la campana (sigue en el historial). */
+  archivar(n: NotificacionBandeja): void {
+    this.lista.update((l) => l?.filter((x) => x.id !== n.id) ?? l);
+    if (!n.leida) {
+      this.noLeidas.update((c) => Math.max(0, c - 1));
+    }
+    this.http
+      .post<void>(`${this.base}/${n.id}/archivar`, null)
+      .subscribe({ error: () => undefined });
+  }
+
+  /** "Limpiar todo": vacía la campana (todo sigue en el historial). */
+  limpiarTodo(): void {
+    this.lista.set([]);
+    this.noLeidas.set(0);
+    this.http.post<void>(`${this.base}/archivar`, null).subscribe({ error: () => undefined });
   }
 
   /**

@@ -31,42 +31,67 @@
   >
     <header class="cmp__cabeza">
       <h2 class="cmp__titulo" id="t-bandeja">Notificaciones</h2>
-      @if (bandeja.noLeidas() > 0) {
-        <button class="cmp__todas" type="button" (click)="bandeja.marcarTodas()">
-          Marcar todas como leídas
-        </button>
-      }
+      <div class="cmp__acciones">
+        @if (bandeja.noLeidas() > 0) {
+          <button class="cmp__todas" type="button" (click)="bandeja.marcarTodas()">
+            Marcar como leídas
+          </button>
+        }
+        @if ((bandeja.lista()?.length ?? 0) > 0) {
+          <button class="cmp__todas" type="button" (click)="bandeja.limpiarTodo()">
+            Limpiar todo
+          </button>
+        }
+      </div>
     </header>
 
     @let lista = bandeja.lista();
-    <ul
-      class="cmp__lista"
-      [class.cmp--esqueleto]="lista === null"
-      [attr.aria-busy]="lista === null"
-    >
-      @for (n of lista ?? esqueleto; track n.id) {
-        <li>
-          <button
-            class="cmp__item"
-            type="button"
-            [class.cmp__item--nueva]="!n.leida"
-            [class.cmp__item--enlace]="!!n.enlace"
-            [attr.data-tono]="n.tono"
-            [disabled]="lista === null"
-            (click)="elegir(n)"
-          >
-            <span class="cmp__punto" aria-hidden="true"></span>
-            <span class="cmp__texto">
-              <span class="cmp__item-titulo">{{ n.titulo }}</span>
-              <span class="cmp__fecha">{{ n.fecha | fechaHora }}</span>
-            </span>
-          </button>
-        </li>
-      } @empty {
-        <li class="cmp__vacio">
-          <app-vacio icono="campana" titulo="No tienes notificaciones" [compacto]="true" />
-        </li>
-      }
-    </ul>
+    @if (lista === null) {
+      <!-- Mientras carga: el esqueleto común de los listados (Reglas §12.2). -->
+      <app-esqueleto
+        forma="lista"
+        [filas]="4"
+        [alto]="64"
+        [maximo]="30"
+        texto="Cargando notificaciones..."
+      />
+    } @else {
+      <ul class="cmp__lista">
+        @for (n of lista; track n.id) {
+          <li class="cmp__fila">
+            <button
+              class="cmp__item"
+              type="button"
+              [class.cmp__item--nueva]="!n.leida"
+              [class.cmp__item--enlace]="!!n.enlace"
+              [attr.data-tono]="n.tono"
+              (click)="elegir(n)"
+            >
+              <span class="cmp__punto" aria-hidden="true"></span>
+              <span class="cmp__texto">
+                <span class="cmp__item-titulo">{{ n.titulo }}</span>
+                <span class="cmp__fecha">{{ n.fecha | fechaHora }}</span>
+              </span>
+            </button>
+            <!-- Quitar de la campana: sigue en el historial. -->
+            <button
+              class="cmp__quitar"
+              type="button"
+              aria-label="Quitar de la campana"
+              title="Quitar (queda en el historial)"
+              (click)="bandeja.archivar(n)"
+            >
+              <app-icono class="cmp__quitar-icono" nombre="cerrar" />
+            </button>
+          </li>
+        } @empty {
+          <li class="cmp__vacio">
+            <app-vacio icono="campana" titulo="No tienes notificaciones" [compacto]="true" />
+          </li>
+        }
+      </ul>
+    }
+
+    <a class="cmp__historial" routerLink="/notificaciones" (click)="cerrar()">Ver historial</a>
   </section>
 }

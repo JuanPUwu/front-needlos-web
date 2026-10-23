@@ -287,41 +287,9 @@
   }
 }
 
-// ── Esqueleto: el mismo marcado con los textos en piezas grises ─
-// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
-.sas--esqueleto {
-  .sas-item__nombre,
-  .sas-item__meta,
-  .sas-chip,
-  .sas-cuenta,
-  .sas-vacio > span {
-    width: fit-content;
-    border-radius: var(--radius-sm);
-    background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
-      color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
-    background-size: 200% 100%;
-    color: transparent;
-    animation: sas-brillo 1.4s linear infinite;
-  }
-}
-
-@keyframes sas-brillo {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -100% 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .sas-boton {
     transition: none;
-  }
-
-  .sas--esqueleto * {
-    animation: none !important;
   }
 }
 

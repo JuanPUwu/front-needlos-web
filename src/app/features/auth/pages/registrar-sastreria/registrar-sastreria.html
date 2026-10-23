@@ -18,6 +18,10 @@
         >
         @if (nombreSastreria.touched && nombreSastreria.invalid) {
           <span class="registro-field__error">Obligatorio (máx. 120)</span>
+        } @else if (
+          nombreRechazado() !== null && nombreRechazado() === nombreSastreria.value.trim()
+        ) {
+          <span class="registro-field__error" role="alert">Ya existe, elige otro</span>
         }
       </div>
       <div class="registro-field__control">
@@ -125,7 +129,7 @@
           <div class="registro-field__head">
             <label class="registro-field__label" for="telefono">Teléfono</label>
             @if (form.controls.telefono.touched && form.controls.telefono.invalid) {
-              <span class="registro-field__error">Máx. 20</span>
+              <span class="registro-field__error">{{ errorFormatoTelefono }}</span>
             }
           </div>
           <div class="registro-field__control">
@@ -133,8 +137,11 @@
               class="registro-field__input"
               id="telefono"
               type="tel"
+              inputmode="numeric"
+              maxlength="10"
               formControlName="telefono"
               autocomplete="tel"
+              placeholder="3001234567"
             />
           </div>
         </div>
@@ -181,7 +188,12 @@
               <span class="registro-field__error">No coinciden</span>
             }
           </div>
-          <div class="registro-field__control">
+          <div
+            class="registro-field__control"
+            [class.registro-field__control--error]="
+              form.controls.confirmacion.touched && form.hasError('noCoinciden')
+            "
+          >
             <input
               class="registro-field__input"
               id="confirmacion"
@@ -227,3 +239,14 @@
   </section>
   <app-pie-publico class="registro-publico" />
 </main>
+
+@if (googlePendiente(); as g) {
+  <app-completar-google-modal
+    animate.enter="cg-entrar"
+    animate.leave="cg-salir"
+    [idToken]="g.idToken"
+    [nombreSastreria]="g.nombreSastreria"
+    (cerrado)="googlePendiente.set(null)"
+    (nombreEnUso)="nombreEnUsoConGoogle($event)"
+  />
+}

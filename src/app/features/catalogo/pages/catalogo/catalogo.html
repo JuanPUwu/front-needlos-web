@@ -133,7 +133,13 @@
         </div>
 
         @if (cargando() && !listo()) {
-          <app-esqueleto forma="lista" [filas]="6" [alto]="72" texto="Cargando catálogo..." />
+          <app-esqueleto
+            forma="lista"
+            [filas]="6"
+            [alto]="72"
+            [maximo]="50"
+            texto="Cargando catálogo..."
+          />
         } @else if (tipos().length === 0) {
           <app-vacio
             icono="percha"

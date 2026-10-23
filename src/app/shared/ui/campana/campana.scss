@@ -132,6 +132,12 @@
   color: var(--color-text);
 }
 
+.cmp__acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .cmp__todas {
   flex-shrink: 0;
   white-space: nowrap;
@@ -164,6 +170,10 @@
   list-style: none;
 }
 
+.cmp__fila {
+  position: relative;
+}
+
 .cmp__item {
   --tono: var(--color-accent);
 
@@ -188,6 +198,8 @@
     --tono: var(--color-danger);
   }
 
+  // Sin leer (tocar la marca leída) o con enlace: se puede tocar.
+  &--nueva,
   &--enlace {
     cursor: pointer;
 
@@ -239,35 +251,64 @@
   color: var(--color-text-muted);
 }
 
+// ✕ para quitar el aviso de la campana (queda en el historial). Deja espacio al texto.
+.cmp__item:has(+ .cmp__quitar) {
+  padding-right: calc(var(--space-4) + 28px);
+}
+
+.cmp__quitar {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+  }
+}
+
+.cmp__quitar-icono {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+// "Ver historial": todo lo de 90 días, también lo quitado.
+.cmp__historial {
+  align-self: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
 .cmp__vacio {
   // Lista vacía: app-vacio centrado en el espacio libre (dueño 2026-10-20).
   flex: 1;
   display: flex;
-}
-
-// ── Esqueleto: el mismo marcado con los textos en piezas grises ─
-// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
-.cmp--esqueleto {
-  .cmp__item-titulo,
-  .cmp__fecha {
-    width: fit-content;
-    border-radius: var(--radius-sm);
-    background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
-      color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
-    background-size: 200% 100%;
-    color: transparent;
-    animation: cmp-brillo 1.4s linear infinite;
-  }
-}
-
-@keyframes cmp-brillo {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -100% 0;
-  }
 }
 
 // ── Aparece y se va con un fundido (≤ 100 ms) ──────────────
@@ -290,9 +331,7 @@
     transition: none;
   }
 
-  .cmp--entrar,
-  .cmp--esqueleto .cmp__item-titulo,
-  .cmp--esqueleto .cmp__fecha {
+  .cmp--entrar {
     animation: none;
   }
 

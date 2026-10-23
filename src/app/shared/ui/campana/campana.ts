@@ -6,31 +6,22 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Bandeja, NotificacionBandeja } from '../../../core/notificaciones/bandeja';
 import { FechaHoraPipe } from '../../pipes/fecha-hora.pipe';
 import { Icono } from '../icono/icono';
+import { Esqueleto } from '../esqueleto/esqueleto';
 import { Vacio } from '../vacio/vacio';
-
-/** Mientras carga: avisos de ejemplo con el mismo marcado, en gris. */
-const ESQUELETO: NotificacionBandeja[] = Array.from({ length: 4 }, (_, i) => ({
-  id: `esqueleto-${i}`,
-  tipo: 'PROPIA',
-  tono: 'INFO',
-  titulo: 'Texto de la notificación de ejemplo',
-  enlace: null,
-  leida: true,
-  fecha: '2026-01-01T05:00:00Z',
-}));
 
 /**
  * Campana de notificaciones (Manual §19.1): la última acción del encabezado de cada sección
  * (`app-encabezado`), en todas las pantallas. Muestra cuántas hay sin leer y, al abrirla, la bandeja con lo más
- * reciente primero. Tocar un aviso lo marca leído y lleva a donde corresponde.
+ * reciente primero. Tocar un aviso lo marca leído y lleva a donde corresponde; la ✕ lo quita de la
+ * campana y "Limpiar todo" la vacía (todo sigue en el historial, `/notificaciones`).
  */
 @Component({
   selector: 'app-campana',
-  imports: [Vacio, Icono, FechaHoraPipe],
+  imports: [Esqueleto, Vacio, Icono, FechaHoraPipe, RouterLink],
   templateUrl: './campana.html',
   styleUrl: './campana.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,7 +44,6 @@ export class Campana {
   readonly variante = input<'encabezado' | 'barra'>('encabezado');
 
   readonly abierta = signal(false);
-  readonly esqueleto = ESQUELETO;
 
   alternar(): void {
     const abrir = !this.abierta();

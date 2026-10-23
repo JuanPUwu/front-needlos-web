@@ -85,7 +85,10 @@ describe('MaterialModal', () => {
       cantidadInicial: 2.5,
     });
     expect(cambios).toEqual([
-      expect.objectContaining({ nuevo: true, mensaje: 'Material creado.' }),
+      expect.objectContaining({
+        nuevo: true,
+        mensaje: 'Material Tela azul creado en el inventario.',
+      }),
     ]);
   });
 

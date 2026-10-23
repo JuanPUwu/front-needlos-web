@@ -207,43 +207,9 @@
   color: var(--color-text-muted);
 }
 
-// ── Esqueleto: el mismo marcado con los textos en piezas grises ─
-// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
-.sreg--esqueleto .sreg-item {
-  --tono: color-mix(in srgb, var(--color-bg), var(--color-navy) 10%);
-}
-
-.sreg--esqueleto .sreg-item > *:not(.sreg-item__fila),
-.sreg--esqueleto .sreg-item__fila > *,
-.sreg-cuenta--esqueleto {
-  width: fit-content;
-  border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
-    color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
-  background-size: 200% 100%;
-  color: transparent;
-  animation: sreg-brillo 1.4s linear infinite;
-}
-
-@keyframes sreg-brillo {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -100% 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .sreg-lista {
     transition: none;
-  }
-
-  .sreg--esqueleto .sreg-item > *:not(.sreg-item__fila),
-  .sreg--esqueleto .sreg-item__fila > *,
-  .sreg-cuenta--esqueleto {
-    animation: none;
   }
 }
 

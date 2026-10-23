@@ -71,6 +71,15 @@ export const routes: Routes = [
       ),
   },
   {
+    // La cuenta no pertenece a ninguna sastrería: crea la suya o pide que la inviten.
+    path: 'crear-mi-sastreria',
+    canActivate: [invitadoGuard],
+    loadComponent: () =>
+      import('./features/auth/pages/crear-mi-sastreria/crear-mi-sastreria').then(
+        (m) => m.CrearMiSastreria,
+      ),
+  },
+  {
     // Selector de sastreria (hoy no se usa en el login: se entra directo a la primera).
     // Se conservará para el cambio de sastreria dentro de la app.
     path: 'elegir-sastreria',
@@ -191,6 +200,23 @@ export const routes: Routes = [
         canActivate: [autenticadoGuard],
         loadComponent: () =>
           import('./features/cuenta/pages/mi-cuenta/mi-cuenta').then((m) => m.MiCuenta),
+      },
+      {
+        // Registro de actividad de la sastrería (dueño 2026-10-22; solo admin, desde Ajustes).
+        path: 'actividad',
+        canActivate: [rolGuard('SASTRE_ADMIN')],
+        loadComponent: () =>
+          import('./features/actividad/pages/actividad/actividad').then((m) => m.Actividad),
+      },
+      {
+        // Historial de notificaciones (dueño 2026-10-22): se abre desde "Ver historial" en la
+        // campana; todo lo de los últimos 90 días, también lo quitado de la campana.
+        path: 'notificaciones',
+        canActivate: [autenticadoGuard],
+        loadComponent: () =>
+          import('./features/notificaciones/pages/historial/historial').then(
+            (m) => m.HistorialNotificaciones,
+          ),
       },
       // ── SuperAdmin (Manual §16): mismo marco, con sus propias secciones ──
       { path: 'super-admin', pathMatch: 'full', redirectTo: 'super-admin/sastrerias' },

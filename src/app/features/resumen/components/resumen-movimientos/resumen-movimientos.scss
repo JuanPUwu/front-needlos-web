@@ -99,6 +99,13 @@
   overflow: hidden auto;
 }
 
+// Mientras carga: columna, para que el esqueleto llene el alto disponible (Reglas §12.2).
+.rm-marco--esqueleto {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 // ── Tabla ───────────────────────────────────────────────────
 .rm {
   width: 100%;

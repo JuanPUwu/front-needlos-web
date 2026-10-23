@@ -8,7 +8,13 @@
 
   <section class="sreg-bloque" aria-labelledby="t-registro">
     <app-titulo-bloque titulo="Acciones" idTitulo="t-registro">
-      <span class="sreg-cuenta" [class.sreg-cuenta--esqueleto]="enEsqueleto()">{{ total() }}</span>
+      <span class="sreg-cuenta">
+        @if (enEsqueleto()) {
+          <app-esqueleto forma="numero" texto="Cargando..." />
+        } @else {
+          {{ total() }}
+        }
+      </span>
     </app-titulo-bloque>
 
     <div class="sreg-filtros" role="group" aria-label="Filtros">
@@ -63,38 +69,48 @@
       }
     </div>
 
-    <ol
-      class="sreg-lista"
-      [class.sreg--esqueleto]="enEsqueleto()"
-      [class.sreg-lista--cargando]="cargando() && !enEsqueleto()"
-      [attr.aria-busy]="cargando()"
-    >
-      @for (a of vista(); track a.id) {
-        <li class="sreg-item" [attr.data-accion]="a.accion">
-          <div class="sreg-item__fila">
-            <strong class="sreg-item__nombre">{{ etiquetaAccion[a.accion] }}</strong>
-            <span class="sreg-item__meta">{{ a.fecha | fechaHora }}</span>
-          </div>
-          @if (a.sastreria) {
-            <span class="sreg-item__sastreria">{{ a.sastreria }}</span>
-          }
-          <span class="sreg-item__detalle">{{ a.detalle }}</span>
-          <span class="sreg-item__meta">Por {{ a.superAdmin }}</span>
-        </li>
-      } @empty {
-        <li class="sreg-vacio">
-          @if (hayFiltros()) {
-            <app-vacio
-              icono="carrete"
-              titulo="No encontramos acciones"
-              mensaje="Ninguna acción coincide con lo elegido."
-            />
-          } @else {
-            <app-vacio icono="historial" titulo="Aún no hay acciones" />
-          }
-        </li>
-      }
-    </ol>
+    <!-- Mientras carga: el esqueleto común de los listados (Reglas §12.2). -->
+    @if (enEsqueleto()) {
+      <app-esqueleto
+        forma="lista"
+        [filas]="6"
+        [alto]="96"
+        [maximo]="20"
+        texto="Cargando registro..."
+      />
+    } @else {
+      <ol
+        class="sreg-lista"
+        [class.sreg-lista--cargando]="cargando()"
+        [attr.aria-busy]="cargando()"
+      >
+        @for (a of acciones() ?? []; track a.id) {
+          <li class="sreg-item" [attr.data-accion]="a.accion">
+            <div class="sreg-item__fila">
+              <strong class="sreg-item__nombre">{{ etiquetaAccion[a.accion] }}</strong>
+              <span class="sreg-item__meta">{{ a.fecha | fechaHora }}</span>
+            </div>
+            @if (a.sastreria) {
+              <span class="sreg-item__sastreria">{{ a.sastreria }}</span>
+            }
+            <span class="sreg-item__detalle">{{ a.detalle }}</span>
+            <span class="sreg-item__meta">Por {{ a.superAdmin }}</span>
+          </li>
+        } @empty {
+          <li class="sreg-vacio">
+            @if (hayFiltros()) {
+              <app-vacio
+                icono="carrete"
+                titulo="No encontramos acciones"
+                mensaje="Ninguna acción coincide con lo elegido."
+              />
+            } @else {
+              <app-vacio icono="historial" titulo="Aún no hay acciones" />
+            }
+          </li>
+        }
+      </ol>
+    }
 
     @if (totalPaginas() > 1) {
       <nav class="sreg-paginacion" aria-label="Paginación">

@@ -14,7 +14,7 @@ import { filtrosAUrl, filtrosDesdeUrl } from '../../../../core/estado/filtros-ur
 import { mensajeDeError } from '../../../../core/http/api-error';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
-import { DUENOS_ESQUELETO, DuenosTabla } from '../../components/duenos-tabla/duenos-tabla';
+import { DuenosTabla } from '../../components/duenos-tabla/duenos-tabla';
 import {
   Dueno,
   ESTADOS_CORREO_DUENO,
@@ -27,6 +27,7 @@ import {
 import { PlataformaService } from '../../services/plataforma.service';
 import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
 import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const TAMANO_PAGINA = 20;
@@ -37,7 +38,7 @@ const TAMANO_PAGINA = 20;
  */
 @Component({
   selector: 'app-super-admin-duenos',
-  imports: [Vacio, BotonRecargar, Encabezado, TituloBloque, DuenosTabla],
+  imports: [Esqueleto, Vacio, BotonRecargar, Encabezado, TituloBloque, DuenosTabla],
   templateUrl: './duenos.html',
   styleUrl: './duenos.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,7 +52,6 @@ export class SuperAdminDuenos implements OnInit {
 
   readonly correos = ESTADOS_CORREO_DUENO;
   readonly ordenes = ORDENES_DUENOS;
-  readonly esqueletoFilas = DUENOS_ESQUELETO;
 
   readonly duenos = signal<Dueno[]>([]);
   readonly total = signal(0);

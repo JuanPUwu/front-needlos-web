@@ -1,0 +1,192 @@
+<main class="hn-page">
+  <div class="hn-contenedor">
+    <app-encabezado
+      titulo="Historial de notificaciones"
+      subtitulo="Todo lo que llegó a tu campana en los últimos 90 días, también lo que quitaste."
+      icono="campana"
+      [error]="errorFiltros() ?? error()"
+    />
+
+    <!-- ── Búsqueda y filtros (una sola cápsula) ─────────────── -->
+    <section class="hn-buscar" aria-label="Búsqueda y filtros">
+      <div class="hn-busqueda">
+        <div class="hn-buscador-caja">
+          <app-icono class="hn-buscador-caja__lupa" nombre="buscar" />
+          <input
+            #buscador
+            class="hn-control hn-buscador"
+            type="search"
+            placeholder="Buscar en las notificaciones"
+            aria-label="Buscar en las notificaciones"
+            [value]="filtros().buscar"
+            (input)="alBuscar(buscador.value)"
+            (keydown.enter)="buscarAhora(buscador.value)"
+          />
+        </div>
+        <button class="hn-buscar-boton" type="button" (click)="buscarAhora(buscador.value)">
+          Buscar
+        </button>
+        <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
+        <button
+          class="hn-herramienta"
+          type="button"
+          aria-label="Filtros"
+          title="Filtros"
+          aria-controls="hn-filtros"
+          [attr.aria-expanded]="filtrosAbiertos()"
+          [class.hn-herramienta--activa]="filtrosAbiertos()"
+          (click)="alternarFiltros()"
+        >
+          <app-icono class="hn-herramienta__icono" nombre="filtros" />
+          @if (cantidadFiltros() > 0) {
+            <span class="hn-herramienta__cuenta">{{ cantidadFiltros() }}</span>
+          }
+        </button>
+        <span class="hn-cuenta" role="status">
+          <strong>{{ total() }}</strong> {{ total() === 1 ? 'notificación' : 'notificaciones' }}
+        </span>
+      </div>
+
+      @if (filtrosAbiertos()) {
+        <div class="hn-filtros" id="hn-filtros">
+          <div class="hn-filtro">
+            <label class="hn-filtro__label" for="hnTipo">Tipo</label>
+            <select
+              #tipoSel
+              class="hn-control"
+              id="hnTipo"
+              (change)="cambiar({ tipo: tipoSel.value })"
+            >
+              <option value="" [selected]="filtros().tipo === ''">Todos</option>
+              @for (t of tipos; track t.valor) {
+                <option [value]="t.valor" [selected]="t.valor === filtros().tipo">
+                  {{ t.etiqueta }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="hn-filtro">
+            <label class="hn-filtro__label" for="hnEstado">Estado</label>
+            <select
+              #estadoSel
+              class="hn-control"
+              id="hnEstado"
+              (change)="cambiar({ estado: estadoSel.value })"
+            >
+              <option value="" [selected]="filtros().estado === ''">Todas</option>
+              <option value="sin-leer" [selected]="filtros().estado === 'sin-leer'">
+                Sin leer
+              </option>
+              <option value="leidas" [selected]="filtros().estado === 'leidas'">Leídas</option>
+            </select>
+          </div>
+          <div class="hn-filtro">
+            <label class="hn-filtro__label" for="hnDesde">Desde</label>
+            <input
+              #desde
+              class="hn-control"
+              id="hnDesde"
+              type="date"
+              [value]="filtros().desde"
+              [max]="filtros().hasta"
+              (change)="cambiar({ desde: desde.value })"
+            />
+          </div>
+          <div class="hn-filtro">
+            <label class="hn-filtro__label" for="hnHasta">Hasta</label>
+            <input
+              #hasta
+              class="hn-control"
+              id="hnHasta"
+              type="date"
+              [value]="filtros().hasta"
+              [min]="filtros().desde"
+              (change)="cambiar({ hasta: hasta.value })"
+            />
+          </div>
+          @if (hayFiltros()) {
+            <button class="hn-limpiar" type="button" (click)="limpiarFiltros()">
+              Limpiar filtros
+            </button>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ── Listado ──────────────────────────────────────────── -->
+    <section class="hn-bloque" aria-label="Notificaciones">
+      @if (cargando() && avisos().length === 0) {
+        <app-esqueleto
+          forma="lista"
+          [filas]="6"
+          [alto]="64"
+          [maximo]="20"
+          texto="Cargando historial..."
+        />
+      } @else if (avisos().length === 0) {
+        @if (hayFiltros()) {
+          <app-vacio
+            icono="carrete"
+            titulo="No encontramos notificaciones"
+            mensaje="Ninguna coincide con lo elegido. Prueba con otra búsqueda u otros filtros."
+          />
+        } @else {
+          <app-vacio
+            icono="campana"
+            titulo="Aún no hay notificaciones"
+            mensaje="Aquí verás todo lo que llegue a tu campana durante 90 días."
+          />
+        }
+      } @else {
+        <ul class="hn-lista">
+          @for (n of avisos(); track n.id) {
+            <li>
+              <button
+                class="hn-item"
+                type="button"
+                [class.hn-item--nueva]="!n.leida"
+                [class.hn-item--enlace]="!!n.enlace"
+                [attr.data-tono]="n.tono"
+                (click)="elegir(n)"
+              >
+                <span class="hn-punto" aria-hidden="true"></span>
+                <span class="hn-texto">
+                  <span class="hn-titulo">{{ n.titulo }}</span>
+                  <span class="hn-meta">
+                    {{ etiquetaTipo[n.tipo] }} · {{ n.fecha | fechaHora }}
+                    @if (n.archivada) {
+                      · <span class="hn-quitada">Quitada de la campana</span>
+                    }
+                  </span>
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+        @if (totalPaginas() > 1) {
+          <nav class="hn-paginacion" aria-label="Paginación">
+            <button
+              class="hn-pagina"
+              type="button"
+              [disabled]="pagina() === 0"
+              (click)="irAPagina(pagina() - 1)"
+            >
+              Anterior
+            </button>
+            <span class="hn-paginacion__texto">
+              Página {{ pagina() + 1 }} de {{ totalPaginas() }}
+            </span>
+            <button
+              class="hn-pagina"
+              type="button"
+              [disabled]="pagina() + 1 >= totalPaginas()"
+              (click)="irAPagina(pagina() + 1)"
+            >
+              Siguiente
+            </button>
+          </nav>
+        }
+      }
+    </section>
+  </div>
+</main>

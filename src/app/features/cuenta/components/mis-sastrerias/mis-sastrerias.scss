@@ -1,0 +1,136 @@
+// Mis sastrerías: tarjeta de Mi cuenta. Solo tokens globales; espaciado con gap.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ms {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.ms__ayuda {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// La lista se desplaza dentro de la tarjeta si no cabe.
+.ms-lista {
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.ms-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.ms-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ms-item__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.ms-item__actual {
+  margin-left: var(--space-2);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-navy);
+  color: var(--color-surface);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.ms-item__rol {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+// Botón secundario (como "Cerrar" en Sesiones abiertas).
+.ms-boton {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-color) var(--ease-out),
+    transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-boton {
+    transition: none;
+  }
+
+  .ms-boton:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@container panel (max-width: 560px) {
+  .ms {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .ms-item {
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+  }
+
+  .ms-boton {
+    padding: 0 var(--space-3);
+  }
+}

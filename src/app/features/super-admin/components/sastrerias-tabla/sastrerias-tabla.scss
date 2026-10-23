@@ -177,59 +177,6 @@
   }
 }
 
-// ── Esqueleto: el mismo marcado con los textos en piezas grises ─
-// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
-.st--esqueleto {
-  .st__fila {
-    --tono: transparent;
-
-    cursor: default;
-  }
-
-  // También los puntos suspensivos del recorte.
-  .st__celda,
-  .st__celda > * {
-    color: transparent;
-  }
-
-  // En tarjeta, el título de cada dato también va en gris.
-  .st__celda::before {
-    color: transparent;
-  }
-
-  .st__celda strong,
-  .st__sub,
-  .st__estado,
-  .st__valor,
-  .st__abrir {
-    width: fit-content;
-    border-radius: var(--radius-sm);
-    background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
-      color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
-    background-size: 200% 100%;
-    animation: st-brillo 1.4s linear infinite;
-  }
-
-  .st__estado::before {
-    background: transparent;
-  }
-
-  .st__abrir {
-    width: 100%;
-    cursor: default;
-  }
-}
-
-@keyframes st-brillo {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -100% 0;
-  }
-}
-
 // ── Tarjetas: cuando la tabla no cabe ───────────────────────
 @container sastreriaslista (max-width: 820px) {
   .st {
@@ -322,14 +269,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .st--esqueleto .st__celda strong,
-  .st--esqueleto .st__sub,
-  .st--esqueleto .st__estado,
-  .st--esqueleto .st__valor,
-  .st--esqueleto .st__abrir {
-    animation: none;
-  }
-
   .st,
   .st__fila,
   .st__celda,

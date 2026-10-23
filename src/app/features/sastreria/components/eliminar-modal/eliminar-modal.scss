@@ -326,3 +326,8 @@
     padding: 0 var(--space-3);
   }
 }
+
+// El nombre no coincide exactamente (mayúsculas y minúsculas): la caja en rojo.
+.el-campo__input--error {
+  border-color: var(--color-danger);
+}

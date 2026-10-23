@@ -1,0 +1,85 @@
+<div class="cg-fondo" aria-hidden="true" (click)="cerrar()"></div>
+
+<div
+  class="cg-caja"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-completar-google"
+  tabindex="-1"
+>
+  <app-encabezado
+    idTitulo="titulo-completar-google"
+    titulo="Completa tu registro"
+    [subtitulo]="'Sastrería: ' + nombreSastreria()"
+    icono="tienda"
+    [error]="error()"
+  >
+    <button class="cg-cerrar" type="button" aria-label="Cerrar" title="Cerrar" (click)="cerrar()">
+      <app-icono class="cg-cerrar__icono" nombre="cerrar" />
+    </button>
+  </app-encabezado>
+
+  <form class="cg-seccion" [formGroup]="form" (ngSubmit)="crear()" novalidate>
+    @if (cuenta(); as c) {
+      <p class="cg-cuenta" [title]="c.email">
+        <app-icono class="cg-cuenta__icono" nombre="correo" />
+        <span class="cg-cuenta__texto">
+          @if (c.nombre) {
+            <strong>{{ c.nombre }}</strong> ·
+          }
+          {{ c.email }}
+        </span>
+      </p>
+    }
+    <p class="cg-ayuda">
+      Tu nombre y tu correo vienen de Google. Solo falta tu documento y, si quieres, tu teléfono.
+    </p>
+
+    <div class="cg-fila">
+      <div class="cg-campo">
+        <div class="cg-campo__head">
+          <label class="cg-campo__label" for="googleDocumento">
+            Documento <span class="cg-req">*</span>
+          </label>
+          @if (form.controls.numeroDocumento.touched && form.controls.numeroDocumento.invalid) {
+            <span class="cg-campo__error">Obligatorio</span>
+          }
+        </div>
+        <input
+          class="cg-campo__input"
+          id="googleDocumento"
+          type="text"
+          maxlength="30"
+          autocomplete="off"
+          formControlName="numeroDocumento"
+        />
+      </div>
+
+      <div class="cg-campo">
+        <div class="cg-campo__head">
+          <label class="cg-campo__label" for="googleTelefono">Teléfono</label>
+          @if (form.controls.telefono.touched && form.controls.telefono.invalid) {
+            <span class="cg-campo__error">{{ errorFormatoTelefono }}</span>
+          }
+        </div>
+        <input
+          class="cg-campo__input"
+          id="googleTelefono"
+          type="tel"
+          inputmode="numeric"
+          maxlength="10"
+          autocomplete="tel"
+          placeholder="3001234567"
+          formControlName="telefono"
+        />
+      </div>
+    </div>
+
+    <div class="cg-acciones">
+      <button class="cg-boton cg-boton--borde" type="button" (click)="cerrar()">Cancelar</button>
+      <button class="cg-boton" type="submit" [disabled]="creando()">
+        {{ creando() ? 'Creando...' : 'Crear y entrar' }}
+      </button>
+    </div>
+  </form>
+</div>

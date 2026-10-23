@@ -5,6 +5,14 @@
   min-width: 0;
 }
 
+// Llenar el espacio (tabla/lista con `maximo`): crece con su contenedor si este tiene alto
+// propio, nunca menos que su contenido; lo que no cabe no se ve (la cuenta de filas lo evita).
+:host(.esk-host--llenar) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .esk {
   display: flex;
   flex-direction: column;
@@ -90,6 +98,21 @@
   font-weight: 500;
   color: transparent;
   white-space: nowrap;
+}
+
+// Línea de ayuda o nota bajo un campo: la letra de las reales (0.85rem), texto invisible.
+.esk__ayuda {
+  width: 70%;
+  margin-left: var(--space-2);
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: transparent;
+  white-space: nowrap;
+}
+
+.esk__ayuda--nota {
+  width: 35%;
 }
 
 .esk__numero {

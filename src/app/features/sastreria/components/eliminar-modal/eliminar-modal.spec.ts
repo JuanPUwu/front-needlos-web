@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -13,7 +14,7 @@ describe('EliminarModal', () => {
   let cerrarSesion: ReturnType<typeof vi.fn>;
   let modal: EliminarModal;
 
-  beforeEach(() => {
+  function crear(tieneContrasena = true): void {
     eliminar = vi.fn(() => of({ seBorraEl: '2027-01-18T00:00:00Z' }));
     pedir = vi.fn().mockResolvedValue(true);
     avisar = vi.fn().mockResolvedValue(undefined);
@@ -22,7 +23,10 @@ describe('EliminarModal', () => {
       imports: [EliminarModal],
       providers: [
         { provide: SastreriaService, useValue: { eliminar } },
-        { provide: AuthService, useValue: { cerrarSesion } },
+        {
+          provide: AuthService,
+          useValue: { cerrarSesion, sesion: signal({ cuenta: { tieneContrasena } }) },
+        },
         { provide: Confirmacion, useValue: { pedir, avisar } },
         { provide: Notificaciones, useValue: { info: vi.fn(), exito: vi.fn(), error: vi.fn() } },
       ],
@@ -30,7 +34,9 @@ describe('EliminarModal', () => {
     const fixture = TestBed.createComponent(EliminarModal);
     fixture.componentRef.setInput('sastreria', 'Sastrería Prueba');
     modal = fixture.componentInstance;
-  });
+  }
+
+  beforeEach(() => crear());
 
   it('sin la contraseña ni el nombre avisa qué falta y no elimina', async () => {
     await modal.eliminar();
@@ -46,10 +52,28 @@ describe('EliminarModal', () => {
     expect(cerrarSesion).toHaveBeenCalled();
   });
 
+  it('el nombre en minúsculas no coincide: avisa y no elimina', async () => {
+    modal.form.setValue({ confirmacion: 'Clave123!', nombre: 'sastrería prueba' });
+    await modal.eliminar();
+    expect(avisar).toHaveBeenCalledWith(
+      expect.objectContaining({ titulo: 'Revisa la información' }),
+    );
+    expect(eliminar).not.toHaveBeenCalled();
+  });
+
   it('si no confirma, no elimina', async () => {
     pedir.mockResolvedValueOnce(false);
     modal.form.setValue({ confirmacion: 'Clave123!', nombre: 'Sastrería Prueba' });
     await modal.eliminar();
     expect(eliminar).not.toHaveBeenCalled();
+  });
+
+  it('cuenta de Google sin contraseña: confirma solo con el nombre de la sastrería', async () => {
+    TestBed.resetTestingModule();
+    crear(false);
+    expect(modal.conContrasena()).toBe(false);
+    modal.form.controls.nombre.setValue('Sastrería Prueba');
+    await modal.eliminar();
+    expect(eliminar).toHaveBeenCalledWith('Sastrería Prueba', 'Sastrería Prueba');
   });
 });

@@ -11,6 +11,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ERROR_TELEFONO,
+  telefonoColombia,
+} from '../../../../shared/validators/telefono.validators';
 import { forkJoin } from 'rxjs';
 import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
@@ -45,6 +49,8 @@ export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Equipo implements OnInit {
+  /** Teléfono de Colombia: 10 dígitos, celular 3XX o fijo 60X (dueño 2026-10-21). */
+  readonly errorFormatoTelefono = ERROR_TELEFONO;
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(EmpleadoService);
   private readonly memoria = inject(Memoria);
@@ -115,7 +121,7 @@ export class Equipo implements OnInit {
     nombre: ['', [Validators.required, Validators.maxLength(60), Validators.pattern(CON_TEXTO)]],
     apellido: ['', [Validators.required, Validators.maxLength(60), Validators.pattern(CON_TEXTO)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(120)]],
-    telefono: ['', [Validators.maxLength(20)]],
+    telefono: ['', [telefonoColombia]],
     numeroDocumento: ['', [Validators.maxLength(30)]],
     rol: ['SASTRE' as 'SASTRE' | 'SASTRE_ADMIN', [Validators.required]],
   });
@@ -255,7 +261,7 @@ export class Equipo implements OnInit {
           next: (emp) => {
             this.guardando.set(false);
             this.reemplazar(emp);
-            this.notificaciones.exito('Empleado actualizado.');
+            this.notificaciones.exito(`Datos de ${emp.nombre} ${emp.apellido} actualizados.`);
             this.cancelar();
           },
           error: (err: unknown) => {

@@ -17,6 +17,7 @@ function aviso(parcial: Partial<NotificacionBandeja>): NotificacionBandeja {
     titulo: 'El soporte entró',
     enlace: '/sastreria',
     leida: false,
+    archivada: false,
     fecha: '2026-10-20T15:00:00Z',
     ...parcial,
   };
@@ -83,6 +84,23 @@ describe('Bandeja', () => {
     notificaciones.exito('Gasto registrado.');
     const req = http.expectOne((r) => r.method === 'POST' && r.url === BASE);
     expect(req.request.body).toEqual({ tono: 'EXITO', titulo: 'Gasto registrado.' });
+    // El eco llega sin leer a la campana (dueño 2026-10-22) y no se vuelve a mostrar.
+    req.flush(aviso({ id: 'n2', tipo: 'PROPIA', titulo: 'Gasto registrado.' }));
+    expect(bandeja.noLeidas()).toBe(1);
+  });
+
+  it('quitar de la campana y limpiar todo la vacían (siguen en el historial)', () => {
+    http.expectOne(`${BASE}/no-leidas`).flush({ cantidad: 2 });
+    http.expectOne((r) => r.url === BASE).flush(pagina([]));
+    bandeja.lista.set([aviso({ id: 'a' }), aviso({ id: 'b' })]);
+    bandeja.archivar(aviso({ id: 'a' }));
+    expect(bandeja.lista()?.map((n) => n.id)).toEqual(['b']);
+    expect(bandeja.noLeidas()).toBe(1);
+    http.expectOne(`${BASE}/a/archivar`).flush(null);
+    bandeja.limpiarTodo();
+    expect(bandeja.lista()).toEqual([]);
+    expect(bandeja.noLeidas()).toBe(0);
+    http.expectOne(`${BASE}/archivar`).flush(null);
   });
 
   it('marcar leída baja el contador al instante', () => {

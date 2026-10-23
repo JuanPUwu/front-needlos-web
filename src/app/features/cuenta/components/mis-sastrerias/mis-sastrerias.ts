@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  ElementRef,
+  OnInit,
   computed,
   inject,
   signal,
@@ -11,49 +11,40 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SastreriaResumen } from '../../../../core/auth/auth.model';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { mensajeDeError } from '../../../../core/http/api-error';
-import { Icono } from '../../../../shared/ui/icono/icono';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
+import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { CrearSastreriaModal } from '../crear-sastreria-modal/crear-sastreria-modal';
 
+/** Máximo de sastrerías por cuenta (igual que el backend, AuthService.MAXIMO_SASTRERIAS). */
+export const MAXIMO_SASTRERIAS = 5;
+
 /**
- * Mis sastrerías (dueño 2026-10-20): botón junto al perfil de la barra lateral que abre la lista
- * de las sastrerías de la cuenta (la actual marcada) para pasar a otra sin volver a iniciar
- * sesión, y "Crear otra sastrería".
+ * Mis sastrerías (dueño 2026-10-20): tarjeta de Mi cuenta con las sastrerías de la cuenta (la
+ * actual marcada y el rol en cada una) para pasar a otra sin volver a iniciar sesión, y
+ * "Crear otra sastrería". No la ven el SuperAdmin ni el modo soporte (lo decide Mi cuenta).
  */
 @Component({
-  selector: 'app-selector-sastreria',
-  imports: [Icono, CrearSastreriaModal],
-  templateUrl: './selector-sastreria.html',
-  styleUrl: './selector-sastreria.scss',
+  selector: 'app-mis-sastrerias',
+  imports: [TituloBloque, Esqueleto, CrearSastreriaModal],
+  templateUrl: './mis-sastrerias.html',
+  styleUrl: './mis-sastrerias.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '(document:click)': 'alClicFuera($event)',
-    '(document:keydown.escape)': 'abierto.set(false)',
-  },
 })
-export class SelectorSastreria {
+export class MisSastrerias implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
-  readonly abierto = signal(false);
+  readonly maximo = MAXIMO_SASTRERIAS;
   readonly crearAbierto = signal(false);
   readonly sastrerias = signal<SastreriaResumen[] | null>(null);
   readonly cambiando = signal<string | null>(null);
   readonly error = signal<string | null>(null);
 
   readonly actual = computed(() => this.auth.sesion()?.sastreria?.tenantId ?? null);
+  readonly alLimite = computed(() => (this.sastrerias()?.length ?? 0) >= MAXIMO_SASTRERIAS);
 
-  alternar(): void {
-    this.abierto.update((a) => !a);
-    if (this.abierto()) {
-      this.cargar();
-    }
-  }
-
-  alClicFuera(evento: MouseEvent): void {
-    if (this.abierto() && !this.host.contains(evento.target as Node)) {
-      this.abierto.set(false);
-    }
+  ngOnInit(): void {
+    this.cargar();
   }
 
   cambiar(s: SastreriaResumen): void {
@@ -71,11 +62,6 @@ export class SelectorSastreria {
           this.error.set(mensajeDeError(err, 'No se pudo cambiar de sastrería.'));
         },
       });
-  }
-
-  abrirCrear(): void {
-    this.abierto.set(false);
-    this.crearAbierto.set(true);
   }
 
   etiquetaRol(s: SastreriaResumen): string {

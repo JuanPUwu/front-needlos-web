@@ -190,7 +190,9 @@ export class Catalogo implements OnInit {
       next: (tipo) => {
         this.guardando.set(false);
         this.notificaciones.exito(
-          actual ? 'Tipo de prenda actualizado.' : `"${tipo.nombre}" agregado al catálogo.`,
+          actual
+            ? `Tipo de prenda "${tipo.nombre}" actualizado.`
+            : `Tipo de prenda "${tipo.nombre}" agregado al catálogo.`,
         );
         this.cancelar();
         this.cargar();

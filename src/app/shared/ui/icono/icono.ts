@@ -35,7 +35,8 @@ export type NombreIcono =
   | 'salir'
   | 'advertencia'
   | 'peligro'
-  | 'info';
+  | 'info'
+  | 'correo';
 
 /**
  * Ícono de línea reutilizable (SVG inline). Hereda el color con `currentColor`

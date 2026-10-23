@@ -74,7 +74,12 @@
                   <span class="aceptar-field__error">No coinciden</span>
                 }
               </div>
-              <div class="aceptar-field__control">
+              <div
+                class="aceptar-field__control"
+                [class.aceptar-field__control--error]="
+                  form.controls.confirmacion.touched && form.hasError('noCoinciden')
+                "
+              >
                 <input
                   class="aceptar-field__input"
                   id="confirmacion"

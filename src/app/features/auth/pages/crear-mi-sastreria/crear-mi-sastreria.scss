@@ -1,0 +1,219 @@
+// Cuenta sin sastrería: crear la suya. Misma tarjeta de las pantallas de acceso. Solo tokens
+// globales; espaciado con gap.
+
+.cms-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: var(--color-bg);
+}
+
+.cms-card {
+  width: 100%;
+  max-width: 550px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-10) var(--space-6) var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.cms-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  text-align: center;
+}
+
+.cms-card__logo {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 5rem;
+}
+
+.cms-card__titulo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.cms-card__error {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-danger);
+}
+
+.cms-texto {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.cms-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cms-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.cms-campo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.cms-campo__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.cms-req {
+  color: var(--color-danger);
+}
+
+.cms-campo__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.cms-campo__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+
+  &::placeholder {
+    color: var(--color-placeholder);
+  }
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+
+  // Obligatorio sin llenar: la caja se pinta de rojo.
+  &.ng-touched.ng-invalid {
+    border-color: var(--color-danger);
+  }
+}
+
+.cms-nota {
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.cms-boton {
+  height: 48px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cms-enlace {
+  align-self: center;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+.cms-publico {
+  max-width: 550px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cms-boton {
+    transition: none;
+  }
+}
+
+// Teléfono: relleno y separación space-3 (Reglas §12.2).
+@media (max-width: 480px) {
+  .cms-page {
+    padding: var(--space-3);
+  }
+
+  .cms-card {
+    padding: var(--space-7) var(--space-4) var(--space-5);
+  }
+
+  .cms-campo__input {
+    padding: 0 var(--space-3);
+  }
+}

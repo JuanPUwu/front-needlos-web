@@ -20,10 +20,12 @@
 // ── Cifras ──────────────────────────────────────────────────
 .sadmin-cifras {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  // Ocho cifras (con "En eliminación"): una sola fila en pantallas anchas, 4 × 2 en las medianas
+  // (nunca una cifra sola en otra fila, dueño 2026-10-22).
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: var(--space-4);
 
-  @container panel (max-width: 760px) {
+  @container panel (max-width: 1200px) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
@@ -191,40 +193,6 @@
 .sadmin-paginacion__texto {
   font-size: 0.9rem;
   color: var(--color-text-muted);
-}
-
-// ── Esqueleto: el mismo número en gris ──────────────────────
-// Excepción a "animaciones ≤ 100 ms" (Reglas §12.2): el brillo es un indicador de carga.
-.sadmin-cifra--esqueleto .sadmin-cifra__valor,
-.sadmin-cuenta--esqueleto {
-  border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 50%, transparent 100%)
-    color-mix(in srgb, var(--color-bg), var(--color-navy) 8%);
-  background-size: 200% 100%;
-  color: transparent;
-  animation: sadmin-brillo 1.4s linear infinite;
-}
-
-.sadmin-cifra--esqueleto .sadmin-cifra__valor {
-  width: fit-content;
-  min-width: 2ch;
-}
-
-@keyframes sadmin-brillo {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -100% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sadmin-cifra--esqueleto .sadmin-cifra__valor,
-  .sadmin-cuenta--esqueleto {
-    animation: none;
-  }
 }
 
 // Buscador y botón de recargar en la misma celda (dueño 2026-10-20).

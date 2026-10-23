@@ -26,6 +26,9 @@ export interface RegistrarSastreriaRequest {
 export interface RegistrarSastreriaGoogleRequest {
   idToken: string;
   nombreSastreria: string;
+  /** Obligatorio, como en el registro con correo (dueño 2026-10-22). */
+  numeroDocumento: string;
+  telefono: string | null;
 }
 
 /**
@@ -57,6 +60,8 @@ export interface CuentaResumen {
   email: string;
   nombre: string;
   apellido: string;
+  /** false = cuenta solo de Google sin contraseña todavía (Mi cuenta ofrece "Crear contraseña"). */
+  tieneContrasena: boolean;
 }
 
 /**
@@ -84,6 +89,8 @@ export interface LoginResponse {
   sesion: SesionResponse | null;
   /** Su sastrería está en eliminación y la puede recuperar (Manual §16.1). */
   recuperables?: SastreriaRecuperable[] | null;
+  /** La cuenta no pertenece a ninguna sastrería: puede crear la suya (dueño 2026-10-22). */
+  sinSastreria?: boolean;
 }
 
 /** Sastrería en eliminación que su admin puede recuperar hasta `seBorraEl` (ISO). */

@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -27,11 +28,13 @@ import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
 import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
 import { Vacio } from '../../../../shared/ui/vacio/vacio';
 import { avisoFaltantes } from '../../../../shared/util/faltantes';
+import { MisSastrerias } from '../../components/mis-sastrerias/mis-sastrerias';
 
-/** Mi cuenta: cambiar contrasena y ver/cerrar las sesiones abiertas. */
+/** Mi cuenta: cambiar contrasena, mis sastrerías y ver/cerrar las sesiones abiertas. */
 @Component({
   selector: 'app-mi-cuenta',
   imports: [
+    MisSastrerias,
     Vacio,
     BotonRecargar,
     TituloBloque,
@@ -53,6 +56,15 @@ export class MiCuenta implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly sesion = this.auth.sesion;
+  /** Las cuentas de Google sin contraseña ven "Crear contraseña" en lugar de "Cambiar". */
+  readonly tieneContrasena = computed(() => this.auth.sesion()?.cuenta?.tieneContrasena !== false);
+  readonly enviandoEnlace = signal(false);
+  readonly enlaceEnviado = signal(false);
+  readonly errorCrear = signal<string | null>(null);
+  /** Mis sastrerías: solo para quien trabaja en sastrerías (no SuperAdmin ni modo soporte). */
+  readonly verSastrerias = computed(
+    () => !this.auth.roles().includes('SUPER_ADMIN') && !this.auth.soporte(),
+  );
 
   // ── Contrasena ──────────────────────────────────────────────────
   readonly guardando = signal(false);
@@ -120,7 +132,7 @@ export class MiCuenta implements OnInit {
       .subscribe({
         next: () => {
           this.guardando.set(false);
-          this.notificaciones.exito('Contraseña actualizada.');
+          this.notificaciones.exito('Cambiaste la contraseña de tu cuenta.');
           this.form.reset();
           // El backend cerro las demas sesiones: se refresca la lista.
           this.cargarSesiones();
@@ -128,6 +140,29 @@ export class MiCuenta implements OnInit {
         error: (err: unknown) => {
           this.guardando.set(false);
           this.errorContrasena.set(mensajeDeError(err, 'No se pudo cambiar la contrasena.'));
+        },
+      });
+  }
+
+  /** Envía al correo el enlace para crear la contraseña (el mismo de recuperar). */
+  crearContrasena(): void {
+    if (this.enviandoEnlace()) {
+      return;
+    }
+    this.enviandoEnlace.set(true);
+    this.errorCrear.set(null);
+    this.cuentaService
+      .solicitarCrearContrasena()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.enviandoEnlace.set(false);
+          this.enlaceEnviado.set(true);
+          this.notificaciones.exito('Te enviamos el enlace para crear tu contraseña.');
+        },
+        error: (err: unknown) => {
+          this.enviandoEnlace.set(false);
+          this.errorCrear.set(mensajeDeError(err, 'No se pudo enviar el enlace.'));
         },
       });
   }

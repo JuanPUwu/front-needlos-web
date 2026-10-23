@@ -14,39 +14,50 @@
   />
 
   @let d = vista();
-  <div
-    class="sas-bento"
-    [class.sas-bento--una]="!d.soyPrincipal"
-    [class.sas--esqueleto]="!datos()"
-    [attr.aria-busy]="!datos()"
-  >
+  <div class="sas-bento" [class.sas-bento--una]="!d.soyPrincipal" [attr.aria-busy]="!datos()">
     <!-- ── SuperAdmins activos (toda la altura) ──────────────────── -->
     <section class="sas-seccion sas-seccion--alta" aria-labelledby="t-sa">
       <app-titulo-bloque titulo="Activos" idTitulo="t-sa">
-        <span class="sas-cuenta">{{ d.superAdmins.length }}</span>
+        <span class="sas-cuenta">
+          @if (!datos()) {
+            <app-esqueleto forma="numero" texto="Cargando..." />
+          } @else {
+            {{ d.superAdmins.length }}
+          }
+        </span>
       </app-titulo-bloque>
-      <ul class="sas-lista">
-        @for (sa of d.superAdmins; track sa.id) {
-          <li class="sas-item">
-            <div class="sas-item__texto">
-              <strong class="sas-item__nombre">{{ sa.nombre }} {{ sa.apellido }}</strong>
-              <span class="sas-item__meta">{{ sa.email }}</span>
-            </div>
-            @if (sa.principal) {
-              <span class="sas-chip">Principal</span>
-            } @else if (d.soyPrincipal) {
-              <button
-                class="sas-boton sas-boton--peligro sas-boton--chico"
-                type="button"
-                [disabled]="ocupado()"
-                (click)="eliminar(sa)"
-              >
-                Eliminar
-              </button>
-            }
-          </li>
-        }
-      </ul>
+      @if (!datos()) {
+        <app-esqueleto
+          forma="lista"
+          [filas]="3"
+          [alto]="72"
+          [maximo]="20"
+          texto="Cargando SuperAdmins..."
+        />
+      } @else {
+        <ul class="sas-lista">
+          @for (sa of d.superAdmins; track sa.id) {
+            <li class="sas-item">
+              <div class="sas-item__texto">
+                <strong class="sas-item__nombre">{{ sa.nombre }} {{ sa.apellido }}</strong>
+                <span class="sas-item__meta">{{ sa.email }}</span>
+              </div>
+              @if (sa.principal) {
+                <span class="sas-chip">Principal</span>
+              } @else if (d.soyPrincipal) {
+                <button
+                  class="sas-boton sas-boton--peligro sas-boton--chico"
+                  type="button"
+                  [disabled]="ocupado()"
+                  (click)="eliminar(sa)"
+                >
+                  Eliminar
+                </button>
+              }
+            </li>
+          }
+        </ul>
+      }
     </section>
 
     @if (d.soyPrincipal) {
@@ -127,30 +138,44 @@
         <!-- ── Invitaciones pendientes (solo el principal) ─────────── -->
         <section class="sas-seccion sas-seccion--alta" aria-labelledby="t-inv">
           <app-titulo-bloque titulo="Invitaciones pendientes" idTitulo="t-inv" />
-          <ul class="sas-lista">
-            @for (inv of d.invitaciones; track inv.id) {
-              <li class="sas-item">
-                <div class="sas-item__texto">
-                  <strong class="sas-item__nombre">{{ inv.nombre }} {{ inv.apellido }}</strong>
-                  <span class="sas-item__meta"
-                    >{{ inv.email }} · vence {{ inv.expira | fechaHora }}</span
+          @if (!datos()) {
+            <app-esqueleto
+              forma="lista"
+              [filas]="2"
+              [alto]="72"
+              [maximo]="20"
+              texto="Cargando invitaciones..."
+            />
+          } @else {
+            <ul class="sas-lista">
+              @for (inv of d.invitaciones; track inv.id) {
+                <li class="sas-item">
+                  <div class="sas-item__texto">
+                    <strong class="sas-item__nombre">{{ inv.nombre }} {{ inv.apellido }}</strong>
+                    <span class="sas-item__meta"
+                      >{{ inv.email }} · vence {{ inv.expira | fechaHora }}</span
+                    >
+                  </div>
+                  <button
+                    class="sas-boton sas-boton--borde sas-boton--chico"
+                    type="button"
+                    [disabled]="ocupado()"
+                    (click)="cancelarInvitacion(inv)"
                   >
-                </div>
-                <button
-                  class="sas-boton sas-boton--borde sas-boton--chico"
-                  type="button"
-                  [disabled]="ocupado()"
-                  (click)="cancelarInvitacion(inv)"
-                >
-                  Cancelar
-                </button>
-              </li>
-            } @empty {
-              <li class="sas-vacio">
-                <app-vacio icono="usuario" titulo="Sin invitaciones pendientes" [compacto]="true" />
-              </li>
-            }
-          </ul>
+                    Cancelar
+                  </button>
+                </li>
+              } @empty {
+                <li class="sas-vacio">
+                  <app-vacio
+                    icono="usuario"
+                    titulo="Sin invitaciones pendientes"
+                    [compacto]="true"
+                  />
+                </li>
+              }
+            </ul>
+          }
         </section>
       </div>
     }

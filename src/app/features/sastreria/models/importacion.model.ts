@@ -24,7 +24,8 @@ export const COLUMNAS: Record<TipoImportacion, ColumnaPlantilla[]> = {
     {
       nombre: 'telefono',
       obligatoria: true,
-      ayuda: 'De 7 a 15 dígitos, sin repetir (puede llevar espacios). Ej.: 300 123 4567',
+      ayuda:
+        'Número de Colombia de 10 dígitos (celular 3XX o fijo 60X), sin repetir (puede llevar espacios). Ej.: 300 123 4567',
     },
   ],
   'tipos-de-prenda': [

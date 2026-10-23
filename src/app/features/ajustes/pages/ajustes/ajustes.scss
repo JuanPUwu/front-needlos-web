@@ -17,7 +17,8 @@
 // ── Tarjetas: llenan el ancho, todas del mismo alto (4 en fila, 2×2 o una columna) ──
 .ajustes__bento {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  // Cinco tarjetas (admin) caben en una fila en computador.
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: var(--space-4);
   align-content: start;
 

@@ -126,7 +126,13 @@
     <!-- ── Listado ──────────────────────────────────────────── -->
     <section class="gastos-bloque" aria-label="Gastos">
       @if (cargando() && gastos().length === 0) {
-        <app-esqueleto forma="tabla" [filas]="6" [alto]="48" texto="Cargando gastos..." />
+        <app-esqueleto
+          forma="tabla"
+          [filas]="6"
+          [alto]="48"
+          [maximo]="20"
+          texto="Cargando gastos..."
+        />
       } @else if (gastos().length === 0) {
         @if (hayFiltros()) {
           <app-vacio

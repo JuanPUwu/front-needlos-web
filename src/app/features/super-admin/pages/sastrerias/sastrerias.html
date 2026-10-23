@@ -6,17 +6,18 @@
     [error]="error()"
   />
 
-  <!-- ── Cifras (solo datos de uso). Mientras cargan, el mismo número en gris. ── -->
+  <!-- ── Cifras (solo datos de uso). Mientras cargan, el esqueleto de número (Reglas §12.2). ── -->
   <section class="sadmin-cifras" aria-label="Cifras">
     @for (c of cifras(); track c.etiqueta) {
-      <div
-        class="sadmin-cifra"
-        [class.sadmin-cifra--esqueleto]="c.valor === undefined"
-        [attr.data-tono]="c.tono"
-        [attr.aria-busy]="c.valor === undefined"
-      >
+      <div class="sadmin-cifra" [attr.data-tono]="c.tono" [attr.aria-busy]="c.valor === undefined">
         <span class="sadmin-cifra__etiqueta">{{ c.etiqueta }}</span>
-        <strong class="sadmin-cifra__valor">{{ c.valor ?? 0 }}</strong>
+        <strong class="sadmin-cifra__valor">
+          @if (c.valor === undefined) {
+            <app-esqueleto forma="numero" texto="Cargando..." />
+          } @else {
+            {{ c.valor }}
+          }
+        </strong>
       </div>
     }
   </section>
@@ -24,9 +25,13 @@
   <!-- ── Listado ─────────────────────────────────────────────── -->
   <section class="sadmin-bloque" aria-labelledby="t-sastrerias">
     <app-titulo-bloque titulo="Listado" idTitulo="t-sastrerias">
-      <span class="sadmin-cuenta" [class.sadmin-cuenta--esqueleto]="enEsqueleto()">{{
-        total()
-      }}</span>
+      <span class="sadmin-cuenta">
+        @if (enEsqueleto()) {
+          <app-esqueleto forma="numero" texto="Cargando..." />
+        } @else {
+          {{ total() }}
+        }
+      </span>
     </app-titulo-bloque>
 
     <div class="sadmin-filtros" role="group" aria-label="Filtros">
@@ -74,7 +79,13 @@
     </div>
 
     @if (enEsqueleto()) {
-      <app-sastrerias-tabla [sastrerias]="esqueletoFilas" [esqueleto]="true" />
+      <app-esqueleto
+        forma="tabla"
+        [filas]="6"
+        [alto]="58"
+        [maximo]="20"
+        texto="Cargando sastrerías..."
+      />
     } @else if (sastrerias().length === 0 && !error()) {
       @if (hayFiltros()) {
         <app-vacio

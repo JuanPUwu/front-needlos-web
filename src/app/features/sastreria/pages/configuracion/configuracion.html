@@ -50,6 +50,11 @@
                 >
                 @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
                   <span class="sastreria-field__error">Obligatorio</span>
+                } @else if (
+                  nombreRechazado() !== null &&
+                  nombreRechazado() === form.controls.nombre.value.trim()
+                ) {
+                  <span class="sastreria-field__error" role="alert">Ya existe, elige otro</span>
                 }
               </div>
               <input
@@ -76,12 +81,20 @@
             </div>
 
             <div class="sastreria-field">
-              <label class="sastreria-field__label" for="telefono">Teléfono (opcional)</label>
+              <div class="sastreria-field__head">
+                <label class="sastreria-field__label" for="telefono">Teléfono (opcional)</label>
+                @if (form.controls.telefono.touched && form.controls.telefono.invalid) {
+                  <span class="sastreria-field__error">{{ errorFormatoTelefono }}</span>
+                }
+              </div>
               <input
                 class="sastreria-field__input"
                 id="telefono"
                 type="tel"
+                inputmode="numeric"
+                maxlength="10"
                 formControlName="telefono"
+                placeholder="3001234567"
               />
             </div>
 
@@ -206,7 +219,7 @@
       <app-eliminar-modal
         animate.enter="el-entrar"
         animate.leave="el-salir"
-        [sastreria]="form.controls.nombre.value"
+        [sastreria]="sastreria()?.nombre ?? ''"
         [puedeExportar]="conPlan()"
         (cerrado)="eliminarAbierto.set(false)"
         (exportar)="eliminarAbierto.set(false); exportarAbierto.set(true)"
@@ -225,7 +238,7 @@
       <app-exportar-modal
         animate.enter="em-entrar"
         animate.leave="em-salir"
-        [sastreria]="form.controls.nombre.value"
+        [sastreria]="sastreria()?.nombre ?? ''"
         (cerrado)="exportarAbierto.set(false)"
       />
     }

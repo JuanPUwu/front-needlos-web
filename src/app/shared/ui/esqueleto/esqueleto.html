@@ -23,9 +23,17 @@
         <div class="esk__campo">
           <span class="esk__hueso esk__etiqueta">Etiqueta</span>
           <span class="esk__hueso esk__control"></span>
+          @if (ayuda()) {
+            <span class="esk__hueso esk__ayuda">Texto de ayuda</span>
+          }
         </div>
       }
-      <span class="esk__hueso esk__boton esk__boton--accion"></span>
+      @if (nota()) {
+        <span class="esk__hueso esk__ayuda esk__ayuda--nota">Nota</span>
+      }
+      @if (accion()) {
+        <span class="esk__hueso esk__boton esk__boton--accion"></span>
+      }
     }
     @case ('numero') {
       <span class="esk__hueso esk__numero" aria-hidden="true">00</span>

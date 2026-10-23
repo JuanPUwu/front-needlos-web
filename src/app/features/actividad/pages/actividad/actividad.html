@@ -1,0 +1,183 @@
+<main class="hn-page">
+  <div class="hn-contenedor">
+    <app-encabezado
+      titulo="Actividad"
+      subtitulo="Quién cambió pedidos, equipo y datos de la sastrería, y cuándo. Se guarda 2 años."
+      icono="historial"
+      volverRuta="/ajustes"
+      volverEtiqueta="Ajustes"
+      [error]="errorFiltros() ?? error()"
+    />
+
+    <!-- ── Búsqueda y filtros (una sola cápsula) ─────────────── -->
+    <section class="hn-buscar" aria-label="Búsqueda y filtros">
+      <div class="hn-busqueda">
+        <div class="hn-buscador-caja">
+          <app-icono class="hn-buscador-caja__lupa" nombre="buscar" />
+          <input
+            #buscador
+            class="hn-control hn-buscador"
+            type="search"
+            placeholder="Buscar: número de pedido, nombre…"
+            aria-label="Buscar en la actividad"
+            [value]="filtros().buscar"
+            (input)="alBuscar(buscador.value)"
+            (keydown.enter)="buscarAhora(buscador.value)"
+          />
+        </div>
+        <button class="hn-buscar-boton" type="button" (click)="buscarAhora(buscador.value)">
+          Buscar
+        </button>
+        <app-boton-recargar [recargando]="cargando()" (recargar)="recargar()" />
+        <button
+          class="hn-herramienta"
+          type="button"
+          aria-label="Filtros"
+          title="Filtros"
+          aria-controls="hn-filtros"
+          [attr.aria-expanded]="filtrosAbiertos()"
+          [class.hn-herramienta--activa]="filtrosAbiertos()"
+          (click)="alternarFiltros()"
+        >
+          <app-icono class="hn-herramienta__icono" nombre="filtros" />
+          @if (cantidadFiltros() > 0) {
+            <span class="hn-herramienta__cuenta">{{ cantidadFiltros() }}</span>
+          }
+        </button>
+        <span class="hn-cuenta" role="status">
+          <strong>{{ total() }}</strong> {{ total() === 1 ? 'registro' : 'registros' }}
+        </span>
+      </div>
+
+      @if (filtrosAbiertos()) {
+        <div class="hn-filtros" id="hn-filtros">
+          <div class="hn-filtro">
+            <label class="hn-filtro__label" for="actCategoria">Tipo</label>
+            <select
+              #categoriaSel
+              class="hn-control"
+              id="actCategoria"
+              (change)="cambiar({ categoria: categoriaSel.value })"
+            >
+              <option value="" [selected]="filtros().categoria === ''">Todo</option>
+              @for (c of categorias; track c.valor) {
+                <option [value]="c.valor" [selected]="c.valor === filtros().categoria">
+                  {{ c.etiqueta }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="hn-filtro">
+            <label class="hn-filtro__label" for="actPersona">Persona</label>
+            <select
+              #personaSel
+              class="hn-control"
+              id="actPersona"
+              (change)="cambiar({ persona: personaSel.value })"
+            >
+              <option value="" [selected]="filtros().persona === ''">Todas</option>
+              @for (p of personas(); track p.cuentaId) {
+                <option [value]="p.cuentaId" [selected]="p.cuentaId === filtros().persona">
+                  {{ p.nombre }} {{ p.apellido }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="hn-filtro">
+            <label class="hn-filtro__label" for="actDesde">Desde</label>
+            <input
+              #desde
+              class="hn-control"
+              id="actDesde"
+              type="date"
+              [value]="filtros().desde"
+              [max]="filtros().hasta"
+              (change)="cambiar({ desde: desde.value })"
+            />
+          </div>
+          <div class="hn-filtro">
+            <label class="hn-filtro__label" for="actHasta">Hasta</label>
+            <input
+              #hasta
+              class="hn-control"
+              id="actHasta"
+              type="date"
+              [value]="filtros().hasta"
+              [min]="filtros().desde"
+              (change)="cambiar({ hasta: hasta.value })"
+            />
+          </div>
+          @if (hayFiltros()) {
+            <button class="hn-limpiar" type="button" (click)="limpiarFiltros()">
+              Limpiar filtros
+            </button>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ── Listado ──────────────────────────────────────────── -->
+    <section class="hn-bloque" aria-label="Actividad">
+      @if (cargando() && entradas().length === 0) {
+        <app-esqueleto
+          forma="lista"
+          [filas]="6"
+          [alto]="64"
+          [maximo]="20"
+          texto="Cargando actividad..."
+        />
+      } @else if (entradas().length === 0) {
+        @if (hayFiltros()) {
+          <app-vacio
+            icono="carrete"
+            titulo="No encontramos actividad"
+            mensaje="Nada coincide con lo elegido. Prueba con otra búsqueda u otros filtros."
+          />
+        } @else {
+          <app-vacio
+            icono="historial"
+            titulo="Aún no hay actividad"
+            mensaje="Aquí verás quién edita o anula pedidos, cambia el equipo, exporta o importa información y cambia los datos de la sastrería."
+          />
+        }
+      } @else {
+        <ul class="hn-lista">
+          @for (e of entradas(); track e.id) {
+            <li class="hn-item" [attr.data-categoria]="e.categoria">
+              <span class="hn-texto">
+                <span class="hn-titulo">{{ e.resumen }}</span>
+                <span class="hn-meta">
+                  <strong class="hn-accion">{{ etiquetaAccion[e.accion] }}</strong> ·
+                  {{ e.persona ?? 'NeedlOS (automático)' }} · {{ e.fecha | fechaHora }}
+                </span>
+              </span>
+            </li>
+          }
+        </ul>
+        @if (totalPaginas() > 1) {
+          <nav class="hn-paginacion" aria-label="Paginación">
+            <button
+              class="hn-pagina"
+              type="button"
+              [disabled]="pagina() === 0"
+              (click)="irAPagina(pagina() - 1)"
+            >
+              Anterior
+            </button>
+            <span class="hn-paginacion__texto">
+              Página {{ pagina() + 1 }} de {{ totalPaginas() }}
+            </span>
+            <button
+              class="hn-pagina"
+              type="button"
+              [disabled]="pagina() + 1 >= totalPaginas()"
+              (click)="irAPagina(pagina() + 1)"
+            >
+              Siguiente
+            </button>
+          </nav>
+        }
+      }
+    </section>
+  </div>
+</main>

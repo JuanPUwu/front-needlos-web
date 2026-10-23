@@ -8,7 +8,6 @@ import { Bandeja } from '../../../../core/notificaciones/bandeja';
 import { Icono, NombreIcono } from '../../../../shared/ui/icono/icono';
 import { Campana } from '../../../../shared/ui/campana/campana';
 import { Logo } from '../../../../shared/ui/logo/logo';
-import { SelectorSastreria } from '../../components/selector-sastreria/selector-sastreria';
 
 /** Una sección de la barra lateral. */
 interface SeccionNav {
@@ -25,7 +24,7 @@ interface SeccionNav {
  */
 @Component({
   selector: 'app-panel',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Logo, Icono, Campana, SelectorSastreria],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Logo, Icono, Campana],
   templateUrl: './panel.html',
   styleUrl: './panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

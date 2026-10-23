@@ -14,6 +14,7 @@ import { mensajeDeError } from '../../../../core/http/api-error';
 import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { FechaHoraPipe } from '../../../../shared/pipes/fecha-hora.pipe';
+import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import { ConfiguracionSistema } from '../../models/plataforma.model';
@@ -34,7 +35,7 @@ export const LIMITES_CONFIGURACION = {
  */
 @Component({
   selector: 'app-super-admin-configuracion',
-  imports: [ReactiveFormsModule, Encabezado, TituloBloque, FechaHoraPipe],
+  imports: [ReactiveFormsModule, Encabezado, TituloBloque, FechaHoraPipe, Esqueleto],
   templateUrl: './configuracion-sistema.html',
   styleUrl: './configuracion-sistema.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -181,7 +182,7 @@ export class SuperAdminConfiguracion implements OnInit {
         next: (c) => {
           this.guardando.set(false);
           this.aplicar(c);
-          this.notificaciones.exito('Configuración guardada.');
+          this.notificaciones.exito('Configuración del sistema guardada.');
         },
         error: (err: unknown) => {
           this.guardando.set(false);

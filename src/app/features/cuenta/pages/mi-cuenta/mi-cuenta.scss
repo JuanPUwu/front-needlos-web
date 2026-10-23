@@ -32,6 +32,15 @@
   grid-template-rows: minmax(0, 1fr);
   grid-template-areas: 'contrasena sesiones';
 
+  // Con Mis sastrerías: arriba a la derecha (alto según su lista, hasta la mitad) y
+  // Sesiones debajo con el resto.
+  &--sastrerias {
+    grid-template-rows: fit-content(50%) minmax(0, 1fr);
+    grid-template-areas:
+      'contrasena sastrerias'
+      'contrasena sesiones';
+  }
+
   // Se apila solo en teléfono; en tablet y computador la sección no se desplaza.
   @container panel (max-width: 560px) {
     // Teléfono: crece con su contenido y la página se desplaza (Reglas §12.2).
@@ -41,6 +50,14 @@
     grid-template-areas:
       'contrasena'
       'sesiones';
+
+    &--sastrerias {
+      grid-template-rows: auto;
+      grid-template-areas:
+        'contrasena'
+        'sastrerias'
+        'sesiones';
+    }
   }
 }
 
@@ -62,6 +79,10 @@
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
+}
+
+.cuenta-bloque--sastrerias {
+  grid-area: sastrerias;
 }
 
 .cuenta-bloque--sesiones {
@@ -87,6 +108,32 @@
     // Alineación al pie (no es espaciado entre elementos).
     margin-top: auto;
   }
+}
+
+// Crear contraseña (cuenta de Google): el correo resaltado y el botón al pie.
+.cuenta-correo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-navy-suave);
+  color: var(--color-navy);
+  font-weight: 700;
+  text-align: center;
+}
+
+.cuenta-enviado {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  font-size: 0.9rem;
+}
+
+.cuenta-boton--pie {
+  // Alineación al pie de la tarjeta (no es espaciado entre elementos).
+  margin-top: auto;
 }
 
 // ── Campos ──────────────────────────────────────────────────
@@ -315,4 +362,14 @@
     gap: var(--space-3);
     padding: var(--space-3) 0;
   }
+
+  .cuenta-correo,
+  .cuenta-enviado {
+    padding: var(--space-3);
+  }
+}
+
+// Las dos contraseñas no coinciden (error del formulario, no del campo).
+.cuenta-field__input--error {
+  border-color: var(--color-danger);
 }

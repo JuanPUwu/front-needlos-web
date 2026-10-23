@@ -70,7 +70,7 @@
                 @if (errorTelefono()) {
                   <span class="pf-campo__error">{{ errorTelefono() }}</span>
                 } @else if (form.controls.telefono.touched && form.controls.telefono.invalid) {
-                  <span class="pf-campo__error">7 a 15 dígitos</span>
+                  <span class="pf-campo__error">{{ errorFormatoTelefono }}</span>
                 }
               </div>
               <input
@@ -78,6 +78,7 @@
                 id="telefono"
                 type="tel"
                 inputmode="numeric"
+                maxlength="10"
                 formControlName="telefono"
                 placeholder="3001234567"
                 autocomplete="off"

@@ -138,7 +138,10 @@ export class SastreriaModal implements OnInit, OnDestroy {
       aceptar: 'Sí, otorgar',
     });
     if (ok) {
-      this.ejecutar(this.service.otorgarLicencia(s.id, meses), 'Licencia otorgada.');
+      this.ejecutar(
+        this.service.otorgarLicencia(s.id, meses),
+        `Licencia de ${meses} ${meses === 1 ? 'mes' : 'meses'} otorgada a ${s.nombre}.`,
+      );
     }
   }
 
@@ -163,14 +166,14 @@ export class SastreriaModal implements OnInit, OnDestroy {
     });
     if (ok) {
       this.bloqueando.set(false);
-      this.ejecutar(this.service.bloquear(s.id, motivo), 'Sastrería bloqueada.');
+      this.ejecutar(this.service.bloquear(s.id, motivo), `${s.nombre} bloqueada por abuso.`);
     }
   }
 
   desbloquear(): void {
     const s = this.sastreria();
     if (s && !this.ocupado()) {
-      this.ejecutar(this.service.desbloquear(s.id), 'Bloqueo quitado.');
+      this.ejecutar(this.service.desbloquear(s.id), `Bloqueo de ${s.nombre} quitado.`);
     }
   }
 
@@ -185,7 +188,7 @@ export class SastreriaModal implements OnInit, OnDestroy {
       aceptar: 'Sí, recuperar',
     });
     if (ok) {
-      this.ejecutar(this.service.recuperar(s.id), 'Sastrería recuperada.');
+      this.ejecutar(this.service.recuperar(s.id), `${s.nombre} recuperada.`);
     }
   }
 

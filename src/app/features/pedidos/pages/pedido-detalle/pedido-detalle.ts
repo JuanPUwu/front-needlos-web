@@ -277,7 +277,10 @@ export class PedidoDetalle implements OnInit {
     this.ejecutar(
       'entregar',
       (actual) => this.service.entregar(actual.id, prendaIds),
-      () => this.notificaciones.exito(varias ? 'Prendas entregadas.' : 'Prenda entregada.'),
+      () =>
+        this.notificaciones.exito(
+          `${varias ? `${prendaIds.length} prendas entregadas` : 'Prenda entregada'} del pedido ${p.numero}.`,
+        ),
     );
   }
 
@@ -321,7 +324,9 @@ export class PedidoDetalle implements OnInit {
       () => {
         this.claveAbono = nuevaClave();
         this.formAbono.reset({ monto: '', metodo });
-        this.notificaciones.exito('Abono registrado.');
+        this.notificaciones.exito(
+          `Abono de ${formatoPesos(monto)} registrado en el pedido ${p.numero}.`,
+        );
       },
     );
   }
@@ -348,8 +353,11 @@ export class PedidoDetalle implements OnInit {
       () => this.service.anularAbono(abono.id, motivo, razon.trim()),
       () => {
         this.anulandoAbono.set(null);
+        const numero = this.pedido()?.numero ?? '';
         this.notificaciones.exito(
-          motivo === 'DEVOLUCION' ? 'Devolución registrada.' : 'Abono anulado.',
+          motivo === 'DEVOLUCION'
+            ? `Devolución de ${formatoPesos(abono.monto)} registrada en el pedido ${numero}.`
+            : `Abono de ${formatoPesos(abono.monto)} anulado en el pedido ${numero}.`,
         );
       },
     );
@@ -379,7 +387,7 @@ export class PedidoDetalle implements OnInit {
       (p) => this.service.anular(p.id, razon),
       () => {
         this.anulando.set(false);
-        this.notificaciones.exito('Pedido anulado.');
+        this.notificaciones.exito(`Pedido ${this.pedido()?.numero ?? ''} anulado.`);
       },
     );
   }

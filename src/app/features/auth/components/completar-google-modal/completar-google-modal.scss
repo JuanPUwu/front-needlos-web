@@ -1,0 +1,304 @@
+// Popup "Completa tu registro" (Google): medidas del formulario base (Reglas §12.3). Solo tokens
+// globales; espaciado con gap.
+
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.cg-fondo {
+  position: absolute;
+  inset: 0;
+  background: var(--color-velo);
+}
+
+.cg-caja {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: panel / inline-size;
+  outline: none;
+}
+
+.cg-cerrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-navy);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--focus-ring);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cg-cerrar__icono {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.cg-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  container: cgseccion / inline-size;
+}
+
+// La cuenta de Google con la que se registra.
+.cg-cuenta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-navy-suave);
+  color: var(--color-navy);
+}
+
+.cg-cuenta__icono {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.cg-cuenta__texto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cg-ayuda {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+// Documento y teléfono lado a lado; apilados si no caben.
+.cg-fila {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container cgseccion (max-width: 420px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.cg-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.cg-campo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.cg-campo__label {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.cg-req {
+  color: var(--color-danger);
+}
+
+.cg-campo__error {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.cg-campo__input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+
+  // Obligatorio sin llenar o mal escrito: la caja se pinta de rojo.
+  &.ng-touched.ng-invalid {
+    border-color: var(--color-danger);
+  }
+}
+
+.cg-acciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @container cgseccion (max-width: 360px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.cg-boton {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-presion) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(var(--press-scale));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cg-boton--borde {
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-accent);
+
+  &:hover:not(:disabled) {
+    background: var(--focus-ring);
+  }
+}
+
+// El popup entero aparece y se va con un fundido (≤ 100 ms).
+:host(.cg-entrar) {
+  animation: cg-fundido var(--dur-popup) var(--ease-out);
+}
+
+:host(.cg-salir) {
+  animation: cg-fundido var(--dur-salir) var(--ease-in) reverse forwards;
+}
+
+@keyframes cg-fundido {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host(.cg-entrar) {
+    animation: none;
+  }
+
+  :host(.cg-salir) {
+    animation-duration: 1ms;
+  }
+
+  .cg-boton {
+    transition: none;
+  }
+}
+
+// Teléfono: el popup ocupa toda la pantalla.
+@media (max-width: 560px) {
+  :host {
+    padding: 0;
+  }
+
+  .cg-caja {
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+// ── Teléfono: relleno y separación siempre space-3 (dueño 2026-10-20) ──
+@media (max-width: 560px) {
+  .cg-caja {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .cg-seccion {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .cg-campo,
+  .cg-fila {
+    gap: var(--space-3);
+  }
+
+  .cg-cuenta {
+    padding: var(--space-3);
+  }
+
+  .cg-campo__input {
+    padding: 0 var(--space-3);
+  }
+
+  .cg-acciones {
+    gap: var(--space-3);
+  }
+
+  .cg-boton {
+    padding: 0 var(--space-3);
+  }
+}

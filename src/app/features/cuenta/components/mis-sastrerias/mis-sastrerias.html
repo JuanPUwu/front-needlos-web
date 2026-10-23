@@ -1,0 +1,61 @@
+<section class="ms" aria-labelledby="titulo-sastrerias">
+  <app-titulo-bloque titulo="Mis sastrerías" idTitulo="titulo-sastrerias" [error]="error()">
+    <button
+      class="ms-boton"
+      type="button"
+      [disabled]="alLimite()"
+      [title]="alLimite() ? 'Ya tienes el máximo de ' + maximo + ' sastrerías.' : ''"
+      (click)="crearAbierto.set(true)"
+    >
+      Crear otra sastrería
+    </button>
+  </app-titulo-bloque>
+  <p class="ms__ayuda">
+    Pasa de una a otra sin volver a iniciar sesión. Puedes tener hasta {{ maximo }}.
+  </p>
+
+  @if (sastrerias(); as lista) {
+    <ul class="ms-lista">
+      @for (s of lista; track s.tenantId) {
+        <li class="ms-item">
+          <div class="ms-item__info">
+            <span class="ms-item__nombre">
+              {{ s.nombre }}
+              @if (s.tenantId === actual()) {
+                <span class="ms-item__actual">Actual</span>
+              }
+            </span>
+            <span class="ms-item__rol">{{ etiquetaRol(s) }}</span>
+          </div>
+          @if (s.tenantId !== actual()) {
+            <button
+              class="ms-boton"
+              type="button"
+              [disabled]="cambiando() !== null"
+              [attr.aria-label]="'Entrar a ' + s.nombre"
+              (click)="cambiar(s)"
+            >
+              {{ cambiando() === s.tenantId ? 'Entrando...' : 'Entrar' }}
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  } @else if (!error()) {
+    <app-esqueleto
+      forma="lista"
+      [filas]="2"
+      [alto]="64"
+      [maximo]="5"
+      texto="Cargando sastrerías..."
+    />
+  }
+</section>
+
+@if (crearAbierto()) {
+  <app-crear-sastreria-modal
+    animate.enter="cs-entrar"
+    animate.leave="cs-salir"
+    (cerrado)="crearAbierto.set(false)"
+  />
+}

@@ -123,7 +123,13 @@
         <section class="gm-seccion gm-historial" aria-labelledby="t-historial">
           <h3 class="gm-seccion__titulo" id="t-historial">Historial de cambios</h3>
           @if (historial().length === 0) {
-            <app-esqueleto forma="lista" [filas]="2" [alto]="72" texto="Cargando historial..." />
+            <app-esqueleto
+              forma="lista"
+              [filas]="2"
+              [alto]="72"
+              [maximo]="20"
+              texto="Cargando historial..."
+            />
           } @else {
             <ol class="gm-cambios">
               @for (c of historial(); track $index) {

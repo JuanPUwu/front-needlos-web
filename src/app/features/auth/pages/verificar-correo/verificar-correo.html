@@ -6,11 +6,24 @@
         @if (error(); as e) {
           <span class="verificar-card__error" role="alert" [title]="e">{{ e }}</span>
         } @else {
-          Enviamos un código de 6 dígitos a <strong>{{ email }}</strong
-          >. Escríbelo aquí para activar tu cuenta.
+          Escribe el código de 6 dígitos que enviamos a tu<br />correo para activar tu cuenta.
         }
       </h1>
+      <!-- El correo aparte, para que se lea de un vistazo (dueño 2026-10-21). -->
+      <p class="verificar-correo" [title]="email">
+        <app-icono class="verificar-correo__icono" nombre="correo" />
+        <span class="verificar-correo__texto">{{ email }}</span>
+      </p>
     </header>
+
+    <!-- Antes de escribir: si no llega, puede estar en spam (dueño 2026-10-21). -->
+    <p class="verificar-spam" role="note">
+      <app-icono class="verificar-spam__icono" nombre="info" />
+      <span
+        >¿No lo ves en tu bandeja de entrada? Revisa la carpeta de <strong>spam</strong> o
+        <strong>correo no deseado</strong>.</span
+      >
+    </p>
 
     @if (aviso) {
       <p class="verificar-banner verificar-banner--info" role="status">{{ aviso }}</p>

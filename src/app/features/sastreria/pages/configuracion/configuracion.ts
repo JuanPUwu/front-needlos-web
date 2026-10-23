@@ -14,12 +14,16 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ERROR_TELEFONO,
+  telefonoColombia,
+} from '../../../../shared/validators/telefono.validators';
 import { map, startWith } from 'rxjs';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
-import { mensajeDeError } from '../../../../core/http/api-error';
+import { codigoDeError, mensajeDeError } from '../../../../core/http/api-error';
 import { TicketComponent, TicketDatos } from '../../../../shared/ui/ticket/ticket';
 import { hoyIso } from '../../../../shared/util/fechas';
 import { Sastreria } from '../../models/sastreria.model';
@@ -56,6 +60,13 @@ const CON_TEXTO = /\S/;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfiguracionSastreria implements OnInit {
+  /**
+   * Nombre que el servidor rechazó por estar en uso (dos sastrerías no pueden llamarse igual):
+   * mientras el campo siga con ese nombre, su línea dice "Ya existe".
+   */
+  readonly nombreRechazado = signal<string | null>(null);
+  /** Teléfono de Colombia: 10 dígitos, celular 3XX o fijo 60X (dueño 2026-10-21). */
+  readonly errorFormatoTelefono = ERROR_TELEFONO;
   private readonly fb = inject(FormBuilder);
   private readonly estadoSastreria = inject(EstadoSastreria);
   private readonly service = inject(SastreriaService);
@@ -87,7 +98,7 @@ export class ConfiguracionSastreria implements OnInit {
     nombre: ['', [Validators.required, Validators.maxLength(120), Validators.pattern(CON_TEXTO)]],
     nit: ['', [Validators.maxLength(30)]],
     direccion: ['', [Validators.maxLength(200)]],
-    telefono: ['', [Validators.maxLength(20)]],
+    telefono: ['', [telefonoColombia]],
     horaInicioCaja: ['05:00', [Validators.required]],
     horaFinCaja: ['23:00', [Validators.required]],
   });
@@ -231,11 +242,14 @@ export class ConfiguracionSastreria implements OnInit {
         next: (s) => {
           this.guardando.set(false);
           this.form.markAsPristine();
-          this.notificaciones.exito('Datos de la sastrería guardados.');
+          this.notificaciones.exito(`Datos de ${s.nombre} guardados.`);
           this.sastreria.set(s);
         },
         error: (err: unknown) => {
           this.guardando.set(false);
+          if (codigoDeError(err) === 'NOMBRE_SASTRERIA_EN_USO') {
+            this.nombreRechazado.set(this.form.controls.nombre.value.trim());
+          }
           this.error.set(mensajeDeError(err, 'No se pudieron guardar los datos.'));
         },
       });

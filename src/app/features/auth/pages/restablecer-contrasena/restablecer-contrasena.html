@@ -14,7 +14,8 @@
     @switch (estado()) {
       @case ('listo') {
         <p class="restablecer-banner restablecer-banner--exito" role="status">
-          Tu contraseña se cambió. Por seguridad cerramos todas tus sesiones abiertas.
+          Tu contraseña quedó guardada. Por seguridad cerramos todas tus sesiones abiertas: entra de
+          nuevo con ella.
         </p>
         <a class="restablecer-submit restablecer-submit--enlace" routerLink="/login"
           >Iniciar sesión</a
@@ -31,9 +32,21 @@
       @default {
         <form class="restablecer-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
           <div class="restablecer-field">
-            <label class="restablecer-field__label" for="contrasenaNueva"
-              >Contraseña nueva <span class="restablecer-field__req">*</span></label
-            >
+            <!-- El error va en la línea de la etiqueta, nunca debajo (Reglas §12.2). -->
+            <div class="restablecer-field__head">
+              <label class="restablecer-field__label" for="contrasenaNueva"
+                >Contraseña nueva <span class="restablecer-field__req">*</span></label
+              >
+              @if (form.controls.contrasenaNueva.touched && form.controls.contrasenaNueva.invalid) {
+                <span class="restablecer-field__error">
+                  {{
+                    form.controls.contrasenaNueva.hasError('required')
+                      ? 'Obligatoria'
+                      : 'No cumple la política'
+                  }}
+                </span>
+              }
+            </div>
             <div class="restablecer-field__control">
               <input
                 class="restablecer-field__input"
@@ -55,16 +68,25 @@
             <span class="restablecer-field__ayuda" id="politica"
               >8 a 72 caracteres, con mayúscula, minúscula, número y carácter especial.</span
             >
-            @if (form.controls.contrasenaNueva.touched && form.controls.contrasenaNueva.invalid) {
-              <span class="restablecer-field__error">La contraseña no cumple la política.</span>
-            }
           </div>
 
           <div class="restablecer-field">
-            <label class="restablecer-field__label" for="confirmacion"
-              >Confirma la contraseña <span class="restablecer-field__req">*</span></label
+            <div class="restablecer-field__head">
+              <label class="restablecer-field__label" for="confirmacion"
+                >Confirma la contraseña <span class="restablecer-field__req">*</span></label
+              >
+              @if (form.controls.confirmacion.touched && form.controls.confirmacion.invalid) {
+                <span class="restablecer-field__error">Obligatoria</span>
+              } @else if (form.controls.confirmacion.touched && form.hasError('noCoinciden')) {
+                <span class="restablecer-field__error">No coinciden</span>
+              }
+            </div>
+            <div
+              class="restablecer-field__control"
+              [class.restablecer-field__control--error]="
+                form.controls.confirmacion.touched && form.hasError('noCoinciden')
+              "
             >
-            <div class="restablecer-field__control">
               <input
                 class="restablecer-field__input"
                 id="confirmacion"
@@ -73,9 +95,6 @@
                 autocomplete="new-password"
               />
             </div>
-            @if (form.controls.confirmacion.touched && form.hasError('noCoinciden')) {
-              <span class="restablecer-field__error">Las contraseñas no coinciden.</span>
-            }
           </div>
 
           <button class="restablecer-submit" type="submit" [disabled]="cargando()">

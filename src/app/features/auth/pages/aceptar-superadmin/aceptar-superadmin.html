@@ -73,7 +73,12 @@
                 <span class="asa-field__error">No coinciden</span>
               }
             </div>
-            <div class="asa-field__control">
+            <div
+              class="asa-field__control"
+              [class.asa-field__control--error]="
+                form.controls.confirmacion.touched && form.hasError('noCoinciden')
+              "
+            >
               <input
                 class="asa-field__input"
                 id="confirmacion"

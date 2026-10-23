@@ -8,7 +8,13 @@
 
   <section class="sdue-bloque" aria-labelledby="t-duenos">
     <app-titulo-bloque titulo="Listado" idTitulo="t-duenos">
-      <span class="sdue-cuenta" [class.sdue-cuenta--esqueleto]="enEsqueleto()">{{ total() }}</span>
+      <span class="sdue-cuenta">
+        @if (enEsqueleto()) {
+          <app-esqueleto forma="numero" texto="Cargando..." />
+        } @else {
+          {{ total() }}
+        }
+      </span>
     </app-titulo-bloque>
 
     <div class="sdue-filtros" role="group" aria-label="Filtros">
@@ -56,7 +62,13 @@
     </div>
 
     @if (enEsqueleto()) {
-      <app-duenos-tabla [duenos]="esqueletoFilas" [esqueleto]="true" />
+      <app-esqueleto
+        forma="tabla"
+        [filas]="6"
+        [alto]="58"
+        [maximo]="20"
+        texto="Cargando dueños..."
+      />
     } @else if (duenos().length === 0 && !error()) {
       @if (hayFiltros()) {
         <app-vacio
