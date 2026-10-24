@@ -31,7 +31,7 @@ import { PrendaTarjeta } from '../../components/prenda-tarjeta/prenda-tarjeta';
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { Icono } from '../../../../shared/ui/icono/icono';
 import { hoyIso, nuevaClave } from '../../../../shared/util/fechas';
-import { PATRON_MONTO, aNumero, aTexto } from '../../../../shared/util/montos';
+import { aNumero, aTexto } from '../../../../shared/util/montos';
 import { MiembroAsignable } from '../../../equipo/models/empleado.model';
 import { EmpleadoService } from '../../../equipo/services/empleado.service';
 import {
@@ -47,6 +47,7 @@ import {
 } from '../../models/pedido.model';
 import { PedidoService } from '../../services/pedido.service';
 import { Vacio } from '../../../../shared/ui/vacio/vacio';
+import { ERROR_MONTO, montoCop } from '../../../../shared/validators/monto.validators';
 
 const CON_TEXTO = /\S/;
 const UN_DIA = 24 * 60 * 60 * 1000;
@@ -85,6 +86,7 @@ const ENTREGADO: EstadoConColor = { texto: 'Entregado', tono: 'entregado' };
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PedidoDetalle implements OnInit {
+  readonly errorMonto = ERROR_MONTO;
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(PedidoService);
   private readonly empleados = inject(EmpleadoService);
@@ -191,7 +193,7 @@ export class PedidoDetalle implements OnInit {
   );
 
   readonly formAbono = this.fb.nonNullable.group({
-    monto: ['', [Validators.required, Validators.pattern(PATRON_MONTO)]],
+    monto: ['', [Validators.required, montoCop]],
     metodo: ['EFECTIVO' as MetodoPago, [Validators.required]],
   });
 

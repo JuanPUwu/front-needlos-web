@@ -43,6 +43,25 @@
               (keydown.enter)="buscarAhora(buscador.value)"
             />
           </div>
+          <!-- En la misma fila del buscador: no crea una fila extra (dueño 2026-10-23). -->
+          @if (clienteFiltrado(); as cliente) {
+            <div class="pedidos-chip-filtro">
+              <span>
+                Cliente: <strong>{{ cliente }}</strong>
+                @if (saldoCliente(); as saldo) {
+                  · debe <strong>{{ saldo | moneda }}</strong>
+                }
+              </span>
+              <button
+                class="pedidos-chip-filtro__quitar"
+                type="button"
+                aria-label="Quitar filtro de cliente"
+                (click)="quitarCliente()"
+              >
+                ✕
+              </button>
+            </div>
+          }
           <button class="pedidos-buscar-boton" type="button" (click)="buscarAhora(buscador.value)">
             Buscar
           </button>
@@ -67,25 +86,6 @@
           </span>
         </div>
       </div>
-
-      @if (clienteFiltrado(); as cliente) {
-        <div class="pedidos-chip-filtro">
-          <span>
-            Cliente: <strong>{{ cliente }}</strong>
-            @if (saldoCliente(); as saldo) {
-              · debe <strong>{{ saldo | moneda }}</strong>
-            }
-          </span>
-          <button
-            class="pedidos-chip-filtro__quitar"
-            type="button"
-            aria-label="Quitar filtro de cliente"
-            (click)="quitarCliente()"
-          >
-            ✕
-          </button>
-        </div>
-      }
 
       @if (filtrosAbiertos()) {
         <div class="pedidos-filtros" id="pedidos-filtros" role="group" aria-label="Filtros">

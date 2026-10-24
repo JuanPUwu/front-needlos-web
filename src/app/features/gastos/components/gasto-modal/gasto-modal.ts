@@ -28,11 +28,12 @@ import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Icono } from '../../../../shared/ui/icono/icono';
 import { hoyIso, nuevaClave } from '../../../../shared/util/fechas';
-import { PATRON_MONTO, aNumero, aTexto } from '../../../../shared/util/montos';
+import { aNumero, aTexto } from '../../../../shared/util/montos';
 import { METODOS_PAGO, MetodoPago, etiquetaMetodo } from '../../../pedidos/models/pedido.model';
 import { CambioGasto, ETIQUETA_ACCION, Gasto } from '../../models/gasto.model';
 import { GastoService } from '../../services/gasto.service';
 import { avisoFaltantes } from '../../../../shared/util/faltantes';
+import { ERROR_MONTO, montoCop } from '../../../../shared/validators/monto.validators';
 
 const CON_TEXTO = /\S/;
 
@@ -58,6 +59,7 @@ const CON_TEXTO = /\S/;
   host: { '(document:keydown.escape)': 'cerrar()' },
 })
 export class GastoModal implements OnInit, OnDestroy {
+  readonly errorMonto = ERROR_MONTO;
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(GastoService);
   private readonly memoria = inject(Memoria);
@@ -82,7 +84,7 @@ export class GastoModal implements OnInit, OnDestroy {
 
   readonly form = this.fb.nonNullable.group({
     razon: ['', [Validators.required, Validators.maxLength(200), Validators.pattern(CON_TEXTO)]],
-    monto: ['', [Validators.required, Validators.pattern(PATRON_MONTO)]],
+    monto: ['', [Validators.required, montoCop]],
     metodo: ['EFECTIVO' as MetodoPago, [Validators.required]],
     fecha: [hoyIso(), [Validators.required]],
   });

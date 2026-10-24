@@ -58,7 +58,9 @@
                 Monto <span class="gm-req">*</span>
               </label>
               @if (form.controls.monto.touched && form.controls.monto.invalid) {
-                <span class="gm-campo__error">Solo números</span>
+                <span class="gm-campo__error">{{
+                  form.controls.monto.hasError('required') ? 'Obligatorio' : errorMonto
+                }}</span>
               } @else if (montoInvalido()) {
                 <span class="gm-campo__error">Mayor que 0</span>
               }
@@ -67,7 +69,7 @@
               class="gm-campo__input"
               id="gastoMonto"
               type="text"
-              inputmode="decimal"
+              inputmode="numeric"
               formControlName="monto"
               placeholder="0"
             />

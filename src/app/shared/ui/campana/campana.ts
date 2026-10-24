@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   inject,
   input,
   signal,
 } from '@angular/core';
+import { Notificaciones } from '../../../core/ui/notificaciones';
 import { Router, RouterLink } from '@angular/router';
 import { Bandeja, NotificacionBandeja } from '../../../core/notificaciones/bandeja';
 import { FechaHoraPipe } from '../../pipes/fecha-hora.pipe';
@@ -34,6 +36,8 @@ import { Vacio } from '../vacio/vacio';
 })
 export class Campana {
   readonly bandeja = inject(Bandeja);
+  /** Los avisos temporales salen en una barra a la izquierda de la campana (dueño 2026-10-23). */
+  readonly avisos = inject(Notificaciones);
   private readonly router = inject(Router);
   private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -44,6 +48,10 @@ export class Campana {
   readonly variante = input<'encabezado' | 'barra'>('encabezado');
 
   readonly abierta = signal(false);
+
+  constructor() {
+    inject(DestroyRef).onDestroy(this.avisos.registrarCampana());
+  }
 
   alternar(): void {
     const abrir = !this.abierta();

@@ -42,7 +42,7 @@ import { PedidoEsqueleto } from '../../components/pedido-esqueleto/pedido-esquel
 import { Encabezado } from '../../../../shared/ui/encabezado/encabezado';
 import { Icono } from '../../../../shared/ui/icono/icono';
 import { hoyIso, nuevaClave } from '../../../../shared/util/fechas';
-import { PATRON_MONTO, aNumero, aTexto } from '../../../../shared/util/montos';
+import { aNumero, aTexto } from '../../../../shared/util/montos';
 import { TipoPrenda } from '../../../catalogo/models/tipo-prenda.model';
 import { TipoPrendaService } from '../../../catalogo/services/tipo-prenda.service';
 import { Cliente } from '../../../clientes/models/cliente.model';
@@ -51,6 +51,7 @@ import { MiembroAsignable } from '../../../equipo/models/empleado.model';
 import { EmpleadoService } from '../../../equipo/services/empleado.service';
 import { METODOS_PAGO, MetodoPago, Pedido, PrendaRequest } from '../../models/pedido.model';
 import { PedidoService } from '../../services/pedido.service';
+import { ERROR_MONTO, montoCop } from '../../../../shared/validators/monto.validators';
 
 const CON_TEXTO = /\S/;
 /** "Designado" cuando las prendas tienen sastres distintos (en edición): no se cambia ninguno. */
@@ -92,6 +93,7 @@ type FilaPrenda = FormGroup<{
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PedidoForm implements OnInit {
+  readonly errorMonto = ERROR_MONTO;
   /** Teléfono de Colombia: 10 dígitos, celular 3XX o fijo 60X (dueño 2026-10-21). */
   readonly errorFormatoTelefono = ERROR_TELEFONO;
   private readonly fb = inject(FormBuilder);
@@ -169,8 +171,8 @@ export class PedidoForm implements OnInit {
     fechaEntrega: ['', [Validators.required]],
     /** Sastre de todas las prendas ('' sin asignar; VARIOS = cada una conserva el suyo). */
     designado: [''],
-    descuento: ['', [Validators.pattern(PATRON_MONTO)]],
-    abonoMonto: ['', [Validators.pattern(PATRON_MONTO)]],
+    descuento: ['', [montoCop]],
+    abonoMonto: ['', [montoCop]],
     abonoMetodo: ['EFECTIVO' as MetodoPago],
   });
 
@@ -178,7 +180,7 @@ export class PedidoForm implements OnInit {
   readonly linea = this.fb.nonNullable.group({
     tipoPrendaId: ['', [Validators.required]],
     cantidad: [1, [Validators.required, Validators.min(1), Validators.max(999)]],
-    precio: ['', [Validators.required, Validators.pattern(PATRON_MONTO), precioPositivo]],
+    precio: ['', [Validators.required, montoCop, precioPositivo]],
     descripcion: [
       '',
       [
@@ -431,11 +433,14 @@ export class PedidoForm implements OnInit {
     return v.prendas.some((p) => !p.sastreId);
   }
 
-  /** Al elegir el producto se precarga el precio sugerido (si el precio está vacío). */
+  /**
+   * Al elegir el producto se pone su precio del catálogo (dueño 2026-10-23: un precio distinto es
+   * una excepción del pedido y no se arrastra al cambiar de producto). Sin precio base, vacío.
+   */
   alCambiarTipo(): void {
     const fila = this.linea;
     const tipo = fila.controls.tipoPrendaId.value;
-    if (!tipo || fila.controls.precio.value.trim()) {
+    if (!tipo) {
       return;
     }
     this.tiposService
@@ -443,8 +448,8 @@ export class PedidoForm implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (s) => {
-          if (s.precio !== null && !fila.controls.precio.value.trim()) {
-            fila.controls.precio.setValue(aTexto(s.precio));
+          if (fila.controls.tipoPrendaId.value === tipo) {
+            fila.controls.precio.setValue(s.precio === null ? '' : aTexto(s.precio));
           }
         },
         error: () => undefined,
@@ -781,7 +786,7 @@ export class PedidoForm implements OnInit {
           Validators.pattern(CON_TEXTO),
         ],
       ],
-      precio: ['', [Validators.required, Validators.pattern(PATRON_MONTO), precioPositivo]],
+      precio: ['', [Validators.required, montoCop, precioPositivo]],
       sastreId: [''],
     });
   }

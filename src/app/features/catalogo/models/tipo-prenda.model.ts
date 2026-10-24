@@ -15,7 +15,8 @@ export interface GuardarTipoPrendaRequest {
   precioBase: number | null;
 }
 
-export type OrigenPrecio = 'HISTORICO' | 'PRECIO_BASE' | 'NINGUNO';
+/** El precio sugerido sale solo del catálogo (dueño 2026-10-23). */
+export type OrigenPrecio = 'PRECIO_BASE' | 'NINGUNO';
 
 export interface PrecioSugerido {
   precio: number | null;

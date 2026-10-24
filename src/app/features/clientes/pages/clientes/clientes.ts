@@ -313,6 +313,16 @@ export class Clientes implements OnInit {
         },
         error: (err: unknown) => {
           this.accionId.set(null);
+          // Excepción a "errores en la línea del título" (dueño 2026-10-23): que no se pueda
+          // eliminar por sus pedidos se avisa en un popup que hay que aceptar.
+          if (codigoDeError(err) === 'CLIENTE_CON_PEDIDOS_ACTIVOS') {
+            void this.confirmacion.avisar({
+              titulo: 'No se puede eliminar',
+              mensaje: mensajeDeError(err, 'El cliente tiene pedidos sin entregar o con saldo.'),
+              tipo: 'advertencia',
+            });
+            return;
+          }
           this.error.set(mensajeDeError(err, 'No se pudo eliminar el cliente.'));
         },
       });
@@ -353,15 +363,17 @@ export class Clientes implements OnInit {
     });
   }
 
-  /** Muestra en el campo a quién pertenece el teléfono repetido. */
+  /**
+   * Muestra en el campo a quién pertenece el teléfono repetido. Un solo mensaje (dueño 2026-10-23):
+   * se espera a saber el nombre; solo si esa consulta falla queda "Ya es de otro cliente".
+   */
   private indicarDuenoDelTelefono(telefono: string): void {
-    this.errorTelefono.set('Ya es de otro cliente');
     this.service
       .porTelefono(telefono)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (dueno) => this.errorTelefono.set(`Ya es de ${dueno.nombre} ${dueno.apellido}`),
-        error: () => undefined,
+        error: () => this.errorTelefono.set('Ya es de otro cliente'),
       });
   }
 

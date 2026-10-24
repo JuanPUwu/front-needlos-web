@@ -29,11 +29,10 @@ import { recargaAutomatica } from '../../../../core/estado/recarga-automatica';
 import { BotonRecargar } from '../../../../shared/ui/boton-recargar/boton-recargar';
 import { Vacio } from '../../../../shared/ui/vacio/vacio';
 import { avisoFaltantes } from '../../../../shared/util/faltantes';
+import { ERROR_MONTO, montoCop } from '../../../../shared/validators/monto.validators';
 
 /** Al menos un caracter visible (el backend rechaza textos solo con espacios). */
 const CON_TEXTO = /\S/;
-/** Pesos sin separador de miles (25000), con 1 o 2 decimales opcionales (25000,50). */
-const PRECIO = /^\d{1,10}([.,]\d{1,2})?$/;
 
 export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
 
@@ -57,6 +56,8 @@ export type EstadoFiltro = 'todos' | 'activos' | 'inactivos';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Catalogo implements OnInit {
+  /** Pesos: entero y múltiplo de 50 (dueño 2026-10-23). */
+  readonly errorMonto = ERROR_MONTO;
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(TipoPrendaService);
   private readonly memoria = inject(Memoria);
@@ -98,7 +99,7 @@ export class Catalogo implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(60), Validators.pattern(CON_TEXTO)]],
-    precioBase: ['', [Validators.pattern(PRECIO)]],
+    precioBase: ['', [montoCop]],
   });
 
   /** Formulario a medio llenar (y qué se editaba): sobrevive a la recarga. */
@@ -254,6 +255,53 @@ export class Catalogo implements OnInit {
     }
   }
 
+  /**
+   * Eliminar (dueño 2026-10-23): solo si nunca se usó en un pedido. Si ya se usó, el aviso explica
+   * que hay que desactivarlo (popup, como los demás bloqueos de eliminar).
+   */
+  async eliminar(tipo: TipoPrenda): Promise<void> {
+    if (this.accionId()) {
+      return;
+    }
+    const ok = await this.confirmacion.pedir({
+      titulo: `¿Eliminar "${tipo.nombre}"?`,
+      mensaje:
+        'Desaparece del catálogo. Solo se puede si nunca se usó en un pedido; si ya se usó, desactívalo.',
+      aceptar: 'Sí, eliminar',
+      peligro: true,
+    });
+    if (!ok) {
+      return;
+    }
+    this.accionId.set(tipo.id);
+    this.limpiarAvisos();
+    this.service
+      .eliminar(tipo.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.accionId.set(null);
+          if (this.editando()?.id === tipo.id) {
+            this.reiniciar();
+          }
+          this.tipos.update((lista) => lista.filter((t) => t.id !== tipo.id));
+          this.notificaciones.exito(`Tipo de prenda "${tipo.nombre}" eliminado del catálogo.`);
+        },
+        error: (err: unknown) => {
+          this.accionId.set(null);
+          if (codigoDeError(err) === 'TIPO_PRENDA_EN_USO') {
+            void this.confirmacion.avisar({
+              titulo: 'No se puede eliminar',
+              mensaje: mensajeDeError(err, 'Ya se usó en pedidos: desactívalo.'),
+              tipo: 'advertencia',
+            });
+            return;
+          }
+          this.error.set(mensajeDeError(err, 'No se pudo eliminar el tipo de prenda.'));
+        },
+      });
+  }
+
   reactivar(tipo: TipoPrenda): void {
     this.cambiarEstado(tipo, this.service.reactivar(tipo.id));
   }
@@ -281,7 +329,7 @@ export class Catalogo implements OnInit {
 
   private datos(): GuardarTipoPrendaRequest {
     const v = this.form.getRawValue();
-    const precio = v.precioBase.trim().replace(',', '.');
+    const precio = v.precioBase.trim();
     return { nombre: v.nombre.trim(), precioBase: precio ? Number(precio) : null };
   }
 

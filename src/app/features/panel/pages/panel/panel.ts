@@ -97,6 +97,7 @@ export class Panel {
     '/sastreria': 'Mi sastrería',
     '/catalogo': 'Catálogo',
     '/actividad': 'Actividad',
+    '/notificaciones': 'Notificaciones',
   };
 
   private readonly ruta = toSignal(

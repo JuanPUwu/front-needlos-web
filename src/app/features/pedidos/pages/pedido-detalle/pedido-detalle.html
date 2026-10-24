@@ -114,9 +114,7 @@
                 </label>
                 @if (formAbono.controls.monto.touched && formAbono.controls.monto.invalid) {
                   <span class="pd-campo__error">{{
-                    formAbono.controls.monto.hasError('required')
-                      ? 'Escribe el monto'
-                      : 'Solo números'
+                    formAbono.controls.monto.hasError('required') ? 'Escribe el monto' : errorMonto
                   }}</span>
                 }
               </div>
@@ -124,7 +122,7 @@
                 class="pd-campo__input"
                 id="monto"
                 type="text"
-                inputmode="decimal"
+                inputmode="numeric"
                 formControlName="monto"
                 placeholder="0"
               />

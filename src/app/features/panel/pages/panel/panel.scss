@@ -226,8 +226,20 @@
   }
 }
 
+// Activo igual que una sección (dueño 2026-10-23): fondo azul marino y textos claros.
 .panel__perfil--activo {
-  border-color: var(--color-border);
+  background: var(--color-navy);
+  border-color: var(--color-navy);
+  color: var(--color-surface);
+
+  &:hover {
+    background: var(--color-navy);
+  }
+
+  .panel__perfil-nombre,
+  .panel__perfil-sastreria {
+    color: var(--color-surface);
+  }
 }
 
 .panel__perfil-texto {

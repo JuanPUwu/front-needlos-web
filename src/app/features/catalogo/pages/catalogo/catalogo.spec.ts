@@ -41,10 +41,16 @@ describe('Catalogo', () => {
     expect(service.crear).toHaveBeenCalledWith({ nombre: 'Abrigo', precioBase: null });
   });
 
-  it('acepta decimales con coma', () => {
+  it('el precio es en pesos: entero y múltiplo de 50 (sin decimales)', () => {
     componente.form.setValue({ nombre: 'Abrigo', precioBase: '25000,5' });
     componente.enviar();
-    expect(service.crear).toHaveBeenCalledWith({ nombre: 'Abrigo', precioBase: 25000.5 });
+    componente.form.setValue({ nombre: 'Abrigo', precioBase: '25020' });
+    componente.enviar();
+    expect(service.crear).not.toHaveBeenCalled();
+
+    componente.form.setValue({ nombre: 'Abrigo', precioBase: '25050' });
+    componente.enviar();
+    expect(service.crear).toHaveBeenCalledWith({ nombre: 'Abrigo', precioBase: 25050 });
   });
 
   it('rechaza precios con separador de miles (25.000 sería ambiguo)', () => {

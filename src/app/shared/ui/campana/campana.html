@@ -1,3 +1,22 @@
+<!-- Aviso temporal: barra que se despliega a la izquierda de la campana (dueño 2026-10-23). -->
+@if (avisos.cinta(); as n) {
+  <button
+    class="cmp__cinta"
+    type="button"
+    [attr.data-tipo]="n.tipo"
+    [attr.role]="n.tipo === 'error' ? 'alert' : 'status'"
+    [title]="n.mensaje"
+    animate.enter="cmp__cinta--entrar"
+    animate.leave="cmp__cinta--salir"
+    (click)="avisos.cerrarCinta()"
+  >
+    <app-icono
+      class="cmp__cinta-icono"
+      [nombre]="n.tipo === 'exito' ? 'finalizado' : n.tipo === 'error' ? 'anulado' : 'todo'"
+    />
+    <span class="cmp__cinta-texto">{{ n.mensaje }}</span>
+  </button>
+}
 <button
   class="cmp__boton"
   type="button"

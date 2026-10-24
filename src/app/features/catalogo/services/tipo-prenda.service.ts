@@ -33,7 +33,12 @@ export class TipoPrendaService {
     return this.http.patch<TipoPrenda>(`${this.base}/${id}/reactivar`, null);
   }
 
-  /** Último precio cobrado o, si no hay, el precio base (se usará en Pedidos, F4). */
+  /** Solo si nunca se usó en un pedido; si ya se usó responde TIPO_PRENDA_EN_USO (409). */
+  eliminar(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  /** El precio base del catálogo (lo que se precarga al elegir el tipo en un pedido). */
   precioSugerido(id: string): Observable<PrecioSugerido> {
     return this.http.get<PrecioSugerido>(`${this.base}/${id}/precio-sugerido`);
   }

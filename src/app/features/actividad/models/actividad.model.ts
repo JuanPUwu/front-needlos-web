@@ -1,8 +1,20 @@
-export type CategoriaActividad = 'PEDIDOS' | 'EQUIPO' | 'DATOS' | 'SASTRERIA';
+export type CategoriaActividad =
+  'PEDIDOS' | 'CLIENTES' | 'CATALOGO' | 'EQUIPO' | 'DATOS' | 'SASTRERIA';
 
 export type AccionActividad =
+  | 'PEDIDO_CREADO'
   | 'PEDIDO_EDITADO'
   | 'PEDIDO_ANULADO'
+  | 'ABONO_REGISTRADO'
+  | 'ABONO_ANULADO'
+  | 'CLIENTE_CREADO'
+  | 'CLIENTE_EDITADO'
+  | 'CLIENTE_ELIMINADO'
+  | 'PRENDA_CATALOGO_CREADA'
+  | 'PRENDA_CATALOGO_EDITADA'
+  | 'PRENDA_CATALOGO_DESACTIVADA'
+  | 'PRENDA_CATALOGO_REACTIVADA'
+  | 'PRENDA_CATALOGO_ELIMINADA'
   | 'EMPLEADO_EDITADO'
   | 'EMPLEADO_DESACTIVADO'
   | 'EMPLEADO_REACTIVADO'
@@ -33,15 +45,28 @@ export interface EntradaActividad {
 }
 
 export const CATEGORIAS_ACTIVIDAD: { valor: CategoriaActividad; etiqueta: string }[] = [
-  { valor: 'PEDIDOS', etiqueta: 'Pedidos' },
+  { valor: 'PEDIDOS', etiqueta: 'Pedidos y abonos' },
+  { valor: 'CLIENTES', etiqueta: 'Clientes' },
+  { valor: 'CATALOGO', etiqueta: 'Catálogo' },
   { valor: 'EQUIPO', etiqueta: 'Equipo' },
   { valor: 'DATOS', etiqueta: 'Exportar e importar' },
   { valor: 'SASTRERIA', etiqueta: 'Sastrería' },
 ];
 
 export const ETIQUETA_ACCION: Record<AccionActividad, string> = {
+  PEDIDO_CREADO: 'Pedido creado',
   PEDIDO_EDITADO: 'Pedido editado',
   PEDIDO_ANULADO: 'Pedido anulado',
+  ABONO_REGISTRADO: 'Abono registrado',
+  ABONO_ANULADO: 'Abono anulado',
+  CLIENTE_CREADO: 'Cliente creado',
+  CLIENTE_EDITADO: 'Cliente editado',
+  CLIENTE_ELIMINADO: 'Cliente eliminado',
+  PRENDA_CATALOGO_CREADA: 'Prenda agregada al catálogo',
+  PRENDA_CATALOGO_EDITADA: 'Prenda del catálogo editada',
+  PRENDA_CATALOGO_DESACTIVADA: 'Prenda desactivada',
+  PRENDA_CATALOGO_REACTIVADA: 'Prenda reactivada',
+  PRENDA_CATALOGO_ELIMINADA: 'Prenda eliminada del catálogo',
   EMPLEADO_EDITADO: 'Miembro editado',
   EMPLEADO_DESACTIVADO: 'Miembro desactivado',
   EMPLEADO_REACTIVADO: 'Miembro reactivado',

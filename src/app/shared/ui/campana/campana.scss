@@ -3,6 +3,87 @@
 :host {
   position: relative;
   display: inline-flex;
+  align-items: center;
+}
+
+// ── Aviso temporal: barra a la izquierda de la campana (dueño 2026-10-23) ──
+// Sale de detrás de la campana (se mete 12 px bajo ella) y empuja a la izquierda lo que haya al
+// lado (el "+" de Pedidos); al recogerse todo vuelve a su lugar.
+.cmp__cinta {
+  --tono: var(--color-accent);
+
+  position: relative;
+  z-index: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 48px;
+  max-width: min(440px, 55vw);
+  margin-right: -12px;
+  padding: 0 calc(var(--space-4) + 12px) 0 var(--space-4);
+  border: none;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  background: var(--tono);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+
+  &[data-tipo='error'] {
+    --tono: var(--color-danger);
+  }
+
+  &[data-tipo='info'] {
+    --tono: var(--color-navy);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// La campana queda encima de la barra.
+.cmp__boton {
+  z-index: 1;
+}
+
+.cmp__cinta-icono {
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.cmp__cinta-texto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Se despliega y se recoge hacia la campana (crece el ancho: lo de al lado se corre con ella).
+.cmp__cinta--entrar {
+  animation: cmp-cinta var(--dur-cinta, 180ms) var(--ease-out);
+}
+
+.cmp__cinta--salir {
+  animation: cmp-cinta var(--dur-cinta, 180ms) var(--ease-in) reverse forwards;
+}
+
+@keyframes cmp-cinta {
+  from {
+    max-width: 0;
+    padding-left: 0;
+    opacity: 0;
+  }
+}
+
+:host(.cmp--barra) .cmp__cinta {
+  height: 44px;
+  max-width: min(440px, calc(100vw - 180px));
+  font-size: 0.85rem;
 }
 
 .cmp__boton {
@@ -329,6 +410,11 @@
 @media (prefers-reduced-motion: reduce) {
   .cmp__boton {
     transition: none;
+  }
+
+  .cmp__cinta--entrar,
+  .cmp__cinta--salir {
+    animation-name: cmp-fundido;
   }
 
   .cmp--entrar {

@@ -64,14 +64,14 @@
             <div class="catalogo-field__head">
               <label class="catalogo-field__label" for="precioBase">Precio base (opcional)</label>
               @if (form.controls.precioBase.touched && form.controls.precioBase.invalid) {
-                <span class="catalogo-field__error">Solo números, p. ej. 25000</span>
+                <span class="catalogo-field__error">{{ errorMonto }}</span>
               }
             </div>
             <input
               class="catalogo-field__input"
               id="precioBase"
               type="text"
-              inputmode="decimal"
+              inputmode="numeric"
               formControlName="precioBase"
               placeholder="25000"
             />
@@ -195,6 +195,14 @@
                       Reactivar
                     </button>
                   }
+                  <button
+                    class="catalogo-boton catalogo-boton--peligro"
+                    type="button"
+                    [disabled]="accionId() === t.id"
+                    (click)="eliminar(t)"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </li>
             }

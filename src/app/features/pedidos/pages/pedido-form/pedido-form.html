@@ -154,16 +154,18 @@
                   Vlr. unit. <span class="pf-req">*</span>
                 </label>
                 @if (linea.controls.precio.touched && linea.controls.precio.invalid) {
-                  <span class="pf-campo__error">Mayor que 0</span>
+                  <span class="pf-campo__error">{{
+                    linea.controls.precio.hasError('montoCop') ? errorMonto : 'Mayor que 0'
+                  }}</span>
                 }
               </div>
               <input
                 class="pf-campo__input"
                 id="lineaPrecio"
                 type="text"
-                inputmode="decimal"
+                inputmode="numeric"
                 formControlName="precio"
-                placeholder="25000"
+                placeholder="XXXXX"
               />
             </div>
           </div>
@@ -241,7 +243,7 @@
                 @if (descuentoInvalido()) {
                   <span class="pf-campo__error">Supera el valor</span>
                 } @else if (form.controls.descuento.invalid) {
-                  <span class="pf-campo__error">Solo números</span>
+                  <span class="pf-campo__error">{{ errorMonto }}</span>
                 }
               </div>
               <input
@@ -251,7 +253,7 @@
                 "
                 id="descuento"
                 type="text"
-                inputmode="decimal"
+                inputmode="numeric"
                 formControlName="descuento"
                 placeholder="0"
               />
@@ -360,7 +362,7 @@
                   @if (abonoInvalido()) {
                     <span class="pf-campo__error">Supera el total</span>
                   } @else if (form.controls.abonoMonto.invalid) {
-                    <span class="pf-campo__error">Solo números</span>
+                    <span class="pf-campo__error">{{ errorMonto }}</span>
                   }
                 </div>
                 <input
@@ -370,7 +372,7 @@
                   "
                   id="abonoMonto"
                   type="text"
-                  inputmode="decimal"
+                  inputmode="numeric"
                   formControlName="abonoMonto"
                   placeholder="0"
                 />

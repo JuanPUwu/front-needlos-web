@@ -17,6 +17,28 @@ describe('capas globales de la interfaz', () => {
     vi.useRealTimers();
   });
 
+  it('con una campana a la vista salen de a una en la barra; sin ella, en la esquina', () => {
+    vi.useFakeTimers();
+    const n = TestBed.inject(Notificaciones);
+    const quitar = n.registrarCampana();
+    n.exito('Pedido #1-1 creado.');
+    n.info('Cliente Ana creado.');
+    expect(n.cinta()?.mensaje).toBe('Pedido #1-1 creado.');
+    expect(n.lista()).toEqual([]);
+    vi.advanceTimersByTime(4100);
+    expect(n.cinta()).toBeNull(); // se recoge antes de mostrar la siguiente
+    vi.advanceTimersByTime(300);
+    expect(n.cinta()?.mensaje).toBe('Cliente Ana creado.');
+    n.cerrarCinta();
+    expect(n.cinta()).toBeNull();
+
+    quitar();
+    n.exito('Sin campana.');
+    expect(n.cinta()).toBeNull();
+    expect(n.lista().map((x) => x.mensaje)).toEqual(['Sin campana.']);
+    vi.useRealTimers();
+  });
+
   it('la confirmación responde lo que elige el usuario', async () => {
     const c = TestBed.inject(Confirmacion);
     const respuesta = c.pedir({ titulo: '¿Seguro?', mensaje: 'x', aceptar: 'Sí' });
