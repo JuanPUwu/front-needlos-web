@@ -243,17 +243,32 @@
                 Abonos ({{ p.abonos.length }})
               </button>
             </div>
-            @if (
-              vista() === 'prendas' && puedeEntregar() && !anulado() && finalizadas().length > 1
-            ) {
-              <button
-                class="pd-boton pd-boton--borde pd-boton--chico"
-                type="button"
-                [disabled]="ocupado() !== null"
-                (click)="entregarFinalizadas()"
-              >
-                Entregar {{ finalizadas().length }}
-              </button>
+            <!-- Todas a la vez (dueño 2026-10-23), con la misma confirmación de colores. -->
+            @if (vista() === 'prendas' && !anulado()) {
+              <div class="pd-lista__todas">
+                @if (puedeCambiarEstado() && enProceso().length > 1) {
+                  <button
+                    class="pd-boton pd-boton--borde pd-boton--chico"
+                    type="button"
+                    [disabled]="ocupado() !== null"
+                    [title]="'Pasar las ' + enProceso().length + ' prendas en proceso a Finalizado'"
+                    (click)="finalizarTodas()"
+                  >
+                    Finalizar {{ enProceso().length }}
+                  </button>
+                }
+                @if (puedeEntregar() && finalizadas().length > 1) {
+                  <button
+                    class="pd-boton pd-boton--borde pd-boton--chico"
+                    type="button"
+                    [disabled]="ocupado() !== null"
+                    [title]="'Entregar las ' + finalizadas().length + ' prendas finalizadas'"
+                    (click)="entregarFinalizadas()"
+                  >
+                    Entregar {{ finalizadas().length }}
+                  </button>
+                }
+              </div>
             }
           </div>
 

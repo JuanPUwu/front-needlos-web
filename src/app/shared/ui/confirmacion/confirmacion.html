@@ -15,6 +15,17 @@
       </span>
       <h2 class="conf__titulo" id="conf-titulo">{{ c.titulo }}</h2>
       <p class="conf__mensaje" id="conf-mensaje">{{ c.mensaje }}</p>
+      @if (c.cambio; as cambio) {
+        <p class="conf__cambio">
+          <span class="conf__estado" [attr.data-tono]="cambio.desde.tono">{{
+            cambio.desde.texto
+          }}</span>
+          <span class="conf__flecha" aria-label="a">→</span>
+          <span class="conf__estado" [attr.data-tono]="cambio.hacia.tono">{{
+            cambio.hacia.texto
+          }}</span>
+        </p>
+      }
       <div class="conf__acciones" [class.conf__acciones--uno]="c.soloAceptar">
         @if (!c.soloAceptar) {
           <button

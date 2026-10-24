@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Icono, NombreIcono } from '../../../../shared/ui/icono/icono';
-import { EstadoPedido } from '../../models/pedido.model';
+import { EstadoPedido, ResumenPedidos } from '../../models/pedido.model';
 
 /** Pestañas de estado ('' = todos). */
 const PESTANAS: { valor: EstadoPedido | ''; etiqueta: string; icono: NombreIcono }[] = [
@@ -12,8 +12,8 @@ const PESTANAS: { valor: EstadoPedido | ''; etiqueta: string; icono: NombreIcono
 ];
 
 /**
- * Barra de estados de Pedidos: una cápsula por estado (con la cantidad de "En proceso" y
- * "Finalizado"). Solo presenta; avisa la pestaña elegida.
+ * Barra de estados de Pedidos: una cápsula por estado con su cantidad (en el color de su
+ * estado; "Todo" en navy). Solo presenta; avisa la pestaña elegida.
  */
 @Component({
   selector: 'app-estado-barra',
@@ -24,19 +24,30 @@ const PESTANAS: { valor: EstadoPedido | ''; etiqueta: string; icono: NombreIcono
 })
 export class EstadoBarra {
   readonly estado = input.required<EstadoPedido | ''>();
-  readonly enProceso = input<number | null>(null);
-  readonly finalizados = input<number | null>(null);
+  /** Contadores del resumen (null mientras carga: sin cantidades). */
+  readonly conteos = input<ResumenPedidos | null>(null);
 
   readonly elegir = output<EstadoPedido | ''>();
 
   readonly pestanas = PESTANAS;
 
-  /** Cantidad que muestra la pestaña (solo las que el resumen conoce y no son cero). */
+  /** Cantidad que muestra la pestaña (cero no se muestra). */
   cantidadDe(valor: EstadoPedido | ''): number | null {
-    return valor === 'EN_PROCESO'
-      ? this.enProceso()
-      : valor === 'FINALIZADO'
-        ? this.finalizados()
-        : null;
+    const c = this.conteos();
+    if (!c) {
+      return null;
+    }
+    switch (valor) {
+      case 'EN_PROCESO':
+        return c.enProceso;
+      case 'FINALIZADO':
+        return c.listosParaEntregar;
+      case 'ENTREGADO':
+        return c.entregados;
+      case 'ANULADO':
+        return c.anulados;
+      default:
+        return c.total;
+    }
   }
 }

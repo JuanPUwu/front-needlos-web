@@ -44,7 +44,8 @@ export type AccionSuperAdmin =
   | 'CONFIGURACION_CAMBIADA'
   | 'SASTRERIA_BLOQUEADA'
   | 'SASTRERIA_DESBLOQUEADA'
-  | 'ELIMINACION_CANCELADA';
+  | 'ELIMINACION_CANCELADA'
+  | 'DUENO_CAMBIADO';
 
 export const ETIQUETA_ACCION_SUPERADMIN: Record<AccionSuperAdmin, string> = {
   LICENCIA_OTORGADA: 'Licencia',
@@ -57,7 +58,16 @@ export const ETIQUETA_ACCION_SUPERADMIN: Record<AccionSuperAdmin, string> = {
   SASTRERIA_BLOQUEADA: 'Bloqueada',
   SASTRERIA_DESBLOQUEADA: 'Desbloqueada',
   ELIMINACION_CANCELADA: 'Recuperada',
+  DUENO_CAMBIADO: 'Dueño cambiado',
 };
+
+/** Un administrador activo de la sastrería (para elegir el dueño). */
+export interface AdminSastreria {
+  cuentaId: string;
+  nombre: string;
+  email: string;
+  dueno: boolean;
+}
 
 /** Tipos de acción para el filtro del Registro. */
 export const ACCIONES_SUPERADMIN: { valor: AccionSuperAdmin | ''; etiqueta: string }[] = [
@@ -66,6 +76,7 @@ export const ACCIONES_SUPERADMIN: { valor: AccionSuperAdmin | ''; etiqueta: stri
   { valor: 'SASTRERIA_BLOQUEADA', etiqueta: 'Bloqueos' },
   { valor: 'SASTRERIA_DESBLOQUEADA', etiqueta: 'Desbloqueos' },
   { valor: 'ELIMINACION_CANCELADA', etiqueta: 'Recuperadas' },
+  { valor: 'DUENO_CAMBIADO', etiqueta: 'Cambios de dueño' },
   { valor: 'SOPORTE_INICIADO', etiqueta: 'Soporte' },
   { valor: 'SUPERADMIN_INVITADO', etiqueta: 'SuperAdmins invitados' },
   { valor: 'SUPERADMIN_ELIMINADO', etiqueta: 'SuperAdmins eliminados' },

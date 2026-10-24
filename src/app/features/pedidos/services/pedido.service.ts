@@ -77,6 +77,11 @@ export class PedidoService {
     return this.http.patch<Pedido>(`${this.base}/${id}/prendas/${prendaId}/estado`, { estado });
   }
 
+  /** Varias prendas al mismo estado en un solo paso (todas o ninguna). */
+  cambiarEstadoVarias(id: string, prendaIds: string[], estado: EstadoPrenda): Observable<Pedido> {
+    return this.http.patch<Pedido>(`${this.base}/${id}/prendas/estado`, { prendaIds, estado });
+  }
+
   asignarSastre(id: string, prendaId: string, sastreId: string | null): Observable<Pedido> {
     return this.http.patch<Pedido>(`${this.base}/${id}/prendas/${prendaId}/sastre`, { sastreId });
   }

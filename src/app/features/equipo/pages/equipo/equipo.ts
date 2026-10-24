@@ -16,6 +16,7 @@ import {
   telefonoColombia,
 } from '../../../../shared/validators/telefono.validators';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { Confirmacion } from '../../../../core/ui/confirmacion';
 import { Esqueleto } from '../../../../shared/ui/esqueleto/esqueleto';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
@@ -59,6 +60,9 @@ export class Equipo implements OnInit {
   private readonly notificaciones = inject(Notificaciones);
   private readonly confirmacion = inject(Confirmacion);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly auth = inject(AuthService);
+  /** La cuenta con sesión: el dueño solo puede editarse a sí mismo. */
+  private readonly yo = computed(() => this.auth.sesion()?.cuenta?.id ?? null);
 
   readonly empleados = signal<Empleado[]>([]);
   readonly invitaciones = signal<Invitacion[]>([]);
@@ -74,6 +78,10 @@ export class Equipo implements OnInit {
   readonly accionId = signal<string | null>(null);
 
   readonly editando = computed(() => this.editandoId() !== null);
+  /** Se edita al dueño: su rol queda fijo en Administrador. */
+  readonly editandoDueno = computed(
+    () => this.empleados().find((e) => e.accesoId === this.editandoId())?.dueno ?? false,
+  );
 
   // Resumen para los tiles del bento.
   readonly total = computed(() => this.empleados().length);
@@ -262,7 +270,7 @@ export class Equipo implements OnInit {
             this.guardando.set(false);
             this.reemplazar(emp);
             this.notificaciones.exito(`Datos de ${emp.nombre} ${emp.apellido} actualizados.`);
-            this.cancelar();
+            this.reiniciar();
           },
           error: (err: unknown) => {
             this.guardando.set(false);
@@ -280,13 +288,23 @@ export class Equipo implements OnInit {
           this.guardando.set(false);
           this.invitaciones.update((lista) => [inv, ...lista]);
           this.notificaciones.exito(`Invitación enviada a ${inv.email}.`);
-          this.cancelar();
+          this.reiniciar();
         },
         error: (err: unknown) => {
           this.guardando.set(false);
           this.errorForm.set(mensajeDeError(err, 'No se pudo enviar la invitación.'));
         },
       });
+  }
+
+  /** El dueño solo se edita a sí mismo (dueño 2026-10-23); a los demás los edita cualquier admin. */
+  puedeEditar(emp: Empleado): boolean {
+    return !emp.dueno || emp.cuentaId === this.yo();
+  }
+
+  /** Nadie desactiva ni quita al dueño, y nadie se quita a sí mismo. */
+  puedeQuitar(emp: Empleado): boolean {
+    return !emp.dueno && emp.cuentaId !== this.yo();
   }
 
   editar(emp: Empleado): void {
@@ -302,9 +320,13 @@ export class Equipo implements OnInit {
     });
     this.rolForm.set(emp.roles.includes('SASTRE_ADMIN') ? 'SASTRE_ADMIN' : 'SASTRE');
     this.permisosElegidos.set(new Set(emp.permisos ?? []));
+    if (emp.dueno) {
+      this.form.controls.rol.disable({ emitEvent: false });
+    } else {
+      this.form.controls.rol.enable({ emitEvent: false });
+    }
   }
 
-  /** Cancelar (o guardar con éxito) olvida el borrador. */
   /** Cancelar: si hay cambios sin guardar, pide confirmar antes de perderlos (Reglas §12.2). */
   async cancelar(): Promise<void> {
     if (
@@ -319,8 +341,17 @@ export class Equipo implements OnInit {
     ) {
       return;
     }
+    this.reiniciar();
+  }
+
+  /**
+   * Deja el formulario vacío y olvida el borrador, sin preguntar: tras guardar con éxito lo
+   * escrito ya quedó guardado (no hay nada que descartar).
+   */
+  private reiniciar(): void {
     this.borrador.olvidar();
     this.editandoId.set(null);
+    this.form.controls.rol.enable({ emitEvent: false });
     this.form.reset({ rol: 'SASTRE' });
     this.rolForm.set('SASTRE');
     this.permisosElegidos.set(new Set());
@@ -337,6 +368,45 @@ export class Equipo implements OnInit {
     if (ok) {
       this.accionConRecarga(emp.accesoId, this.service.desactivar(emp.accesoId));
     }
+  }
+
+  /**
+   * Quitar del equipo (dueño 2026-10-23): pierde el acceso y deja de aparecer; sus pedidos y
+   * prendas conservan su nombre y se le puede volver a invitar.
+   */
+  async eliminar(emp: Empleado): Promise<void> {
+    if (this.accionId()) {
+      return;
+    }
+    const ok = await this.confirmacion.pedir({
+      titulo: `¿Quitar a ${emp.nombre} ${emp.apellido} del equipo?`,
+      mensaje:
+        'Perderá el acceso de inmediato y dejará de aparecer en Miembros. Sus pedidos y prendas conservan su nombre, y puedes volver a invitarlo.',
+      aceptar: 'Sí, quitar del equipo',
+      peligro: true,
+    });
+    if (!ok) {
+      return;
+    }
+    this.accionId.set(emp.accesoId);
+    this.error.set(null);
+    this.service
+      .eliminar(emp.accesoId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.accionId.set(null);
+          if (this.editandoId() === emp.accesoId) {
+            this.reiniciar();
+          }
+          this.empleados.update((lista) => lista.filter((e) => e.accesoId !== emp.accesoId));
+          this.notificaciones.exito(`${emp.nombre} ${emp.apellido} quitado del equipo.`);
+        },
+        error: (err: unknown) => {
+          this.accionId.set(null);
+          this.error.set(mensajeDeError(err, 'No se pudo quitar del equipo.'));
+        },
+      });
   }
 
   reactivar(emp: Empleado): void {

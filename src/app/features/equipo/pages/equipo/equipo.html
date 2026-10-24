@@ -141,6 +141,11 @@
               <option value="SASTRE">Sastre (empleado)</option>
               <option value="SASTRE_ADMIN">Administrador</option>
             </select>
+            @if (editandoDueno()) {
+              <p class="equipo-bloque__ayuda">
+                Eres el dueño de la sastrería: siempre eres administrador.
+              </p>
+            }
           </div>
 
           @if (rolForm() === 'SASTRE') {
@@ -149,7 +154,10 @@
               @if (editando()) {
                 <div class="equipo-permisos__lista">
                   @for (p of permisosDisponibles; track p.valor) {
-                    <label class="equipo-permiso">
+                    <label
+                      class="equipo-permiso"
+                      [class.equipo-permiso--marcado]="permisosElegidos().has(p.valor)"
+                    >
                       <input
                         #casilla
                         class="equipo-permiso__casilla"
@@ -271,7 +279,9 @@
                     <div class="equipo-item__info">
                       <span class="equipo-item__nombre">
                         {{ emp.nombre }} {{ emp.apellido }}
-                        @if (esAdmin(emp)) {
+                        @if (emp.dueno) {
+                          <span class="equipo-chip equipo-chip--dueno">Dueño</span>
+                        } @else if (esAdmin(emp)) {
                           <span class="equipo-chip equipo-chip--admin">Admin</span>
                         }
                         @if (!emp.activo) {
@@ -282,30 +292,42 @@
                     </div>
 
                     <div class="equipo-item__acciones">
-                      <button
-                        class="equipo-boton equipo-boton--secundario"
-                        type="button"
-                        (click)="editar(emp)"
-                      >
-                        Editar
-                      </button>
-                      @if (emp.activo) {
+                      @if (puedeEditar(emp)) {
+                        <button
+                          class="equipo-boton equipo-boton--secundario"
+                          type="button"
+                          (click)="editar(emp)"
+                        >
+                          Editar
+                        </button>
+                      }
+                      @if (puedeQuitar(emp)) {
+                        @if (emp.activo) {
+                          <button
+                            class="equipo-boton equipo-boton--peligro"
+                            type="button"
+                            [disabled]="accionId() === emp.accesoId"
+                            (click)="desactivar(emp)"
+                          >
+                            Desactivar
+                          </button>
+                        } @else {
+                          <button
+                            class="equipo-boton equipo-boton--secundario"
+                            type="button"
+                            [disabled]="accionId() === emp.accesoId"
+                            (click)="reactivar(emp)"
+                          >
+                            Reactivar
+                          </button>
+                        }
                         <button
                           class="equipo-boton equipo-boton--peligro"
                           type="button"
                           [disabled]="accionId() === emp.accesoId"
-                          (click)="desactivar(emp)"
+                          (click)="eliminar(emp)"
                         >
-                          Desactivar
-                        </button>
-                      } @else {
-                        <button
-                          class="equipo-boton equipo-boton--secundario"
-                          type="button"
-                          [disabled]="accionId() === emp.accesoId"
-                          (click)="reactivar(emp)"
-                        >
-                          Reactivar
+                          Quitar
                         </button>
                       }
                     </div>

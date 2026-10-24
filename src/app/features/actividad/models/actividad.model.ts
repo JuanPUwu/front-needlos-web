@@ -6,6 +6,8 @@ export type AccionActividad =
   | 'EMPLEADO_EDITADO'
   | 'EMPLEADO_DESACTIVADO'
   | 'EMPLEADO_REACTIVADO'
+  | 'EMPLEADO_ELIMINADO'
+  | 'DUENO_CAMBIADO'
   | 'INVITACION_ENVIADA'
   | 'INVITACION_REENVIADA'
   | 'INVITACION_CANCELADA'
@@ -43,6 +45,8 @@ export const ETIQUETA_ACCION: Record<AccionActividad, string> = {
   EMPLEADO_EDITADO: 'Miembro editado',
   EMPLEADO_DESACTIVADO: 'Miembro desactivado',
   EMPLEADO_REACTIVADO: 'Miembro reactivado',
+  EMPLEADO_ELIMINADO: 'Miembro quitado',
+  DUENO_CAMBIADO: 'Dueño cambiado',
   INVITACION_ENVIADA: 'Invitación enviada',
   INVITACION_REENVIADA: 'Invitación reenviada',
   INVITACION_CANCELADA: 'Invitación cancelada',

@@ -3,6 +3,12 @@ import { Injectable, signal } from '@angular/core';
 /** Qué tan serio es: define el símbolo y el color del popup. */
 export type TipoAviso = 'advertencia' | 'peligro' | 'info';
 
+/** Un estado con su color (los mismos de Pedidos: azul, verde, amarillo, rojo). */
+export interface EstadoConColor {
+  texto: string;
+  tono: 'proceso' | 'finalizado' | 'entregado' | 'anulado';
+}
+
 export interface OpcionesConfirmacion {
   titulo: string;
   mensaje: string;
@@ -11,6 +17,8 @@ export interface OpcionesConfirmacion {
   cancelar?: string;
   /** Acción destructiva o sin vuelta atrás: el botón va en rojo. */
   peligro?: boolean;
+  /** Cambio de estado que se confirma: se ve "actual → nuevo" con sus colores. */
+  cambio?: { desde: EstadoConColor; hacia: EstadoConColor };
 }
 
 export interface OpcionesAviso {
@@ -28,6 +36,7 @@ interface Pendiente {
   cancelar: string;
   peligro: boolean;
   tipo: TipoAviso;
+  cambio: { desde: EstadoConColor; hacia: EstadoConColor } | null;
   /** Aviso: un solo botón ("Aceptar"), sin cancelar. */
   soloAceptar: boolean;
   responder: (ok: boolean) => void;
@@ -54,6 +63,7 @@ export class Confirmacion {
       cancelar: opciones.cancelar ?? 'Cancelar',
       peligro: !!opciones.peligro,
       tipo: opciones.peligro ? 'peligro' : 'advertencia',
+      cambio: opciones.cambio ?? null,
       soloAceptar: false,
     });
   }
@@ -67,6 +77,7 @@ export class Confirmacion {
       cancelar: '',
       peligro: tipo === 'peligro',
       tipo,
+      cambio: null,
       soloAceptar: true,
     });
   }

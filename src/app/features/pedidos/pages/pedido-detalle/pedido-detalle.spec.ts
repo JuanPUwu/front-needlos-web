@@ -96,6 +96,45 @@ describe('PedidoDetalle', () => {
     expect(componente.pedido()?.estado).toBe('ENTREGADO');
   });
 
+  it('cambiar el estado de una prenda pide confirmar con "actual → nuevo" en sus colores', async () => {
+    const pedir = vi.spyOn(TestBed.inject(Confirmacion), 'pedir').mockResolvedValueOnce(false);
+    const pr = componente.pedido()!.prendas[0];
+    await componente.finalizar(pr);
+    expect(service['cambiarEstado']).not.toHaveBeenCalled();
+    expect(pedir).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cambio: {
+          desde: { texto: 'En proceso', tono: 'proceso' },
+          hacia: { texto: 'Finalizado', tono: 'finalizado' },
+        },
+      }),
+    );
+
+    pedir.mockResolvedValueOnce(true);
+    await componente.finalizar(pr);
+    expect(service['cambiarEstado']).toHaveBeenCalledWith('p1', pr.id, 'FINALIZADO');
+  });
+
+  it('"Finalizar N" pasa todas las prendas en proceso en un solo paso, tras confirmar', async () => {
+    service['cambiarEstadoVarias'] = vi.fn(() => of(pedido()));
+    componente.pedido.set(
+      pedido({
+        prendas: [
+          prenda({ id: 'a', estado: 'EN_PROCESO' }),
+          prenda({ id: 'b', estado: 'EN_PROCESO' }),
+          prenda({ id: 'c' }),
+        ],
+      }),
+    );
+    const pedir = vi.spyOn(TestBed.inject(Confirmacion), 'pedir').mockResolvedValueOnce(false);
+    await componente.finalizarTodas();
+    expect(service['cambiarEstadoVarias']).not.toHaveBeenCalled();
+
+    pedir.mockResolvedValueOnce(true);
+    await componente.finalizarTodas();
+    expect(service['cambiarEstadoVarias']).toHaveBeenCalledWith('p1', ['a', 'b'], 'FINALIZADO');
+  });
+
   it('sin saldo también confirma, pero sin aviso de saldo', async () => {
     componente.pedido.set(pedido({ saldo: 0 }));
     const pedir = vi.spyOn(TestBed.inject(Confirmacion), 'pedir').mockResolvedValue(true);

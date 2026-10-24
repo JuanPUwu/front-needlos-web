@@ -194,14 +194,14 @@ export class Catalogo implements OnInit {
             ? `Tipo de prenda "${tipo.nombre}" actualizado.`
             : `Tipo de prenda "${tipo.nombre}" agregado al catálogo.`,
         );
-        this.cancelar();
+        this.reiniciar();
         this.cargar();
       },
       error: (err: unknown) => {
         this.guardando.set(false);
         this.errorForm.set(mensajeDeError(err, 'No se pudo guardar el tipo de prenda.'));
         if (codigoDeError(err) === 'CONFLICTO_CONCURRENCIA') {
-          this.cancelar();
+          this.reiniciar();
           this.cargar();
         }
       },
@@ -217,7 +217,6 @@ export class Catalogo implements OnInit {
     });
   }
 
-  /** Cancelar (o guardar con éxito) olvida el borrador. */
   /** Cancelar: si hay cambios sin guardar, pide confirmar antes de perderlos (Reglas §12.2). */
   async cancelar(): Promise<void> {
     if (
@@ -232,6 +231,11 @@ export class Catalogo implements OnInit {
     ) {
       return;
     }
+    this.reiniciar();
+  }
+
+  /** Vacía el formulario y olvida el borrador sin preguntar (tras guardar o un conflicto). */
+  private reiniciar(): void {
     this.borrador.olvidar();
     this.editando.set(null);
     this.form.reset();
@@ -265,7 +269,7 @@ export class Catalogo implements OnInit {
         this.accionId.set(null);
         this.tipos.update((lista) => lista.map((t) => (t.id === actualizado.id ? actualizado : t)));
         if (this.editando()?.id === actualizado.id) {
-          this.cancelar();
+          this.reiniciar();
         }
       },
       error: (err: unknown) => {

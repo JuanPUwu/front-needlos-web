@@ -17,6 +17,8 @@ export interface Empleado {
   /** Permisos otorgados (vacío para un admin, que los tiene todos). */
   permisos: Permiso[];
   activo: boolean;
+  /** Quien creó la sastrería: siempre admin; nadie más lo cambia, desactiva ni quita. */
+  dueno: boolean;
 }
 
 /** Una invitación pendiente de aceptar (aún no es miembro). */

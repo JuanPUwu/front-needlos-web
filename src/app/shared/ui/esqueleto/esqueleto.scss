@@ -10,6 +10,10 @@
 :host(.esk-host--llenar) {
   flex: 1 1 auto;
   min-height: 0;
+  // Nunca más alto que su contenedor, ni en el primer cuadro antes de medir (si no, la página
+  // muestra un scroll breve; dueño 2026-10-23). Sin alto propio (teléfono) el % no aplica y
+  // crece con su contenido.
+  max-height: 100%;
   overflow: hidden;
 }
 
@@ -41,11 +45,16 @@
 }
 
 .esk__fila {
+  flex-shrink: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.esk__fila-contenido {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  border-bottom: 1px solid var(--color-border-soft);
 }
 
 .esk__textos {
@@ -156,7 +165,7 @@
     gap: var(--space-3);
   }
 
-  .esk__fila {
+  .esk__fila-contenido {
     gap: var(--space-3);
   }
 

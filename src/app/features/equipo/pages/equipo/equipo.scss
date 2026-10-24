@@ -305,36 +305,71 @@
   border: none;
 }
 
+// Tres columnas (dueño 2026-10-23); dos y una cuando la tarjeta se angosta.
 .equipo-permisos__lista {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-3);
+  margin-top: var(--space-4);
 
-  @container formcard (max-width: 420px) {
+  @container formcard (max-width: 460px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @container formcard (max-width: 340px) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
+// Como las casillas de los filtros: cápsula que se resalta al marcarse y cuadro centrado.
 .equipo-permiso {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
+  // En tres columnas el texto necesita el ancho: relleno space-3.
   padding: var(--space-3);
   border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
   cursor: pointer;
+  transition: background-color var(--dur-color) var(--ease-out);
 
-  &:has(.equipo-permiso__casilla:checked) {
-    border-color: var(--color-border);
+  &:hover {
     background: var(--focus-ring);
   }
 }
 
+.equipo-permiso--marcado {
+  border-color: var(--color-border);
+  background: var(--focus-ring);
+
+  .equipo-permiso__nombre {
+    color: var(--color-navy);
+  }
+}
+
+// Cuadro propio: redondeado; marcado, azul con ✓ blanco (igual que en los filtros).
 .equipo-permiso__casilla {
   flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  accent-color: var(--color-accent);
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface) center / 14px no-repeat;
+  appearance: none;
+  cursor: pointer;
+
+  &:checked {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5'/%3E%3C/svg%3E");
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
 }
 
 .equipo-permiso__texto {
@@ -492,6 +527,12 @@
   color: var(--color-surface);
 }
 
+// El dueño: admin que nadie más puede cambiar ni quitar.
+.equipo-chip--dueno {
+  background: var(--color-accent);
+  color: var(--color-surface);
+}
+
 .equipo-chip--inactivo {
   background: var(--color-border-soft);
   color: var(--color-text-muted);
@@ -504,6 +545,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .equipo-field__input,
+  .equipo-permiso,
   .equipo-boton {
     transition: none;
   }

@@ -255,7 +255,6 @@ export class Clientes implements OnInit {
     });
   }
 
-  /** Cancelar (o guardar con éxito) olvida el borrador. */
   /** Cancelar: si hay cambios sin guardar, pide confirmar antes de perderlos (Reglas §12.2). */
   async cancelar(): Promise<void> {
     if (
@@ -270,6 +269,11 @@ export class Clientes implements OnInit {
     ) {
       return;
     }
+    this.reiniciar();
+  }
+
+  /** Vacía el formulario y olvida el borrador sin preguntar (tras guardar, eliminar o un conflicto). */
+  private reiniciar(): void {
     this.borrador.olvidar();
     this.editando.set(null);
     this.form.reset();
@@ -303,7 +307,7 @@ export class Clientes implements OnInit {
           this.accionId.set(null);
           this.notificaciones.exito(`Cliente ${cliente.nombre} ${cliente.apellido} eliminado.`);
           if (this.editando()?.id === cliente.id) {
-            this.cancelar();
+            this.reiniciar();
           }
           this.cargar(this.pagina());
         },
@@ -330,7 +334,7 @@ export class Clientes implements OnInit {
             ? `Cliente ${cliente.nombre} ${cliente.apellido} actualizado.`
             : `Cliente ${cliente.nombre} ${cliente.apellido} creado.`,
         );
-        this.cancelar();
+        this.reiniciar();
         this.cargar(actual ? this.pagina() : 0);
       },
       error: (err: unknown) => {
@@ -342,7 +346,7 @@ export class Clientes implements OnInit {
         this.errorForm.set(mensajeDeError(err, 'No se pudo guardar el cliente.'));
         if (codigoDeError(err) === 'CONFLICTO_CONCURRENCIA') {
           // Otra persona lo editó: se recarga para trabajar sobre la versión vigente.
-          this.cancelar();
+          this.reiniciar();
           this.cargar(this.pagina());
         }
       },

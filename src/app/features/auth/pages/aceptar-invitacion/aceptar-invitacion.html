@@ -6,7 +6,18 @@
 
     @switch (estado()) {
       @case ('cargando') {
-        <app-esqueleto forma="campos" [filas]="2" texto="Cargando invitación..." />
+        <!-- Con la forma de lo que llega: título, "Para…", las dos contraseñas y el botón. -->
+        <div class="aceptar-esqueleto">
+          <app-esqueleto
+            class="aceptar-esqueleto__titulo"
+            forma="bloque"
+            [alto]="30"
+            texto="Cargando invitación..."
+          />
+          <app-esqueleto class="aceptar-esqueleto__para" forma="bloque" [alto]="20" texto="" />
+          <app-esqueleto forma="campos" [filas]="2" [ayuda]="true" [accion]="false" texto="" />
+          <app-esqueleto forma="bloque" [alto]="48" texto="" />
+        </div>
       }
       @case ('invalida') {
         <p class="aceptar-banner aceptar-banner--error" role="alert">

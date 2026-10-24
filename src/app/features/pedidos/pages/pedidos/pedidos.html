@@ -24,8 +24,7 @@
       <!-- Estados del pedido -->
       <app-estado-barra
         [estado]="filtros().estado"
-        [enProceso]="resumen()?.enProceso ?? null"
-        [finalizados]="resumen()?.listosParaEntregar ?? null"
+        [conteos]="resumen()"
         (elegir)="elegirEstado($event)"
       />
 

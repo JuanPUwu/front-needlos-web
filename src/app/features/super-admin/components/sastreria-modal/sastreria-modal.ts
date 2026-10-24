@@ -23,6 +23,7 @@ import { Icono } from '../../../../shared/ui/icono/icono';
 import { TituloBloque } from '../../../../shared/ui/titulo-bloque/titulo-bloque';
 import {
   AccionPlataforma,
+  AdminSastreria,
   ETIQUETA_ACCION_SUPERADMIN,
   ETIQUETA_ESTADO_PLATAFORMA,
   MESES_LICENCIA,
@@ -92,6 +93,10 @@ export class SastreriaModal implements OnInit, OnDestroy {
   readonly bloqueando = signal(false);
   readonly motivo = signal('');
   readonly error = signal<string | null>(null);
+  /** Administradores activos (el dueño primero) y el elegido para ser el nuevo dueño. */
+  readonly admins = signal<AdminSastreria[]>([]);
+  readonly nuevoDueno = signal('');
+  readonly duenoActual = computed(() => this.admins().find((a) => a.dueno) ?? null);
 
   /** Lo que se pinta: los datos o, mientras llegan, el esqueleto. */
   readonly vista = computed(() => this.sastreria() ?? (this.error() ? null : ESQUELETO));
@@ -192,6 +197,32 @@ export class SastreriaModal implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Cambia el dueño (dueño 2026-10-23): solo si el dueño actual lo pide por soporte. El nuevo
+   * debe ser un administrador activo; el anterior sigue como administrador.
+   */
+  async cambiarDueno(): Promise<void> {
+    const s = this.sastreria();
+    const nuevo = this.admins().find((a) => a.cuentaId === this.nuevoDueno());
+    if (!s || !nuevo || nuevo.dueno || this.ocupado()) {
+      return;
+    }
+    const ok = await this.confirmacion.pedir({
+      titulo: `¿Hacer a ${nuevo.nombre} dueño de ${s.nombre}?`,
+      mensaje: `Hazlo solo si el dueño actual lo pidió por soporte. ${
+        this.duenoActual()?.nombre ?? 'El dueño actual'
+      } seguirá como administrador, pero ya no estará protegido.`,
+      aceptar: 'Sí, cambiar dueño',
+      peligro: true,
+    });
+    if (ok) {
+      this.ejecutar(
+        this.service.cambiarDueno(s.id, nuevo.cuentaId),
+        `${nuevo.nombre} es ahora el dueño de ${s.nombre}.`,
+      );
+    }
+  }
+
   /** Entra a la sastrería como su admin, en solo lectura; el admin verá el aviso de la visita. */
   async entrarEnSoporte(): Promise<void> {
     const s = this.sastreria();
@@ -229,6 +260,7 @@ export class SastreriaModal implements OnInit, OnDestroy {
         this.ocupado.set(false);
         this.sastreria.set(s);
         this.cargarAcciones();
+        this.cargarAdmins();
         this.cambiado.emit({ sastreria: s, mensaje });
       },
       error: (err: unknown) => {
@@ -248,6 +280,20 @@ export class SastreriaModal implements OnInit, OnDestroy {
           this.error.set(mensajeDeError(err, 'No se pudo cargar la sastrería.')),
       });
     this.cargarAcciones();
+    this.cargarAdmins();
+  }
+
+  private cargarAdmins(): void {
+    this.service
+      .administradores(this.sastreriaId())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (lista) => {
+          this.admins.set(lista);
+          this.nuevoDueno.set(lista.find((a) => a.dueno)?.cuentaId ?? '');
+        },
+        error: () => this.admins.set([]),
+      });
   }
 
   private cargarAcciones(): void {

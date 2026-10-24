@@ -39,6 +39,8 @@ describe('SastreriaModal', () => {
     bloquear: ReturnType<typeof vi.fn>;
     desbloquear: ReturnType<typeof vi.fn>;
     entrarEnSoporte: ReturnType<typeof vi.fn>;
+    administradores: ReturnType<typeof vi.fn>;
+    cambiarDueno: ReturnType<typeof vi.fn>;
   };
   let auth: { entrarEnSoporte: ReturnType<typeof vi.fn>; autenticado: () => boolean };
   let confirmar: ReturnType<typeof vi.fn>;
@@ -63,6 +65,13 @@ describe('SastreriaModal', () => {
       ),
       desbloquear: vi.fn(() => of(sastreria())),
       entrarEnSoporte: vi.fn(() => of({ accessToken: 'soporte' })),
+      administradores: vi.fn(() =>
+        of([
+          { cuentaId: 'c1', nombre: 'Ana Dueña', email: 'ana@x.com', dueno: true },
+          { cuentaId: 'c2', nombre: 'Luis Admin', email: 'luis@x.com', dueno: false },
+        ]),
+      ),
+      cambiarDueno: vi.fn(() => of(sastreria())),
     };
     auth = { entrarEnSoporte: vi.fn(), autenticado: signal(false) };
     confirmar = vi.fn().mockResolvedValue(true);
@@ -133,5 +142,17 @@ describe('SastreriaModal', () => {
     c.desbloquear();
     expect(confirmar).toHaveBeenCalledTimes(1);
     expect(service.desbloquear).toHaveBeenCalledWith('t1');
+  });
+
+  it('cambiar dueño: solo a otro admin, tras confirmar con peligro', async () => {
+    const c = crear();
+    expect(c.duenoActual()?.cuentaId).toBe('c1');
+    await c.cambiarDueno();
+    expect(service['cambiarDueno']).not.toHaveBeenCalled();
+
+    c.nuevoDueno.set('c2');
+    await c.cambiarDueno();
+    expect(confirmar).toHaveBeenCalledWith(expect.objectContaining({ peligro: true }));
+    expect(service['cambiarDueno']).toHaveBeenCalledWith('t1', 'c2');
   });
 });

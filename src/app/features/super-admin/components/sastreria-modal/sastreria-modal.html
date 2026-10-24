@@ -41,6 +41,15 @@
         <section class="sm-seccion" aria-labelledby="t-uso">
           <app-titulo-bloque titulo="Uso" idTitulo="t-uso" />
           <dl class="sm-datos">
+            <!-- En teléfono el estado va aquí (en el encabezado solo cabe la ✕). -->
+            <div class="sm-dato sm-dato--ancho sm-dato--estado">
+              <dt>Estado</dt>
+              <dd>
+                <span class="sm-estado" [attr.data-estado]="s.estado">{{
+                  etiquetaEstado[s.estado]
+                }}</span>
+              </dd>
+            </div>
             <div class="sm-dato">
               <dt>Plan</dt>
               <dd>{{ s.plan === 'DEMO' ? 'Prueba' : 'Licencia' }}</dd>
@@ -175,6 +184,48 @@
             </div>
           }
         </section>
+
+        <!-- ── Dueño: solo se cambia si el dueño actual lo pide (dueño 2026-10-23) ── -->
+        @if (s.estado !== 'ELIMINADA' && sastreria()) {
+          <section class="sm-seccion" aria-labelledby="t-dueno">
+            <app-titulo-bloque titulo="Dueño" idTitulo="t-dueno" />
+            <p class="sm-ayuda">
+              Quien creó la sastrería: siempre es administrador y nadie de su equipo puede cambiar
+              su rol, desactivarlo ni quitarlo. Cámbialo solo si el dueño lo pide por soporte.
+            </p>
+            <div class="sm-campo">
+              <div class="sm-campo__head">
+                <label class="sm-campo__label" for="nuevoDueno">Administrador</label>
+              </div>
+              <select
+                #duenoSel
+                class="sm-campo__input"
+                id="nuevoDueno"
+                [disabled]="ocupado() || admins().length < 2"
+                (change)="nuevoDueno.set(duenoSel.value)"
+              >
+                @for (a of admins(); track a.cuentaId) {
+                  <option [value]="a.cuentaId" [selected]="a.cuentaId === nuevoDueno()">
+                    {{ a.nombre }} · {{ a.email }}{{ a.dueno ? ' (dueño)' : '' }}
+                  </option>
+                }
+              </select>
+            </div>
+            @if (admins().length < 2) {
+              <p class="sm-ayuda">
+                Para cambiarlo, primero debe haber otro administrador activo en la sastrería.
+              </p>
+            }
+            <button
+              class="sm-boton sm-boton--borde"
+              type="button"
+              [disabled]="ocupado() || !nuevoDueno() || nuevoDueno() === duenoActual()?.cuentaId"
+              (click)="cambiarDueno()"
+            >
+              Cambiar dueño
+            </button>
+          </section>
+        }
       </div>
 
       <!-- ── Registro de acciones de esta sastrería ──────────────── -->

@@ -91,7 +91,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  height: 44px;
+  // Del mismo alto que el cuadro del ícono de la sección (dueño 2026-10-23).
+  height: 56px;
   padding: 0 var(--space-4);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-md);
@@ -218,6 +219,7 @@
 
   .encabezado__volver {
     width: 44px;
+    height: 44px;
     padding: 0;
     justify-content: center;
     font-size: 0;

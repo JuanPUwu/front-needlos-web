@@ -121,6 +121,9 @@ export interface Pedido {
 export interface ResumenPedidos {
   enProceso: number;
   listosParaEntregar: number;
+  entregados: number;
+  anulados: number;
+  total: number;
   vencidos: number;
   paraEntregarHoy: number;
 }

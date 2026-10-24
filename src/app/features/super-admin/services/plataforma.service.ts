@@ -6,6 +6,7 @@ import { Pagina } from '../../../core/http/pagina.model';
 import { SesionResponse } from '../../../core/auth/auth.model';
 import {
   AccionPlataforma,
+  AdminSastreria,
   ConfiguracionSistema,
   Dueno,
   FiltrosDuenos,
@@ -69,6 +70,16 @@ export class PlataformaService {
   /** Recupera una sastrería en eliminación (dentro de los 90 días). */
   recuperar(id: string): Observable<SastreriaPlataforma> {
     return this.http.patch<SastreriaPlataforma>(`${this.base}/sastrerias/${id}/recuperar`, null);
+  }
+
+  /** Administradores activos de la sastrería (el dueño primero). */
+  administradores(id: string): Observable<AdminSastreria[]> {
+    return this.http.get<AdminSastreria[]>(`${this.base}/sastrerias/${id}/administradores`);
+  }
+
+  /** Cambia el dueño (solo por petición al soporte): debe ser un admin activo de la sastrería. */
+  cambiarDueno(id: string, cuentaId: string): Observable<SastreriaPlataforma> {
+    return this.http.put<SastreriaPlataforma>(`${this.base}/sastrerias/${id}/dueno`, { cuentaId });
   }
 
   /** Abre una sesión de soporte (solo lectura) dentro de la sastrería. */

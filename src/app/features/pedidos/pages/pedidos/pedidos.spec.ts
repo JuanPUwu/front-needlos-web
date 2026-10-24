@@ -45,7 +45,15 @@ describe('Pedidos', () => {
         of({ contenido: [], pagina: 0, tamano: 20, totalElementos: 0, totalPaginas: 0 }),
       ),
       resumen: vi.fn(() =>
-        of({ enProceso: 1, listosParaEntregar: 0, vencidos: 0, paraEntregarHoy: 0 }),
+        of({
+          enProceso: 1,
+          listosParaEntregar: 0,
+          entregados: 0,
+          anulados: 0,
+          total: 1,
+          vencidos: 0,
+          paraEntregarHoy: 0,
+        }),
       ),
     };
   });

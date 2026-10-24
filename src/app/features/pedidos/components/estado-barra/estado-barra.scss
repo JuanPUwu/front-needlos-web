@@ -95,10 +95,6 @@
 .barra-pestana--activa[data-estado]:hover {
   background: var(--tono-bg, var(--focus-ring));
   color: var(--tono, var(--color-navy));
-
-  .barra-pestana__cuenta {
-    background: var(--tono, var(--color-navy));
-  }
 }
 
 .barra-pestana__cuenta {
@@ -108,7 +104,8 @@
   min-width: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--color-navy);
+  // Del color de su estado, esté o no elegida la pestaña ("Todo" en navy).
+  background: var(--tono, var(--color-navy));
   color: var(--color-surface);
   font-size: 0.7rem;
   font-weight: 700;

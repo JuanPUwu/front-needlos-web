@@ -19,6 +19,7 @@ function empleado(parcial: Partial<Empleado> = {}): Empleado {
     roles: ['SASTRE'],
     permisos: [],
     activo: true,
+    dueno: false,
     ...parcial,
   };
 }
@@ -46,6 +47,7 @@ describe('Equipo', () => {
     reactivar: ReturnType<typeof vi.fn>;
     reenviarInvitacion: ReturnType<typeof vi.fn>;
     cancelarInvitacion: ReturnType<typeof vi.fn>;
+    eliminar: ReturnType<typeof vi.fn>;
   };
   let componente: Equipo;
 
@@ -59,6 +61,7 @@ describe('Equipo', () => {
       reactivar: vi.fn(() => of(undefined)),
       reenviarInvitacion: vi.fn(() => of(undefined)),
       cancelarInvitacion: vi.fn(() => of(undefined)),
+      eliminar: vi.fn(() => of(undefined)),
     };
     TestBed.configureTestingModule({
       imports: [Equipo],
@@ -72,7 +75,7 @@ describe('Equipo', () => {
             roles: () => [],
             autenticado: () => false,
             soporte: () => false,
-            sesion: () => null,
+            sesion: () => ({ cuenta: { id: 'yo' } }),
           },
         },
       ],
@@ -139,6 +142,58 @@ describe('Equipo', () => {
       'acc-2',
       expect.objectContaining({ rol: 'SASTRE_ADMIN', permisos: [] }),
     );
+  });
+
+  it('al invitar o guardar con éxito no pregunta "¿Descartar los cambios?"', () => {
+    const pedir = vi.spyOn(TestBed.inject(Confirmacion), 'pedir');
+    componente.form.setValue({
+      nombre: 'Ana',
+      apellido: 'Pérez',
+      email: 'nuevo@ejemplo.com',
+      telefono: '',
+      numeroDocumento: '',
+      rol: 'SASTRE',
+    });
+    componente.form.markAsDirty();
+    componente.enviar();
+
+    componente.editar(empleado({ accesoId: 'acc-3' }));
+    componente.form.controls.nombre.setValue('Ana María');
+    componente.form.markAsDirty();
+    componente.enviar();
+
+    expect(pedir).not.toHaveBeenCalled();
+    expect(componente.editando()).toBe(false);
+    expect(componente.form.dirty).toBe(false);
+  });
+
+  it('al dueño nadie lo desactiva ni lo quita; solo él se edita y su rol queda fijo', () => {
+    const dueno = empleado({ cuentaId: 'otro', dueno: true, roles: ['SASTRE_ADMIN'] });
+    expect(componente.puedeEditar(dueno)).toBe(false);
+    expect(componente.puedeQuitar(dueno)).toBe(false);
+
+    const yoDueno = empleado({ cuentaId: 'yo', dueno: true, roles: ['SASTRE_ADMIN'] });
+    expect(componente.puedeEditar(yoDueno)).toBe(true);
+    expect(componente.puedeQuitar(yoDueno)).toBe(false);
+    componente.editar(yoDueno);
+    expect(componente.form.controls.rol.disabled).toBe(true);
+
+    // Nadie se quita a sí mismo; a los demás sí.
+    expect(componente.puedeQuitar(empleado({ cuentaId: 'yo' }))).toBe(false);
+    expect(componente.puedeQuitar(empleado({ cuentaId: 'c9' }))).toBe(true);
+  });
+
+  it('quita a alguien del equipo solo tras confirmar', async () => {
+    const emp = empleado({ accesoId: 'acc-7', cuentaId: 'c7' });
+    componente.empleados.set([emp]);
+    const pedir = vi.spyOn(TestBed.inject(Confirmacion), 'pedir').mockResolvedValueOnce(false);
+    await componente.eliminar(emp);
+    expect(service.eliminar).not.toHaveBeenCalled();
+
+    pedir.mockResolvedValueOnce(true);
+    await componente.eliminar(emp);
+    expect(service.eliminar).toHaveBeenCalledWith('acc-7');
+    expect(componente.empleados().length).toBe(0);
   });
 
   it('cancela una invitación pendiente tras confirmar', async () => {

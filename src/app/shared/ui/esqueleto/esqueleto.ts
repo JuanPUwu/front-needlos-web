@@ -26,7 +26,8 @@ export type FormaEsqueleto = 'tabla' | 'lista' | 'campos' | 'bloque' | 'numero';
  * página real), el esqueleto ocupa el alto disponible de su contenedor con todas las filas que
  * quepan, sin pasar de `maximo`; si sobra espacio, agrega una fila más que el borde del
  * contenedor corta, para que el gris llegue hasta abajo como una lista real que sigue (dueño
- * 2026-10-22). Si el contenedor no tiene un alto propio (p. ej. en teléfono, donde la sección
+ * 2026-10-22). Esa fila mide justo lo que sobra (no su alto completo): así el esqueleto nunca
+ * pasa del alto disponible ni crea un scroll momentáneo en la página (dueño 2026-10-23). Si el contenedor no tiene un alto propio (p. ej. en teléfono, donde la sección
  * crece con su contenido), se queda con `filas` y sin fila cortada.
  */
 @Component({
@@ -58,8 +59,8 @@ export class Esqueleto {
 
   /** Filas completas que caben en el alto disponible (null = aún sin medir o sin llenado). */
   private readonly caben = signal<number | null>(null);
-  /** Sobra espacio bajo la última fila completa: se agrega una fila que el borde corta. */
-  private readonly sobra = signal(false);
+  /** Espacio bajo la última fila completa (px): la fila cortada mide eso. 0 = no hay. */
+  private readonly sobra = signal(0);
 
   readonly llena = computed(
     () => this.maximo() !== null && (this.forma() === 'tabla' || this.forma() === 'lista'),
@@ -68,9 +69,17 @@ export class Esqueleto {
   readonly indices = computed(() => {
     const maximo = this.maximo() ?? this.filas();
     const medidas = this.llena() && this.caben() !== null;
-    const n = medidas ? this.caben()! + (this.sobra() ? 1 : 0) : this.filas();
+    const n = medidas ? this.caben()! + (this.sobra() > 0 ? 1 : 0) : this.filas();
     return Array.from({ length: Math.max(1, Math.min(n, maximo)) }, (_, i) => i);
   });
+
+  /** Alto de la fila `i`: la cortada (la que sigue a las que caben completas) mide lo que sobra. */
+  altoDe(i: number): number {
+    const caben = this.caben();
+    return this.llena() && caben !== null && i === caben && this.sobra() > 0
+      ? this.sobra()
+      : this.alto();
+  }
 
   constructor() {
     const destroyRef = inject(DestroyRef);
@@ -101,12 +110,13 @@ export class Esqueleto {
     const disponible = alto - (cabecera ? cabecera.offsetHeight + separacion : 0);
     const paso = this.alto() + separacion;
     const n = Math.max(1, Math.floor((disponible + separacion) / paso));
-    // Lo que queda bajo la última fila completa. Sin alto propio el componente mide lo mismo que
-    // su contenido y aquí da 0: no se agrega fila (si no, crecería sin fin).
-    const restante = disponible - (n * paso - separacion);
+    // Lo que queda bajo la última fila completa, descontando la separación que va antes de la fila
+    // cortada. Sin alto propio el componente mide lo mismo que su contenido y aquí da 0: no se
+    // agrega fila (si no, crecería sin fin).
+    const restante = disponible - n * paso;
     if (n !== this.caben()) {
       this.caben.set(n);
     }
-    this.sobra.set(restante > 1);
+    this.sobra.set(restante > 1 ? Math.floor(restante) : 0);
   }
 }

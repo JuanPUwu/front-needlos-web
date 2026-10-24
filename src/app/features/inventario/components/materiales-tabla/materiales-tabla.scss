@@ -213,9 +213,10 @@
     grid-area: cantidad;
   }
 
+  // La cápsula llega al borde derecho, alineada con el estado (un flex no sigue text-align).
   .mt__celda--abrir {
     grid-area: abrir;
-    text-align: right !important;
+    justify-self: end;
   }
 
   // En tarjeta la celda mide lo que su contenido: la cápsula toma un ancho fijo.

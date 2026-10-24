@@ -4,17 +4,20 @@
     @case ('tabla') {
       <span class="esk__hueso esk__cabecera"></span>
       @for (i of indices(); track i) {
-        <span class="esk__hueso esk__fila-tarjeta" [style.height.px]="alto()"></span>
+        <span class="esk__hueso esk__fila-tarjeta" [style.height.px]="altoDe(i)"></span>
       }
     }
     @case ('lista') {
       @for (i of indices(); track i) {
-        <div class="esk__fila" [style.height.px]="alto()">
-          <div class="esk__textos">
-            <span class="esk__hueso esk__linea esk__linea--titulo"></span>
-            <span class="esk__hueso esk__linea esk__linea--detalle"></span>
+        <!-- La fila cortada recorta su contenido de alto completo (se ve como una fila real). -->
+        <div class="esk__fila" [style.height.px]="altoDe(i)">
+          <div class="esk__fila-contenido" [style.height.px]="alto()">
+            <div class="esk__textos">
+              <span class="esk__hueso esk__linea esk__linea--titulo"></span>
+              <span class="esk__hueso esk__linea esk__linea--detalle"></span>
+            </div>
+            <span class="esk__hueso esk__boton"></span>
           </div>
-          <span class="esk__hueso esk__boton"></span>
         </div>
       }
     }

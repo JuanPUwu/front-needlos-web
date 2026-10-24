@@ -95,8 +95,8 @@ export class Panel {
   /** Sub-pantallas a las que se entra desde Ajustes (el ítem Ajustes queda activo en ellas). */
   private readonly subAjustes: Record<string, string> = {
     '/sastreria': 'Mi sastrería',
-    '/mi-cuenta': 'Mi cuenta',
     '/catalogo': 'Catálogo',
+    '/actividad': 'Actividad',
   };
 
   private readonly ruta = toSignal(

@@ -20,7 +20,7 @@ import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { PermisosService } from '../../../../core/auth/permisos';
 import { mensajeDeError } from '../../../../core/http/api-error';
-import { Confirmacion } from '../../../../core/ui/confirmacion';
+import { Confirmacion, EstadoConColor } from '../../../../core/ui/confirmacion';
 import { Notificaciones } from '../../../../core/ui/notificaciones';
 import { FechaHoraPipe } from '../../../../shared/pipes/fecha-hora.pipe';
 import { FechaPipe } from '../../../../shared/pipes/fecha.pipe';
@@ -50,6 +50,11 @@ import { Vacio } from '../../../../shared/ui/vacio/vacio';
 
 const CON_TEXTO = /\S/;
 const UN_DIA = 24 * 60 * 60 * 1000;
+
+/** Estados de la prenda con su color, para confirmar los cambios. */
+const EN_PROCESO: EstadoConColor = { texto: 'En proceso', tono: 'proceso' };
+const FINALIZADO: EstadoConColor = { texto: 'Finalizado', tono: 'finalizado' };
+const ENTREGADO: EstadoConColor = { texto: 'Entregado', tono: 'entregado' };
 
 /**
  * Detalle de un pedido (se muestra dentro del popup de Pedidos): prendas con su estado e
@@ -178,6 +183,9 @@ export class PedidoDetalle implements OnInit {
   readonly finalizadas = computed(
     () => this.pedido()?.prendas.filter((p) => p.estado === 'FINALIZADO') ?? [],
   );
+  readonly enProceso = computed(
+    () => this.pedido()?.prendas.filter((p) => p.estado === 'EN_PROCESO') ?? [],
+  );
   readonly abonosVigentes = computed(
     () => this.pedido()?.abonos.filter((a) => !a.anulado).length ?? 0,
   );
@@ -246,12 +254,32 @@ export class PedidoDetalle implements OnInit {
 
   // ── Prendas ─────────────────────────────────────────────────
 
-  finalizar(prenda: Prenda): void {
-    this.ejecutar(prenda.id, (p) => this.service.cambiarEstado(p.id, prenda.id, 'FINALIZADO'));
+  /**
+   * Todo cambio de estado se confirma mostrando "actual → nuevo" con sus colores (dueño
+   * 2026-10-23): un clic de más no cambia nada sin querer.
+   */
+  async finalizar(prenda: Prenda): Promise<void> {
+    const ok = await this.confirmacion.pedir({
+      titulo: '¿Pasar la prenda a Finalizado?',
+      mensaje: `${prenda.tipoPrenda} quedará lista para entregar.`,
+      aceptar: 'Sí, finalizar',
+      cambio: { desde: EN_PROCESO, hacia: FINALIZADO },
+    });
+    if (ok) {
+      this.ejecutar(prenda.id, (p) => this.service.cambiarEstado(p.id, prenda.id, 'FINALIZADO'));
+    }
   }
 
-  volverAProceso(prenda: Prenda): void {
-    this.ejecutar(prenda.id, (p) => this.service.cambiarEstado(p.id, prenda.id, 'EN_PROCESO'));
+  async volverAProceso(prenda: Prenda): Promise<void> {
+    const ok = await this.confirmacion.pedir({
+      titulo: '¿Devolver la prenda a En proceso?',
+      mensaje: `${prenda.tipoPrenda} volverá a estar en trabajo.`,
+      aceptar: 'Sí, devolver',
+      cambio: { desde: FINALIZADO, hacia: EN_PROCESO },
+    });
+    if (ok) {
+      this.ejecutar(prenda.id, (p) => this.service.cambiarEstado(p.id, prenda.id, 'EN_PROCESO'));
+    }
   }
 
   /**
@@ -270,6 +298,7 @@ export class PedidoDetalle implements OnInit {
       mensaje: `Una prenda entregada ya no se puede volver a cambiar.${saldo}`,
       aceptar: p.saldo > 0 ? 'Entregar de todos modos' : 'Sí, entregar',
       peligro: p.saldo > 0,
+      cambio: { desde: FINALIZADO, hacia: ENTREGADO },
     });
     if (!ok) {
       return;
@@ -281,6 +310,29 @@ export class PedidoDetalle implements OnInit {
         this.notificaciones.exito(
           `${varias ? `${prendaIds.length} prendas entregadas` : 'Prenda entregada'} del pedido ${p.numero}.`,
         ),
+    );
+  }
+
+  /** Pasa a Finalizado todas las prendas en proceso, con la misma confirmación (dueño 2026-10-23). */
+  async finalizarTodas(): Promise<void> {
+    const p = this.pedido();
+    const ids = this.enProceso().map((pr) => pr.id);
+    if (!p || ids.length === 0) {
+      return;
+    }
+    const ok = await this.confirmacion.pedir({
+      titulo: `¿Pasar las ${ids.length} prendas en proceso a Finalizado?`,
+      mensaje: 'Todas quedarán listas para entregar.',
+      aceptar: 'Sí, finalizar todas',
+      cambio: { desde: EN_PROCESO, hacia: FINALIZADO },
+    });
+    if (!ok) {
+      return;
+    }
+    this.ejecutar(
+      'finalizar-todas',
+      (actual) => this.service.cambiarEstadoVarias(actual.id, ids, 'FINALIZADO'),
+      () => this.notificaciones.exito(`${ids.length} prendas finalizadas del pedido ${p.numero}.`),
     );
   }
 

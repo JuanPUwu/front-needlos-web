@@ -52,4 +52,9 @@ export class EmpleadoService {
   reactivar(accesoId: string): Observable<void> {
     return this.http.patch<void>(`${this.base}/${accesoId}/reactivar`, null);
   }
+
+  /** Quita a la persona del equipo (su historial se conserva; se le puede volver a invitar). */
+  eliminar(accesoId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${accesoId}`);
+  }
 }

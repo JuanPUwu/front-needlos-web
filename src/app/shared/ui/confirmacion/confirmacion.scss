@@ -71,6 +71,49 @@
   text-align: center;
 }
 
+.conf__cambio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+// Chip del estado en su color, como en Pedidos.
+.conf__estado {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  background: var(--tono-bg);
+  color: var(--tono);
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  &[data-tono='proceso'] {
+    --tono: var(--estado-proceso);
+    --tono-bg: var(--estado-proceso-bg);
+  }
+
+  &[data-tono='finalizado'] {
+    --tono: var(--estado-finalizado);
+    --tono-bg: var(--estado-finalizado-bg);
+  }
+
+  &[data-tono='entregado'] {
+    --tono: var(--estado-entregado);
+    --tono-bg: var(--estado-entregado-bg);
+  }
+
+  &[data-tono='anulado'] {
+    --tono: var(--estado-anulado);
+    --tono-bg: var(--estado-anulado-bg);
+  }
+}
+
+.conf__flecha {
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
 .conf__acciones {
   display: flex;
   justify-content: center;
